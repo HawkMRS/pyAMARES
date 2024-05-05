@@ -5,7 +5,7 @@
    :width: 400
 
 What is pyAMARES?
-================
+=================
 
 PyAMARES package to provide the MRS community with open-source, easy-to-use MRS fitting method in Python.  
 It imports prior knowledge from Excel or CSV spreadsheets as initial values and constraints for fitting MRS data according to the AMARES model function. 
