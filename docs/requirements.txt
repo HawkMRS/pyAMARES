@@ -1,0 +1,6 @@
+sphinx
+nbsphinx
+sphinx-tabs
+sphinx-rtd-theme
+Pygments
+ipywidgets

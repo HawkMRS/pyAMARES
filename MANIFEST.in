@@ -1,0 +1,4 @@
+include *.txt  *.rst *.svg *.csv *.xlsx *.png
+recursive-include pyAMARES/examples *
+prune .vscode
+prune pyAMARES/docs/build

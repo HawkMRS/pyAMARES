@@ -1,0 +1,12 @@
+hlsvdpro==2.0.0
+matplotlib
+nmrglue
+numpy
+pandas
+scipy
+setuptools
+sympy
+lmfit
+mat73
+tqdm
+notebook
