@@ -5,14 +5,13 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-import pyAMARES
 
 project = "pyAMARES"
 copyright = (
     " 2023-2024, Jia Xu, Magnetic Resonance Research Facility, University of Iowa "
 )
-author = pyAMARES.__author__
-release = pyAMARES.__version__
+author = "Jia Xu, MR Research Facility, University of Iowa"
+release = "0.3.0" # Make sure to be identical to pyAMARES.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
