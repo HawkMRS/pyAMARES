@@ -28,11 +28,6 @@ Requirements:
 .. note::
    PyAMARES requires Python 3.6 or newer. We recommend using Python 3.8 or newer. If you are using an older version of Python, you will need to upgrade to use pyAMARES.
 
-.. image:: https://img.shields.io/badge/Python->%3D3.6%2C%203.8+-blue.svg
-   :target: https://python.org
-   :alt: Python Version
-
-
 Installation
 ------------
 ![Python Version](https://img.shields.io/badge/Python->%3D3.6%2C%203.8+-blue.svg)
