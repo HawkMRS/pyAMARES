@@ -30,7 +30,6 @@ Requirements:
 
 Installation
 ------------
-![Python Version](https://img.shields.io/badge/Python->%3D3.6%2C%203.8+-blue.svg)
 
 .. code-block:: bash
 
