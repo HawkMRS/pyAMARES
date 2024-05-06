@@ -1,4 +1,4 @@
-Getting Started - A simple example
+Getting Started - A Simple Example
 ==================================
 
 .. note:: 

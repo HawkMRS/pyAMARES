@@ -12,13 +12,13 @@ Third-Party Licenses
 
 This pyAMARES project uses third-party libraries. Below is information about their licenses.
 
-lmfit
+LMFIT
 ^^^^^
-The library ``lmfit`` is used in the pyAMARES project to provide flexible and robust fitting capabilities. It is licensed under the BSD-3-Clause License. For more detailed license information, please visit the `lmfit page <https://lmfit.github.io/lmfit-py/installation.html#copyright-licensing-and-re-distribution>`_.
+The `LMFIT <https://lmfit.github.io/lmfit-py/index.html>`_ package is used in the pyAMARES project to provide flexible and robust fitting capabilities. It is licensed under the BSD-3-Clause License. For more detailed license information, please visit the `lmfit page <https://lmfit.github.io/lmfit-py/installation.html#copyright-licensing-and-re-distribution>`_.
 
-hlsvdpro
+HLSVDPRO
 ^^^^^^^^
-The library `hlsvdpro` is used under its BSD-3-Clause License. For detailed license information, please visit the `hlsvdpro PyPI page <https://pypi.org/project/hlsvdpro/>`_.
+The `HLSVDPRO <https://pypi.org/project/hlsvdpro/>`_ package is used under its BSD-3-Clause License. For detailed license information, please visit the `hlsvdpro PyPI page <https://pypi.org/project/hlsvdpro/>`_.
 
 Additional Note on ``MPFIR`` Function
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
