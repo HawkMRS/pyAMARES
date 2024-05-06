@@ -9,7 +9,7 @@ The full documentation for pyAMARES can be found at `pyAMARES Documentation <htt
 What is pyAMARES?
 =================
 
-The PyAMARES package provides the MRS community with an open-source, easy-to-use MRS fitting method in Python. 
+The pyAMARES package provides the MRS community with an open-source, easy-to-use MRS fitting method in Python. 
 It imports prior knowledge from Excel or CSV spreadsheets as initial values and constraints for fitting MRS data 
 according to the AMARES model function.
 
@@ -18,8 +18,25 @@ according to the AMARES model function.
 Getting Started
 ===============
 
+Requirements:
+-------------
+
+.. image:: https://img.shields.io/badge/Python->%3D3.6%2C%203.8+-blue.svg
+   :target: https://python.org
+   :alt: Python Version
+
+.. note::
+   PyAMARES requires Python 3.6 or newer. We recommend using Python 3.8 or newer. If you are using an older version of Python, you will need to upgrade to use pyAMARES.
+
+.. image:: https://img.shields.io/badge/Python->%3D3.6%2C%203.8+-blue.svg
+   :target: https://python.org
+   :alt: Python Version
+
+
 Installation
 ------------
+![Python Version](https://img.shields.io/badge/Python->%3D3.6%2C%203.8+-blue.svg)
+
 .. code-block:: bash
 
    pip install pyAMARES
