@@ -35,6 +35,8 @@ Installation
 
    pip install pyAMARES
 
+See the `Installation Guide <https://pyamares.readthedocs.io/en/latest/install.html>`_ for detailed information about installation.
+
 Run pyAMARES as standard-alone script
 -------------------------------------
 
