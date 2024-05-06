@@ -18,8 +18,8 @@ according to the AMARES model function.
 Getting Started
 ===============
 
-Requirements:
--------------
+Requirements
+------------
 
 .. image:: https://img.shields.io/badge/Python->%3D3.6%2C%203.8+-blue.svg
    :target: https://python.org
@@ -81,8 +81,9 @@ Run pyAMARES in a Jupyter Notebook
    
    # Save the data
    out2.styled_df.to_html('simple_example.html') # Save highlighted table to an HTML page
+                                                 # Python 3.6 does not support to_html. 
    out2.result_sum.to_csv('simple_example.csv') # Save table to CSV spreadsheet
-   out2.plotParameters.lb = 2.0 # Line Braodening
+   out2.plotParameters.lb = 2.0 # Line Broadening factor for visualization
    out2.plotParameters.ifphase = True # Phase the spectrum for visualization
    pyAMARES.plotAMARES(fid_parameters=out1, filename='simple_example.svg') # Save plot to SVG 
 
