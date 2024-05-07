@@ -15,6 +15,10 @@ Run pyAMARES
 
          Run pyAMARES in a Jupyter Notebook:
 
+
+         **Try Jupyter Notebook on Google Colab** `here <https://colab.research.google.com/drive/184_7MJ6O1BgGYyqNvnXXqtri4_0N4ySw?usp=sharing>`_
+
+
          .. code-block:: python
 
             import pyAMARES
@@ -171,6 +175,9 @@ Run pyAMARES
 
    Run pyAMARES in a Jupyter Notebook
    ----------------------------------
+
+   **Try Jupyter Notebook on Google Colab** `here <https://colab.research.google.com/drive/184_7MJ6O1BgGYyqNvnXXqtri4_0N4ySw?usp=sharing>`_
+
 
    .. code-block:: python
 
