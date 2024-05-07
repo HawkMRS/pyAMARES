@@ -73,7 +73,7 @@ Run pyAMARES
          .. code-block:: none
 
             $ amaresFit -h
-            Current pyAMARES version is 0.2.100
+            Current pyAMARES version is 0.3.0
             Author: Jia Xu, MR Research Facility, University of Iowa
             usage: amaresFit [-h] -f fid file name [-p Prior Knowledge Spreadsheet] [-o output prefix] [--MHz B0] [--sw Hz] [--deadtime seconds]
                            [--normalize_fid] [--flip_axis] [--ifphase] [--lb float] [--preview] [--carrier ppm]

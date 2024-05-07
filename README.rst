@@ -35,7 +35,7 @@ Installation
 
    pip install pyAMARES
 
-See the `Installation Guide <https://pyamares.readthedocs.io/en/latest/install.html>`_ for detailed information about installation.
+See the `Installation Guide <https://pyamares.readthedocs.io/en/latest/install.html>`_ for detailed information.
 
 Run pyAMARES as standard-alone script
 -------------------------------------
@@ -89,8 +89,8 @@ Run pyAMARES in a Jupyter Notebook
    out2.plotParameters.ifphase = True # Phase the spectrum for visualization
    pyAMARES.plotAMARES(fid_parameters=out1, filename='simple_example.svg') # Save plot to SVG 
 
-Fitting Result
---------------
+Fitting Result for Example 31P MRS data
+------------------------------------------
 
 .. image:: pyAMARES/examples/simple_example.svg
    :width: 400
