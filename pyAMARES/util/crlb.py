@@ -110,7 +110,23 @@ def evaluateCRB(outparams, opts, P=None, Jacfunc=Jac6, verbose=False):
     """
     opts.D = Jacfunc(outparams, opts.timeaxis)
     opts.residual = uninterleave(multieq6(outparams, opts.timeaxis)) - opts.fid
-    opts.variance = np.var(opts.residual.real)
+    if opts.noise_var.startswith("OXSA"):
+        print("Estimated CRLBs are calculated using the default noise variance estimation used by OXSA.")
+        opts.variance = np.var(
+            opts.residual.real
+        )  # OXSA style, the "noise as SD in TD from TD residue" option selected in the Result Window of jMRUI V7. 
+    elif opts.noise_var.lower().startswith("jmrui"):
+        print("Estimated CRLBs are calculated using the default noise variance estimation used by jMRUI.")
+        opts.variance = np.var(
+            opts.fid[-len(opts.fid)//10 :].real
+        )  # jMRUI style, "noise as SD in TD from TD FID tall option selected in the Result Window of jMRUI V7" (I hard-coded last 10% points)
+    else:
+        try:
+            opts.variance = float(opts.noise_var)
+            print("The CRLB estimation will be divided by the input variance %s" % opts.variance)
+        except ValueError:
+            print("Error: noise_var %s is not a recognized string or a valid number." % opts.variance)
+
     if verbose:
         print("opts.D.shape=%s" % str(opts.D.shape))
         plt.plot(opts.residual.real)

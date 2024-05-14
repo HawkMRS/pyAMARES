@@ -377,6 +377,7 @@ def initialize_FID(
     carrier=0.0,
     lb=2.0,
     ppm_offset=0,
+    noise_var='OXSA',
 ):
     """
     Initialize fitting parameters from prior knowledge (`priorknowledgefile`) or HSVD initialized result if there is
@@ -398,6 +399,11 @@ def initialize_FID(
         the g values specified in the prior knowledge will be used.
         carrier (float, optional): The carrier frequency in ppm, often used for water (4.7 ppm) or other reference metabolite such as Phosphocreatine (0 ppm).
         ppm_offset (float, optional): Adjust the ppm in priorknowledgefile. Default 0 ppm
+        noise_var (str or float): Method or value used to estimate the noise variance in the data. Options include:
+            - 'OXSA': Uses the default noise variance estimation method employed by OXSA. See `evaluateCRB` for details. 
+            - 'jMRUI': Employs the default noise variance estimation method used by jMRUI. 
+            - A float value: Directly specifies the noise variance calculated externally.
+
     Returns:
         argparse.Namespace: An object containing FID fitting parameters.
     """
@@ -437,7 +443,12 @@ def initialize_FID(
     opts.timeaxis = np.arange(0, dwelltime * fidpt, dwelltime) + deadtime
     # opts.timeaxis = np.linspace(deadtime, at, fidpt)
     opts.carrier = carrier  # 4.7 for water, 0 for PCr
+    if carrier != 0:
+        print("Shift FID so that center frequency is at %s ppm!" % carrier)
+        fid = fid * np.exp(1j * 2 * np.pi * carrier * MHz * opts.timeaxis)
 
+        # ppm = ppm + carrier
+        # Hz = Hz + carrier / np.abs(MHz)
     # xlim is always ppm
     if xlim is None:
         opts.xlim = np.array((sw / 2, -sw / 2)) / np.abs(MHz)  # xlim should be Hz
@@ -460,6 +471,7 @@ def initialize_FID(
     opts.deadpts = int(deadtime // dwelltime)
     opts.g_global = g_global  # for HSVD initialization
     opts.ppm_offset = ppm_offset
+    opts.noise_var = noise_var
 
     plotParameters = argparse.Namespace()
     plotParameters.deadtime = deadtime
