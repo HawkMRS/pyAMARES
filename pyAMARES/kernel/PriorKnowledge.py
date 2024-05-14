@@ -324,7 +324,7 @@ def generateparameter(
             name = para + "_" + peak
             if para == "freq":
                 pass
-            if para == "dk":
+            if para == "dk" and (lval != uval):
                 lval = 0
             if para == "g":
                 if g_global is False:
@@ -336,9 +336,16 @@ def generateparameter(
                 pass
             # Add parameter to lmfit Parameters object
             try:
-                allpara.add(
-                    name=name, value=val, min=lval, max=uval, vary=vary, expr=expr
-                )
+                if lval == uval:
+                    # When lval == uval, set the val to lval and fix it
+                    allpara.add(
+                        name=name, value=lval, vary=False,
+                    )
+                else:
+                    allpara.add(
+                        name=name, value=val, min=lval, max=uval, vary=vary, expr=expr
+                    )
+                    
             except NameError as e:
                 e2 = (
                     "This error may be caused by the expr {} being constrained "

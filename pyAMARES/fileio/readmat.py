@@ -96,7 +96,7 @@ def read_nifti(filename):
     fid = data.squeeze() # Assume SVS
     hdr_ext_codes = img.header.extensions.get_codes()
     mrs_hdr_ext = json.loads(img.header.extensions[hdr_ext_codes.index(44)].get_content())
-    MHz = mrs_hdr_ext['SpectrometerFrequency'][0]
+    MHz = mrs_hdr_ext['SpectrometerFrequency'][0] * 1e-6 # MHz
     sw = mrs_hdr_ext['SpectralWidth']
     dwelltime = 1 / sw
     header = argparse.Namespace()
