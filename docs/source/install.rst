@@ -106,3 +106,17 @@ __________________
          import pyAMARES
 
       You can then start using pyAMARES online or proceed to the "Getting Started" section.
+
+   .. tab:: Install Dev Version Directly from GitHub
+
+      .. note::
+         Please note that the development version might be unstable, so it is primarily for testing and development purposes.
+
+      If you want to install the latest development version of ``pyAMARES`` directly from GitHub, use the following command:
+
+      .. code-block:: bash
+
+         conda activate env_name
+         python -m pip install git+https://github.com/HawkMRS/pyAMARES.git@dev#egg=pyAMARES
+
+      This command tells ``pip`` to install the package directly from the ``dev`` branch of the Github repository. 

@@ -395,13 +395,14 @@ def initialize_FID(
         xlim (tuple): The x-axis limits for the preview plot in ppm.
         truncate_initial_points (int): Truncate initial points from FID to remove fast decaying components (e.g. macromolecule).
                                        This usually makes baseline more flat.
-        g_global (float, optional): Global value for the 'g' parameter. Defaults to 0.0. If set to False,
+        g_global (float, optional): Global value for the ``g`` parameter. Defaults to 0.0. If set to False,
         the g values specified in the prior knowledge will be used.
         carrier (float, optional): The carrier frequency in ppm, often used for water (4.7 ppm) or other reference metabolite such as Phosphocreatine (0 ppm).
         ppm_offset (float, optional): Adjust the ppm in priorknowledgefile. Default 0 ppm
         noise_var (str or float): Method or value used to estimate the noise variance in the data. Options include:
-            - 'OXSA': Uses the default noise variance estimation method employed by OXSA. See `evaluateCRB` for details. 
-            - 'jMRUI': Employs the default noise variance estimation method used by jMRUI. 
+
+            - ``OXSA``: Uses the default noise variance estimation method employed by OXSA. See ``pyAMARES.util.crlb.evaluateCRB`` for details. 
+            - ``jMRUI``: Employs the default noise variance estimation method used by jMRUI. 
             - A float value: Directly specifies the noise variance calculated externally.
 
     Returns:

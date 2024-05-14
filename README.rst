@@ -1,7 +1,7 @@
 **pyAMARES**, an Open-Source Python Library for Fitting Magnetic Resonance Spectroscopy Data
 ********************************************************************************************
 
-.. image:: pyAMARES_logo.svg
+.. image:: https://raw.githubusercontent.com/HawkMRS/pyAMARES/main/pyAMARES_logo.svg
    :width: 400
 
 The full documentation for pyAMARES can be found at `pyAMARES Documentation <https://pyamares.readthedocs.io/en/latest/index.html>`_.
@@ -92,10 +92,10 @@ Run pyAMARES in a Jupyter Notebook
 Fitting Result for Example 31P MRS data
 ------------------------------------------
 
-.. image:: pyAMARES/examples/simple_example.svg
+.. image:: https://raw.githubusercontent.com/HawkMRS/pyAMARES/main/pyAMARES/examples/simple_example.svg
    :width: 400
 
-.. image:: pyAMARES/examples/simple_example_html.jpeg
+.. image:: https://github.com/HawkMRS/pyAMARES/blob/4f9ca4431c0d72e1b41fb2b434f72e53feb1657f/pyAMARES/examples/simple_example_html.jpeg
    :width: 400
 
 How to cite

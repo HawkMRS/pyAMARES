@@ -27,6 +27,7 @@
    reference
    license
    citation 
+   changelog
    About Us <https://medicine.uiowa.edu/mri/current-research-projects-mrrf> 
 
 
