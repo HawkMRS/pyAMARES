@@ -4,4 +4,3 @@ sphinx-tabs
 sphinx-rtd-theme
 Pygments
 ipywidgets
-pyAMARES

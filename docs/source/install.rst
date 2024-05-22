@@ -120,3 +120,20 @@ __________________
          python -m pip install git+https://github.com/HawkMRS/pyAMARES.git@dev#egg=pyAMARES
 
       This command tells ``pip`` to install the package directly from the ``dev`` branch of the Github repository. 
+
+Update Installed pyAMARES
+_________________________
+
+PyAMARES is under active development. You can update the installed version of pyAMARES using the following command:
+
+.. code-block:: bash
+
+   pip install --upgrade pyAMARES
+
+Alternatively, you can install the development version directly from GitHub as previously mentioned:
+
+.. code-block:: bash
+
+   python -m pip install git+https://github.com/HawkMRS/pyAMARES.git@dev#egg=pyAMARES
+
+Please refer to the installation details in the `Install Dev Version Directly from GitHub` section above.

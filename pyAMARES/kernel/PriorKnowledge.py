@@ -324,7 +324,7 @@ def generateparameter(
             name = para + "_" + peak
             if para == "freq":
                 pass
-            if para == "dk":
+            if para == "dk" and (lval != uval):
                 lval = 0
             if para == "g":
                 if g_global is False:
@@ -336,9 +336,16 @@ def generateparameter(
                 pass
             # Add parameter to lmfit Parameters object
             try:
-                allpara.add(
-                    name=name, value=val, min=lval, max=uval, vary=vary, expr=expr
-                )
+                if lval == uval:
+                    # When lval == uval, set the val to lval and fix it
+                    allpara.add(
+                        name=name, value=lval, vary=False,
+                    )
+                else:
+                    allpara.add(
+                        name=name, value=val, min=lval, max=uval, vary=vary, expr=expr
+                    )
+                    
             except NameError as e:
                 e2 = (
                     "This error may be caused by the expr {} being constrained "
@@ -370,6 +377,7 @@ def initialize_FID(
     carrier=0.0,
     lb=2.0,
     ppm_offset=0,
+    noise_var='OXSA',
 ):
     """
     Initialize fitting parameters from prior knowledge (`priorknowledgefile`) or HSVD initialized result if there is
@@ -387,10 +395,16 @@ def initialize_FID(
         xlim (tuple): The x-axis limits for the preview plot in ppm.
         truncate_initial_points (int): Truncate initial points from FID to remove fast decaying components (e.g. macromolecule).
                                        This usually makes baseline more flat.
-        g_global (float, optional): Global value for the 'g' parameter. Defaults to 0.0. If set to False,
+        g_global (float, optional): Global value for the ``g`` parameter. Defaults to 0.0. If set to False,
         the g values specified in the prior knowledge will be used.
         carrier (float, optional): The carrier frequency in ppm, often used for water (4.7 ppm) or other reference metabolite such as Phosphocreatine (0 ppm).
         ppm_offset (float, optional): Adjust the ppm in priorknowledgefile. Default 0 ppm
+        noise_var (str or float): Method or value used to estimate the noise variance in the data. Options include:
+
+            - ``OXSA``: Uses the default noise variance estimation method employed by OXSA. See ``pyAMARES.util.crlb.evaluateCRB`` for details. 
+            - ``jMRUI``: Employs the default noise variance estimation method used by jMRUI. 
+            - A float value: Directly specifies the noise variance calculated externally.
+
     Returns:
         argparse.Namespace: An object containing FID fitting parameters.
     """
@@ -430,7 +444,14 @@ def initialize_FID(
     opts.timeaxis = np.arange(0, dwelltime * fidpt, dwelltime) + deadtime
     # opts.timeaxis = np.linspace(deadtime, at, fidpt)
     opts.carrier = carrier  # 4.7 for water, 0 for PCr
-
+    if flip_axis:
+        # This must be done before the shifting FID for carrier. 
+        fid = np.conj(fid)
+    if carrier != 0:
+        print("Shift FID so that center frequency is at %s ppm!" % carrier)
+        fid = fid * np.exp(1j * 2 * np.pi * carrier * MHz * opts.timeaxis)
+        # ppm = ppm + carrier
+        # Hz = Hz + carrier / np.abs(MHz)
     # xlim is always ppm
     if xlim is None:
         opts.xlim = np.array((sw / 2, -sw / 2)) / np.abs(MHz)  # xlim should be Hz
@@ -442,8 +463,6 @@ def initialize_FID(
         opts.fid = fid / np.max(fid)
     else:
         opts.fid = fid.copy()
-    if flip_axis:
-        opts.fid = np.conj(opts.fid)
     opts.spec = np.fft.fftshift(np.fft.fft(opts.fid))
 
     opts.MHz = MHz
@@ -453,6 +472,7 @@ def initialize_FID(
     opts.deadpts = int(deadtime // dwelltime)
     opts.g_global = g_global  # for HSVD initialization
     opts.ppm_offset = ppm_offset
+    opts.noise_var = noise_var
 
     plotParameters = argparse.Namespace()
     plotParameters.deadtime = deadtime
