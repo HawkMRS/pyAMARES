@@ -62,6 +62,31 @@ Read ASCII Data
         :width: 300
         :alt: The real part of the FID
 
+Read GE MNS Research Pack fidall Data
+-------------------------------------
+
+- The GE MNS Research Pack `fidall` files (``rhrecon=2600, 2700, 2701, 2702``) reconstructed MAT-files can 
+  be read using ``pyAMARES.read_fidall(filename)``: 
+
+    .. code-block:: python
+        :emphasize-lines: 2
+
+        import pyAMARES
+        header, fid = pyAMARES.read_fidall('20210608_170823_P34816.mat')
+        print(f"{header.MHz=}")
+        print(f"{header.sw=}")
+        print(f"{header.deadtime=}")
+        print(f"{fid.shape=} {fid.dtype=}")
+
+    | Output: 
+    | header.MHz=51.720748
+    | header.sw=5000.0
+    | header.deadtime=0.000887
+    | fid.shape=(720, 256) fid.dtype=dtype('complex128')
+
+    Although ``fid`` can be a 2D array (e.g., MRSI), note that ``pyAMARES.initialize_FID`` only supports 1D data. 
+    MRSI data can be processed either by looping through each FID or using the ``pyAMARES.run_parallel_fitting_with_progress`` API. 
+
 Read NifTI-MRS Data
 -------------------
 

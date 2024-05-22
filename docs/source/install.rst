@@ -2,6 +2,14 @@
 Installation Guide
 ==================
 
+.. image:: https://img.shields.io/badge/Python->%3D3.6%2C%203.8+-blue.svg
+   :target: https://python.org
+   :alt: Python Version
+
+.. note::
+   PyAMARES requires Python 3.6 or newer. We recommend using Python 3.8 or newer. If you are using an older version of Python, you will need to upgrade to use pyAMARES.
+
+
 PIP installation
 __________________
 .. tabs:: 
@@ -98,3 +106,34 @@ __________________
          import pyAMARES
 
       You can then start using pyAMARES online or proceed to the "Getting Started" section.
+
+   .. tab:: Install Dev Version Directly from GitHub
+
+      .. note::
+         Please note that the development version might be unstable, so it is primarily for testing and development purposes.
+
+      If you want to install the latest development version of ``pyAMARES`` directly from GitHub, use the following command:
+
+      .. code-block:: bash
+
+         conda activate env_name
+         python -m pip install git+https://github.com/HawkMRS/pyAMARES.git@dev#egg=pyAMARES
+
+      This command tells ``pip`` to install the package directly from the ``dev`` branch of the Github repository. 
+
+Update Installed pyAMARES
+_________________________
+
+PyAMARES is under active development. You can update the installed version of pyAMARES using the following command:
+
+.. code-block:: bash
+
+   pip install --upgrade pyAMARES
+
+Alternatively, you can install the development version directly from GitHub as previously mentioned:
+
+.. code-block:: bash
+
+   python -m pip install git+https://github.com/HawkMRS/pyAMARES.git@dev#egg=pyAMARES
+
+Please refer to the installation details in the `Install Dev Version Directly from GitHub` section above.

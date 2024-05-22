@@ -13,6 +13,7 @@ copyright = (
 )
 author = pyAMARES.__author__
 release = pyAMARES.__version__
+print(author, release)
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -1,9 +1,19 @@
 This document describes all notable changes to pyAMARES.
+v0.3.8 
+------
+**Added** 
+- Add a ``read_fidall`` function to read GE MNS Research Pack **fidall** generated MAT-files. 
+
+v0.3.7
+------
+**Fixed** 
+- Instead of try .. catch, use ``def is_mat_file_v7_3(filename)`` to identify if a ifle is V-7.3 
+
 v0.3.6
 ------
 
 **Added**
-  - The ``readmrs`` function now supports any MAT-files containing either an ``fid`` or ``data`` variable. This enhancement makes it compatible with GE fidall reconstructed MAT-files as well as Matlab formats written by jMRUI.
+- The ``readmrs`` function now supports any MAT-files containing either an ``fid`` or ``data`` variable. This enhancement makes it compatible with GE fidall reconstructed MAT-files as well as Matlab formats written by jMRUI.
 
 v0.3.5
 ------
