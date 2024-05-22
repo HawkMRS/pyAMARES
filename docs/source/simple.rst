@@ -190,10 +190,10 @@ Run pyAMARES
       sw = 10000  # spectrum width in Hz
       deadtime = 300e-6  # 300 us begin time for the FID signal acquisition
 
-      fid = pyAMARES.readmrs('./docs/source/notebooks/attachment/fid.txt')
+      fid = pyAMARES.readmrs('./pyAMARES/examples/fid.txt')
       # Load Prior Knowledge
       FIDobj = pyAMARES.initialize_FID(fid=fid, 
-                                       priorknowledge='./docs/source/notebooks/attachment/example_human_brain_31P_7T.csv',
+                                       priorknowledge='./pyAMARES/examples/example_human_brain_31P_7T.csv',
                                        MHz=MHz, 
                                        sw=sw,
                                        deadtime=deadtime, 
@@ -276,7 +276,8 @@ Spreadsheet Format
 
    - Comments can be added to the prior knowledge spreadsheet (CSV or XLSX) with lines trailing ``#``.
 
-   - In the spreadsheet in CSV format, comments **cannot** be added to the first rows.
+   - In the spreadsheet in CSV format, comments **cannot** be added to the first rows. 
+     However, this limitation does not apply to spreadsheets in Excel xlsx format.
 
 
 .. note::
