@@ -12,6 +12,7 @@ Installation Guide
 
 PIP installation
 __________________
+
 .. tabs:: 
    .. tab:: Prepare Python Environment
 
@@ -120,6 +121,7 @@ __________________
          python -m pip install git+https://github.com/HawkMRS/pyAMARES.git@dev#egg=pyAMARES
 
       This command tells ``pip`` to install the package directly from the ``dev`` branch of the Github repository. 
+
 
 Update Installed pyAMARES
 _________________________
