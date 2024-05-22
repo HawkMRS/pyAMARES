@@ -15,8 +15,10 @@ Tutorials and Examples
 .. toctree::
    :maxdepth: 2 
 
+   fileio
    notebooks/priorknowledge
    notebooks/simple_tutorial
    notebooks/HSVDinitializer_unknowncompounds
    notebooks/demo_batch
+   notebooks/Remove_Metabolite_residuals
 

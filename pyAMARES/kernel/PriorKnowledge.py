@@ -444,10 +444,12 @@ def initialize_FID(
     opts.timeaxis = np.arange(0, dwelltime * fidpt, dwelltime) + deadtime
     # opts.timeaxis = np.linspace(deadtime, at, fidpt)
     opts.carrier = carrier  # 4.7 for water, 0 for PCr
+    if flip_axis:
+        # This must be done before the shifting FID for carrier. 
+        fid = np.conj(fid)
     if carrier != 0:
         print("Shift FID so that center frequency is at %s ppm!" % carrier)
         fid = fid * np.exp(1j * 2 * np.pi * carrier * MHz * opts.timeaxis)
-
         # ppm = ppm + carrier
         # Hz = Hz + carrier / np.abs(MHz)
     # xlim is always ppm
@@ -461,8 +463,6 @@ def initialize_FID(
         opts.fid = fid / np.max(fid)
     else:
         opts.fid = fid.copy()
-    if flip_axis:
-        opts.fid = np.conj(opts.fid)
     opts.spec = np.fft.fftshift(np.fft.fft(opts.fid))
 
     opts.MHz = MHz

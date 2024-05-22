@@ -7,8 +7,7 @@
 ============================================================================================
 
 .. note::
-   pyAMARES is currently in its early stages of development and is actively being improved. We welcome any suggestions or reports of issues you may encounter. 
-   Feel free to contact us with your feedback on `GitHub <https://github.com/HawkMRS/pyAMARES>`_ or at ``jia-xu-1@uiowa.edu``.
+   pyAMARES is currently in its early stages of development and is actively being improved. We welcome any suggestions or reports of issues you may encounter. Feel free to contact us with your feedback on GitHub or at ``jia-xu-1@uiowa.edu``.
 
 .. image:: images/pyAMARES_logo.svg
    :width: 400
@@ -27,7 +26,6 @@
    reference
    license
    citation 
-   changelog
    About Us <https://medicine.uiowa.edu/mri/current-research-projects-mrrf> 
 
 
