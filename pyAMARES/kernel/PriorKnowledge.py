@@ -16,8 +16,8 @@ def evaluate_expression_with_units(expr, row, MHz):
     with consideration for data in a given row and a specified MHz value for conversion.
 
     Args:
-        expr (str): The expression to be evaluated, which may contain numeric values with 'Hz' or 'ppm' units.
-        row (pandas.Series): A Series or similar structure containing data referenced in `expr`.
+        expr (str): The expression to be evaluated, which may contain numeric values with ``Hz`` or ``ppm`` units.
+        row (pandas.Series): A Series or similar structure containing data referenced in ``expr``.
         MHz (float, optional): Field strength in MHz. Defaults to 120.0.
 
     Returns:
