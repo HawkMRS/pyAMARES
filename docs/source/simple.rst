@@ -275,7 +275,7 @@ Spreadsheet Format
 
 - **Comments**
 
-   - Comments can be added to the prior knowledge spreadsheet (CSV or XLSX) with lines trailing ``#``.
+   - Comments can be added to the prior knowledge spreadsheet (CSV or XLSX) by starting lines with ``#``.
 
    - In the spreadsheet in CSV format, comments **cannot** be added to the first rows. 
      However, this limitation does not apply to spreadsheets in Excel xlsx format.
