@@ -248,6 +248,7 @@ Spreadsheet Format
 - **Setup Constraints**:
    - Constraints are set using brackets. For example, ``(-180, 180)`` indicates a range from -180 to 180.
    - If only a lower bound is needed, omit the second half of the bracket. For example, ``(0,`` specifies a range of 0 and above.
+   - (New after version 0.3.4) If only a single value is specified in a constraint cell, the corresponding parameter is fixed and will not be fitted.
 
 - **Physical Units**:
     - In the spreadsheet, the values for ``amplitude`` and ``g`` are unitless. ``chemicalshift`` is measured in ppm, ``linewidth`` in Hz, and ``phase`` in degrees.
