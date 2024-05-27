@@ -12,7 +12,7 @@ from .fid import fft_params
 
 def evaluate_expression_with_units(expr, row, MHz):
     """
-    Evaluate an expression containing numeric values with 'Hz' or 'ppm' units,
+    Evaluate an expression containing numeric values with ``Hz`` or ``ppm`` units,
     with consideration for data in a given row and a specified MHz value for conversion.
 
     Args:
