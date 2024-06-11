@@ -49,11 +49,11 @@ def readmrs(filename):
     elif filename.endswith("mat"):
         if is_mat_file_v7_3(filename):
             print(
-                "Try to load Matlab V7.3 mat file with the var saved as `fid` or `data`"
+                "Try to load Matlab V7.3 mat file with the var saved as fid or data"
             )
             matdic = mat73.loadmat(filename)
         else:
-            print("Try to load Matlab mat file with the var saved as `fid` or `data`")
+            print("Try to load Matlab mat file with the var saved as fid or data")
             matdic = io.loadmat(filename)
         if "fid" in matdic.keys() and "data" in matdic.keys():
             data = matdic["fid"].squeeze().astype("complex")

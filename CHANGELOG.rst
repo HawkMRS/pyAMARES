@@ -1,4 +1,5 @@
 This document describes all notable changes to pyAMARES.
+
 v0.3.9
 ------
 **Added**
