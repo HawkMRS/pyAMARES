@@ -275,9 +275,8 @@ def generateparameter(
         fname (str): Path to the Excel or CSV file containing prior knowledge
         MHz (float, optional): Field strength in MHz, used for unit conversions. Defaults to 120.0.
         g_global (float, optional): Global value for the ``g`` parameter. Defaults to 0.0. If set to False,
-        the g values specified in the prior knowledge will be used.
-        parameter_prefix (list of str, optional): List of parameter prefixes 
-        (e.g., ``ak``, ``freq``, ``dk``, ``phi``, ``g``). Defaults to ``['ak', 'freq', 'dk', 'phi', 'g']``.
+          the g values specified in the prior knowledge will be used.
+        parameter_prefix (list of str, optional): List of parameter prefixes (e.g., ak, freq, dk, phi, g). Defaults to ['ak', 'freq', 'dk', 'phi', 'g'].
 
     Returns:
         lmfit.Parameters: Parameters object with initialized parameters for modeling.

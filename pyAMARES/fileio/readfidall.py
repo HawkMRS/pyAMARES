@@ -82,7 +82,7 @@ def header2par_v73(h):
 
 def read_fidall(filename):
     """
-    Loads MRS data and associated header information from the GE MNS Research Pack `fidall` generated MATLAB .mat file, handling both 
+    Loads MRS data and associated header information from the GE MNS Research Pack ``fidall`` generated MATLAB .mat file, handling both 
     v7.3 and earlier versions of MATLAB files.
 
     This function detects the version of the MATLAB file and uses appropriate methods to load the data. 

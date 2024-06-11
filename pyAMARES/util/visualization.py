@@ -38,7 +38,7 @@ def preview_HSVD(ax, hsvdarr, ppm, p_pd, xlim=None, title="", xlabel=None):
         ppm (numpy.ndarray): Array of chemical shift values (ppm).
         p_pd (pandas.DataFrame): DataFrame containing peak information.
         xlim (tuple, optional): Lower and upper limits for the x-axis. Defaults to None.
-        title (str, optional): Title for the plot. Defaults to ''.
+        title (str, optional): Title for the plot. Defaults to ``""``.
         xlabel (str, optional): Label for the x-axis. Defaults to None.
     """
     hsvdspec = ng.proc_base.fft(np.sum(hsvdarr, axis=1))
@@ -81,11 +81,14 @@ def plot_fit(
         fid_fit (numpy.ndarray): Array containing the fitted FID data.
         ppm (numpy.ndarray): Array of chemical shift values (ppm).
         xlim (tuple, optional): Lower and upper limits for the x-axis. Defaults to None.
-        mode (str, optional): Mode for plotting the spectrum. Defaults to 'real'.
-            - 'real': Plots the real part of the spectrum.
-            - 'abs' or 'mag': Plots the absolute value (magnitude) of the spectrum.
+        mode (str, optional): Mode for plotting the spectrum. Defaults to ``real``.
+
+            - ``real``: Plots the real part of the spectrum.
+            - ``abs`` or ``mag``: Plots the absolute value (magnitude) of the spectrum.
+
         label (str, optional): Label for the fitted spectrum line. Defaults to 'Fitted Spectrum'.
         plotParameters (argparse.Namespace, optional): A namespace containing parameters for plotting and data processing. The namespace includes:
+
             - deadtime (float): The dead time before the FID acquisition starts.
             - lb (float): Line broadening factor in Hz.
             - sw (float): Spectral width in Hz.
@@ -154,17 +157,19 @@ def combined_plot(
         fid_fit (numpy.ndarray): Array containing the fitted FID data.
         xlim (tuple, optional): Lower and upper limits for the x-axis. Defaults to None.
         mode (str, optional): Mode for plotting the spectrum
-             ('real' for real part, 'abs' or 'mag' for magnitude). Defaults to 'real'.
+             (``real`` for real part, ``abs`` or ``mag`` for magnitude). Defaults to ``real``. 
         label (str, optional): Label for the fitted spectrum line in the plot. Defaults to 'Fitted Spectrum'.
         title (str, optional): Title for the entire figure. Defaults to None.
         xlabel (str, optional): Label for the x-axis, shared by both subplots. Defaults to None.
         plotParameters (argparse.Namespace, optional): A namespace containing parameters for plotting and data processing. The namespace includes:
+
             - deadtime (float): The dead time before the FID acquisition starts.
             - lb (float): Line broadening factor in Hz.
             - sw (float): Spectral width in Hz.
             - xlim (tuple of float): Limits for the x-axis in ppm, for example, (10, -20).
             - ifphase (bool): turn on 0th and 1st order phasing.
-        filename (str or None, optional): If provided, the figure will be saved to this file. Defaults to None.
+
+          filename (str or None, optional): If provided, the figure will be saved to this file. Defaults to None.
     """
     # print(f"{xlim=}")
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)

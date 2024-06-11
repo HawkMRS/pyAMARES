@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: pyAMARES
-Version: 0.3.8
+Version: 0.4.0
 Summary: pyAMARES, an Open-Source Python Library for Fitting Magnetic Resonance Spectroscopy Data
 Home-page: https://github.com/hawkMRS/pyAMARES
 Author: Jia Xu, MR Research Facility, University of Iowa
