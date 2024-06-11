@@ -208,6 +208,8 @@ def report_amares(outparams, fid_parameters, verbose=False):
         result["phase_sd"] = np.nan
     # Change 'g_CRLB(%)' values to NaN where they are 0.0
     result.loc[result["g_CRLB(%)"] == 0.0, "g_CRLB(%)"] = np.nan
+    std_noise = np.std(fid_parameters.fid[-len(fid_parameters.fid)//10:])
+    result["SNR"] = result["amplitude"] / std_noise
     result.columns = [
         "amplitude",
         "sd",
@@ -224,6 +226,7 @@ def report_amares(outparams, fid_parameters, verbose=False):
         "g",
         "g_sd",
         "g (%)",
+        "SNR",
     ]
     result["name"] = peaklist
     result = result.set_index("name")

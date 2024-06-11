@@ -1,4 +1,9 @@
 This document describes all notable changes to pyAMARES.
+v0.3.9
+------
+**Added**
+- The peak-wise Signal-to-Noise Ratio (SNR) is now added to each ``result_pd``. The Standard Deviation (SD) of the noise is obtained from the last 10% of points in the FID.
+
 v0.3.8 
 ------
 **Added** 
