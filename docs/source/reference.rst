@@ -101,22 +101,22 @@ Multiprocessing
    NumPy complex array, making it compatible with other Python NMR/MRS libraries. Currently, ``pyAMARES.fileio.readmrs`` supports relatively general data formats, such as CSV, ASCII, Python NumPy, and Matlab MAT-files or Version 7.3 MAT-files.
    Users are encouraged to develop and use their own FID I/O modules.
 
-**Read 2-Column FID Data**
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Read 2-Column FID Data
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: pyAMARES.fileio.readmat
    :members:
    :show-inheritance:
 
-**Read GE MNS Research Pack fidall Data**
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Read GE MNS Research Pack fidall Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: pyAMARES.fileio.readfidall
    :members:
    :show-inheritance:
 
-**A Wrapper for Reading NifTI-MRS**
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A Wrapper for Reading NifTI-MRS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: pyAMARES.fileio.readnifti
    :members:

@@ -1,4 +1,4 @@
-How to cite
+How to Cite
 -----------
 
 If you use pyAMARES in your research, please consider citing the following ISMRM proceeding:

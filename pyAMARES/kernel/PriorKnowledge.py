@@ -12,12 +12,12 @@ from .fid import fft_params
 
 def evaluate_expression_with_units(expr, row, MHz):
     """
-    Evaluate an expression containing numeric values with 'Hz' or 'ppm' units,
+    Evaluate an expression containing numeric values with ``Hz`` or ``ppm`` units,
     with consideration for data in a given row and a specified MHz value for conversion.
 
     Args:
-        expr (str): The expression to be evaluated, which may contain numeric values with 'Hz' or 'ppm' units.
-        row (pandas.Series): A Series or similar structure containing data referenced in `expr`.
+        expr (str): The expression to be evaluated, which may contain numeric values with ``Hz`` or ``ppm`` units.
+        row (pandas.Series): A Series or similar structure containing data referenced in ``expr``.
         MHz (float, optional): Field strength in MHz. Defaults to 120.0.
 
     Returns:
@@ -274,9 +274,10 @@ def generateparameter(
     Args:
         fname (str): Path to the Excel or CSV file containing prior knowledge
         MHz (float, optional): Field strength in MHz, used for unit conversions. Defaults to 120.0.
-        g_global (float, optional): Global value for the 'g' parameter. Defaults to 0.0. If set to False,
+        g_global (float, optional): Global value for the ``g`` parameter. Defaults to 0.0. If set to False,
         the g values specified in the prior knowledge will be used.
-        parameter_prefix (list of str, optional): List of parameter prefixes (e.g., 'ak', 'freq', 'dk', 'phi', 'g'). Defaults to ['ak', 'freq', 'dk', 'phi', 'g'].
+        parameter_prefix (list of str, optional): List of parameter prefixes 
+        (e.g., ``ak``, ``freq``, ``dk``, ``phi``, ``g``). Defaults to ``['ak', 'freq', 'dk', 'phi', 'g']``.
 
     Returns:
         lmfit.Parameters: Parameters object with initialized parameters for modeling.
