@@ -266,3 +266,55 @@ def report_amares(outparams, fid_parameters, verbose=False):
         print("There is no result_sum generated, probably there is only 1 peak")
     fid_parameters.styled_df = styled_df
     return styled_df
+
+def highlight_dataframe(df, by="CRLB(%)", is_smaller=True, threshold=20.0, numeric_format="{:.3f}"):
+    """
+    A versatile tool that highlights rows in a DataFrame based on a specified column's values.
+
+    This function applies a background color to the rows of the input DataFrame. 
+    Rows where the specified column's value meets the threshold condition 
+    are highlighted in green, while the others are highlighted in red.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame to be styled.
+        by (str): The column name to be used for the threshold comparison.
+        is_smaller (bool): If True, highlight rows where the column value is 
+            less than or equal to the threshold. If False, highlight rows 
+            where the column value is greater than or equal to the threshold.
+        threshold (float): The threshold value to compare against.
+        numeric_format (str): The format string used to display numeric values 
+            in the DataFrame. By default, `{:.3f}` formats a float as 0.241, while `{:.1f}` formats it as 0.2.
+
+    Returns:
+        pandas.Styler: A DataFrame for presentation of the results with selected rows
+        are highlighted by green.
+
+    Examples:
+        >>> highlight_dataframe(FIDobj.result_multiplets)
+        >>> highlight_dataframe(FIDobj.result_sum, numeric_format='{:1.1f}')
+        >>> highlight_dataframe(FIDobj.result_sum, threshold=5, by='SNR', is_smaller=False)
+    """
+    
+    def highlight_rows(row, threshold=threshold, is_smaller=is_smaller):
+        # Helper function to apply background color to a row based on the threshold condition.
+        if is_smaller:
+            return [
+                (
+                    "background-color: rgba(0, 255, 0, 0.5)"
+                    if row[by] <= threshold
+                    else "background-color: rgba(255, 0, 0, 0.2)"
+                )
+                for _ in row
+            ]
+        else:
+            return [
+                (
+                    "background-color: rgba(0, 255, 0, 0.5)"
+                    if row[by] >= threshold
+                    else "background-color: rgba(255, 0, 0, 0.2)"
+                )
+                for _ in row
+            ]
+    
+    styled_df = df.style.apply(highlight_rows, axis=1).format(numeric_format)
+    return styled_df

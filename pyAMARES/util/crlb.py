@@ -26,8 +26,8 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
         cond (bool, optional): If True, also returns a boolean indicating if the Fisher information matrix is ill-conditioned.
 
     Returns:
-        numpy.ndarray: The square root of the diagonal elements of the CRB covariance matrix, indicating the lower bound on the standard deviation of the parameter estimates.
-        bool (optional): If 'cond' is True, a boolean indicating if the Fisher information matrix is ill-conditioned.
+        numpy.ndarray or boolean: The square root of the diagonal elements of the CRB covariance matrix, indicating the lower bound on the standard deviation of the parameter estimates.
+          If ``cond`` is True, a boolean indicating if the Fisher information matrix is ill-conditioned.
 
     References:
         1. S Cavassila et al NMR Biomed. 2001 Jun;14(4):278-83.
@@ -101,12 +101,12 @@ def evaluateCRB(outparams, opts, P=None, Jacfunc=Jac6, verbose=False):
             timeaxis (numpy.ndarray): The time axis for the data.
             fid (numpy.ndarray): The FID signal.
         P (numpy.ndarray, optional): Prior knowledge matrix. Assumes identity if None. Defaults to None.
-        Jacfunc (function, optional): The function used to compute the Jacobian matrix. Defaults to Jac6.
+        Jacfunc (function, optional): The function used to compute the Jacobian matrix. Defaults to ``Jac6``.
         verbose (bool, optional): If True, displays additional information about the process, including a plot of the residuals.
 
     Returns:
         numpy.ndarray: The Cramer-Rao Bound (CRB) values calculated for the given parameters.
-        Note: `opts` will be modified in place.
+        Note: ``opts`` will be modified in place.
     """
     opts.D = Jacfunc(outparams, opts.timeaxis)
     opts.residual = uninterleave(multieq6(outparams, opts.timeaxis)) - opts.fid
@@ -165,7 +165,7 @@ def create_pmatrix(pkpd, verbose=False, ifplot=False):
     based on prior knowledge, calculated according to Reference: S Cavassila et al., NMR Biomed. 2001 Jun;14(4):278-83.
 
     Args:
-        pkpd (pandas.DataFrame): Prior knowledge dataframe with the `expr` column.
+        pkpd (pandas.DataFrame): Prior knowledge dataframe with the ``expr`` column.
         verbose (bool): Flag to enable verbose output for debugging.
         ifplot (bool): Flag to enable plotting of the P-matrix.
 

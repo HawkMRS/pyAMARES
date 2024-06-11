@@ -175,15 +175,15 @@ def hsvd_initialize_parameters(temp_to_unfold, allpara_hsvd=None, g_global=0.0):
 def uniquify_dataframe(df):
     """
     Processes a DataFrame to ensure that for each unique name, only the entry with the maximum
-    absolute 'ak' value is retained with its name. The 'name' for other entries in the same group
-    is set to NaN. Rows where 'name' is initially NaN are left unchanged.
+    absolute ``ak`` value is retained with its name. The ``name`` for other entries in the same group
+    is set to NaN. Rows where ``name`` is initially NaN are left unchanged.
 
     Args:
-        df (pandas.DataFrame): The input DataFrame with 'name' and 'ak' columns.
+        df (pandas.DataFrame): The input DataFrame with ``name`` and ``ak`` columns.
 
     Returns:
-        pandas.DataFrame: A DataFrame where for each unique 'name', only the entry with the maximum absolute
-                          'ak' value retains its name, and others have their 'name' set to NaN.
+        pandas.DataFrame: A DataFrame where for each unique ``name``, only the entry with the maximum absolute
+                          ``ak`` value retains its name, and others have their ``name`` set to NaN.
     """
 
     def process_group(group):
