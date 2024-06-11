@@ -4,44 +4,44 @@ v0.4.0
 ------
 
 **Added**
-- Added the ``initialize_with_lm`` option to both ``fitAMARES`` and ``run_parallel_fitting_with_progress`` functions.
-- Added a ``highlight_dataframe`` function that highlights rows in a DataFrame based on the values of a specified column.
+  - Added the ``initialize_with_lm`` option to both ``fitAMARES`` and ``run_parallel_fitting_with_progress`` functions.
+  - Added a ``highlight_dataframe`` function that highlights rows in a DataFrame based on the values of a specified column.
 
 **Fixed**
-- Updated docstrings in numerous functions to ensure they render properly.
+  - Updated docstrings in numerous functions to ensure they render properly.
 
 v0.3.9
 ------
 
 **Added**
-- The peak-wise Signal-to-Noise Ratio (SNR) is now added to each ``result_pd``. The Standard Deviation (SD) of the noise is obtained from the last 10% of points in the FID.
+  - The peak-wise Signal-to-Noise Ratio (SNR) is now added to each ``result_pd``. The Standard Deviation (SD) of the noise is obtained from the last 10% of points in the FID.
 
 **Fixed**
-- Mute `__version__` and `__author__` printouts. 
+  - Mute `__version__` and `__author__` printouts. 
 
 v0.3.8 
 ------
 
 **Added** 
-- Add a ``read_fidall`` function to read GE MNS Research Pack **fidall** generated MAT-files. 
+  - Add a ``read_fidall`` function to read GE MNS Research Pack **fidall** generated MAT-files. 
 
 v0.3.7
 ------
 
 **Fixed** 
-- Instead of try .. catch, use ``def is_mat_file_v7_3(filename)`` to identify if a ifle is V-7.3 
+  - Instead of try .. catch, use ``def is_mat_file_v7_3(filename)`` to identify if a ifle is V-7.3 
 
 v0.3.6
 ------
 
 **Added**
-- The ``readmrs`` function now supports any MAT-files containing either an ``fid`` or ``data`` variable. This enhancement makes it compatible with GE fidall reconstructed MAT-files as well as Matlab formats written by jMRUI.
+  - The ``readmrs`` function now supports any MAT-files containing either an ``fid`` or ``data`` variable. This enhancement makes it compatible with GE fidall reconstructed MAT-files as well as Matlab formats written by jMRUI.
 
 v0.3.5
 ------
 
 **Fixed**
-- Fixed a bug where, if the ppm needs to be flipped while the carrier frequency is not 0 ppm, the resulting spectrum looks wrong with a fftshift().
+  - Fixed a bug where, if the ppm needs to be flipped while the carrier frequency is not 0 ppm, the resulting spectrum looks wrong with a fftshift().
 
 v0.3.4
 ------
