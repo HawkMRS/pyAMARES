@@ -381,7 +381,7 @@ def fitAMARES(
         fid_parameters,
         fitting_parameters,
         objective_func,
-        method,
+        'leastsq',
         fit_range,
         fit_kws=fit_kws,
         )  # initializer
