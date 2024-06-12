@@ -12,6 +12,30 @@ except ImportError:
     if_style = False
     print("Jinja2 is not installed. Turn off colored table. Try pip install jinja2.")
 
+def get_min_max_deg(resulttable):
+    # Extract min and max degrees from the constraints in the ``resultpd``
+    phitable = resulttable[resulttable.name.str.startswith('phi')]
+    min_deg = np.rad2deg(phitable['min'].min())
+    max_deg = np.rad2deg(phitable['max'].max())
+    return min_deg, max_deg
+
+def wrap_degrees(val_deg, min_deg, max_deg):
+    # Fold result_pd degrees into the constraints defined in the prior knowledge
+    # Ensure min_deg < max_deg
+    assert min_deg < max_deg, "min_deg should be less than max_deg"
+
+    # Normalize degrees to the range [0, 360)
+    normalized_deg = val_deg % 360
+
+    # If the specified range is within [0, 360)
+    if 0 <= min_deg < max_deg <= 360:
+        wrapped_deg = np.where(normalized_deg < min_deg, normalized_deg + 360, normalized_deg)
+    # If the range includes negative degrees or spans over 0 degrees (e.g., [-180, 180] or [350, 10])
+    else:
+        range_width = max_deg - min_deg
+        wrapped_deg = (normalized_deg - min_deg) % range_width + min_deg
+    
+    return wrapped_deg
 
 def report_crlb(outparams, crlb, Jacfunc=None):
     """
@@ -200,11 +224,14 @@ def report_amares(outparams, fid_parameters, verbose=False):
     result["freq_sd"] = result["freq_sd"] / MHz
     result["lw"] = result["lw"] / np.pi
     result["lw_sd"] = result["lw_sd"] / np.pi
-    result["phase"] = np.rad2deg(result["phase"]) % 360
-    result["phase"] = (result["phase"] + 180) % 360 - 180 # Wrap 360 to 0.
-
+    min_deg, max_deg = get_min_max_deg(resulttable)
+    phase_col = np.rad2deg(result["phase"])
+    # result["phase"] = np.rad2deg(result["phase"]) % 360
+    # result["phase"] = (result["phase"] + 180) % 360 - 180 # Wrap 360 to 0.
+    result["phase"] = wrap_degrees(phase_col, min_deg=min_deg, max_deg=max_deg)
     try:
         result["phase_sd"] = np.rad2deg(result["phase_sd"])
+        result["phase_sd"] = wrap_degrees(result["phase_sd"] , min_deg=min_deg, max_deg=max_deg)
     except Exception as e:
         print(f"Caught an error: {e}")
         result["phase_sd"] = np.nan

@@ -1,5 +1,11 @@
 This document describes all notable changes to pyAMARES.
 
+v0.4.1
+------
+
+**Fixed**
+  - Updated the ``result["phase"]`` and ``result["phase_sd"]`` to be wrapped according to the minimum and maximum degree constraints defined in the prior knowledge dataset.
+
 v0.4.0
 ------
 
@@ -12,7 +18,6 @@ v0.4.0
   - Add ``result["phase"] = (result["phase"] + 180) % 360 - 180`` to ``report.py`` to wrap ~360 degrees to ~0
   - Fixed a bug in ``readmat.py``
   - Fix a bug that the internal initializer ``initialize_with_lm`` always uses the input method to initialize. Now it uses ``leastqs`` as the internal initializer.
-
 
 v0.3.9
 ------
