@@ -3,9 +3,6 @@ from scipy import io
 import warnings
 import mat73
 from .readfidall import is_mat_file_v7_3
-import warnings
-import mat73
-from .readfidall import is_mat_file_v7_3
 
 
 def readmrs(filename):
@@ -54,8 +51,13 @@ def readmrs(filename):
         print("Try to load python NPY file")
         data = np.load(filename)
     elif filename.endswith("mat"):
-        try:
-            print("Try to load Matlab mat file with the var saved as `fid`")
+        if is_mat_file_v7_3(filename):
+            print(
+                "Try to load Matlab V7.3 mat file with the var saved as fid or data"
+            )
+            matdic = mat73.loadmat(filename)
+        else:
+            print("Try to load Matlab mat file with the var saved as fid or data")
             matdic = io.loadmat(filename)
         if "fid" in matdic.keys() and "data" in matdic.keys():
             data = matdic["fid"].squeeze().astype("complex")

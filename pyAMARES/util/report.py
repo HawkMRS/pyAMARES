@@ -201,6 +201,8 @@ def report_amares(outparams, fid_parameters, verbose=False):
     result["lw"] = result["lw"] / np.pi
     result["lw_sd"] = result["lw_sd"] / np.pi
     result["phase"] = np.rad2deg(result["phase"]) % 360
+    result["phase"] = (result["phase"] + 180) % 360 - 180 # Wrap 360 to 0.
+
     try:
         result["phase_sd"] = np.rad2deg(result["phase_sd"])
     except Exception as e:

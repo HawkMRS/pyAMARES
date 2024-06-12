@@ -9,6 +9,9 @@ v0.4.0
 
 **Fixed**
   - Updated docstrings in numerous functions to ensure they render properly.
+  - Add ``result["phase"] = (result["phase"] + 180) % 360 - 180`` to ``report.py`` to wrap ~360 degrees to ~0
+  - Fixed a bug in ``readmat.py``
+
 
 v0.3.9
 ------
