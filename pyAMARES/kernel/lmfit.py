@@ -376,7 +376,7 @@ def fitAMARES(
         fit_kws=fit_kws,
         )  # fitting kernel
     else:
-        print("Ignore fitting_parameters, and run internal leastsq initializer instead!")
+        print("Run internal leastsq initializer to optimize fitting parameters for the next %s fitting" % method)
         params_LM = fitAMARES_kernel(
         fid_parameters,
         fitting_parameters,
