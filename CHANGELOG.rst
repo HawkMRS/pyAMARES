@@ -1,5 +1,12 @@
 This document describes all notable changes to pyAMARES.
 
+v0.4.2
+------
+
+**Fixed**
+  - Fixed a bug in the ``sum_multiplets`` function that prevented the SNR multiplets from being added.
+  - Revised the printouts for when ``initialize_with_lm`` is enabled.
+
 v0.4.1
 ------
 

@@ -108,7 +108,7 @@ def sum_multiplets(df):
     ]
 
     agg_funcs = {
-        col: "first" if col not in ["amplitude", "sd"] else "sum" for col in df.columns
+        col: "first" if col not in ["amplitude", "sd", "SNR"] else "sum" for col in df.columns
     }
     grouped_df = df.groupby(base_names).agg(agg_funcs)
 
