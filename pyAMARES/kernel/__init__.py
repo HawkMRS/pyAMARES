@@ -5,6 +5,7 @@ from .lmfit import (
     dataframe_to_parameters,
     parameters_to_dataframe,
     parameters_to_dataframe_result,
+    result_pd_to_params,
 )
 from .lmfit import save_parameter_to_csv, load_parameter_from_csv, set_vary_parameters
 from .lmfit import fitAMARES, fitAMARES_kernel, plotAMARES, filter_param_by_ppm

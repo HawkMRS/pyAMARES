@@ -368,7 +368,7 @@ def initialize_FID(
     MHz=120,
     sw=10000,
     deadtime=200e-6,
-    normalize_fid=True,
+    normalize_fid=False,
     flip_axis=False,
     preview=False,
     xlim=None,

@@ -179,6 +179,40 @@ def parameters_to_dataframe_result(params):
         df = pd.DataFrame(data)
     return df
 
+def result_pd_to_params(result_table, MHz=300.):
+    """
+    Converts fitted results from a DataFrame format into a Parameters object for simulation.
+
+    Args:
+        result_table (pd.DataFrame): The fitting results table, which can be like ``result_sum`` or ``result_multiplet``.
+        MHz (float): Field strength in MHz. 
+
+    Returns:
+        Parameters: A lmfit Parameters() object, ready for use in simulations but not for fitting, because there is no constraint. 
+        
+    Notes:
+        This function serves as a utility for ``simulate_fid``.
+    """
+    df_name = ['amplitude', 'chem shift(ppm)', 'LW(Hz)', 'phase(deg)', 'g']
+    param_name = ['ak', 'freq', 'dk', 'phi', 'g']
+    name_dic = dict(zip(df_name, param_name))
+    params = Parameters()
+
+    for row in result_table.iterrows():
+        # print(row[0])
+        for name in df_name:
+            value = row[1][name]
+            new_name = name_dic[name] + '_' + row[0]
+            if new_name.startswith('dk'):
+                value = value * np.pi
+            if new_name.startswith('phi'):
+                value = np.deg2rad(value)
+            if new_name.startswith('freq'):
+                value = value * MHz
+            params.add(name=new_name, value=value)
+    
+    return params
+
 
 def save_parameter_to_csv(params, filename="params.csv"):
     """

@@ -1,5 +1,14 @@
 This document describes all notable changes to pyAMARES.
 
+v0.4.3
+------
+
+**Added**
+  - Added ``result_pd_to_params``, a function that converts fitted results from a DataFrame format into a Parameters object for use with ``simulate_fid``.
+
+**Fixed**
+  - Set ``normalize_fid=False`` to be turn it off for ``initialize_FID`` by default.
+
 v0.4.2
 ------
 
