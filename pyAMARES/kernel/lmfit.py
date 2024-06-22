@@ -179,6 +179,40 @@ def parameters_to_dataframe_result(params):
         df = pd.DataFrame(data)
     return df
 
+def result_pd_to_params(result_table, MHz=300.):
+    """
+    Converts fitted results from a DataFrame format into a Parameters object for simulation.
+
+    Args:
+        result_table (pd.DataFrame): The fitting results table, which can be like ``result_sum`` or ``result_multiplet``.
+        MHz (float): Field strength in MHz. 
+
+    Returns:
+        Parameters: A lmfit Parameters() object, ready for use in simulations but not for fitting, because there is no constraint. 
+        
+    Notes:
+        This function serves as a utility for ``simulate_fid``.
+    """
+    df_name = ['amplitude', 'chem shift(ppm)', 'LW(Hz)', 'phase(deg)', 'g']
+    param_name = ['ak', 'freq', 'dk', 'phi', 'g']
+    name_dic = dict(zip(df_name, param_name))
+    params = Parameters()
+
+    for row in result_table.iterrows():
+        # print(row[0])
+        for name in df_name:
+            value = row[1][name]
+            new_name = name_dic[name] + '_' + row[0]
+            if new_name.startswith('dk'):
+                value = value * np.pi
+            if new_name.startswith('phi'):
+                value = np.deg2rad(value)
+            if new_name.startswith('freq'):
+                value = value * MHz
+            params.add(name=new_name, value=value)
+    
+    return params
+
 
 def save_parameter_to_csv(params, filename="params.csv"):
     """
@@ -401,6 +435,7 @@ def fitAMARES(
     # report_fit(out_obj)
     report_amares(out_obj.params, fid_parameters, verbose=False)  # CRLB estimation
     resultfid = fft_params(fid_parameters.timeaxis, out_obj.params, fid=True)
+    print_lmfit_fitting_results(out_obj)  # New in 0.3.14. Print out key fitting such as iterations and chi-square. 
     fid_parameters.resNormSq, fid_parameters.relativeNorm = Compare_to_OXSA(
         inputfid=fid_parameters.fid, resultfid=resultfid
     )
@@ -475,3 +510,18 @@ def plotAMARES(fid_parameters, fitted_params=None, plotParameters=None, filename
         plotParameters=plotParameters,
         filename=filename,
     )
+
+def print_lmfit_fitting_results(result):
+    """
+    Print important fitting results from an lmfit MinimizerResult object.
+
+    Args:
+        result (lmfit.MinimizerResult): The result object from lmfit fitting. 
+
+    """
+    print("Lmfit Fitting Results:")
+    print("----------------")
+    print("Number of function evaluations (nfev):", result.nfev)
+    print("Reduced chi-squared (redchi):", result.redchi)
+    print("Fit success status:", "Success" if result.success else "Failure")
+    print("Fit message:", result.message)

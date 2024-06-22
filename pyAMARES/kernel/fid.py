@@ -290,8 +290,8 @@ def Compare_to_OXSA(inputfid, resultfid):
     dataNormSq = np.linalg.norm(inputfid - np.mean(inputfid)) ** 2
     resNormSq = np.sum(np.abs((resultfid - inputfid)) ** 2)
     relativeNorm = resNormSq / dataNormSq
-    print("Norm of residual= %3.3f" % resNormSq)
-    print("Norm of the data=%3.3f" % dataNormSq)
+    print("Norm of residual = %3.3f" % resNormSq)
+    print("Norm of the data = %3.3f" % dataNormSq)
     print("resNormSq / dataNormSq = %3.3f" % relativeNorm)
     return resNormSq, relativeNorm
 

@@ -1,20 +1,38 @@
 This document describes all notable changes to pyAMARES.
 
-v0.4.2
-------
+v0.3.14
+-------
+
+**Added**
+  - Added ``print_lmfit_fitting_results``, a function to print key ``lmfit`` fitting results from the ``fitting_results.out_obj``.
+
+**Fixed**
+  - Changed the version number from ``0.4.0`` to ``0.3.10`` to better manage version increments.
+
+v0.3.13
+-------
+
+**Added**
+  - Added ``result_pd_to_params``, a function that converts fitted results from a DataFrame format into a Parameters object for use with ``simulate_fid``.
+
+**Fixed**
+  - Set ``normalize_fid=False`` to be turn it off for ``initialize_FID`` by default.
+
+v0.3.12
+-------
 
 **Fixed**
   - Fixed a bug in the ``sum_multiplets`` function that prevented the SNR multiplets from being added.
   - Revised the printouts for when ``initialize_with_lm`` is enabled.
 
-v0.4.1
-------
+v0.3.11
+-------
 
 **Fixed**
   - Updated the ``result["phase"]`` and ``result["phase_sd"]`` to be wrapped according to the minimum and maximum degree constraints defined in the prior knowledge dataset.
 
-v0.4.0
-------
+v0.3.10
+-------
 
 **Added**
   - Added the ``initialize_with_lm`` option to both ``fitAMARES`` and ``run_parallel_fitting_with_progress`` functions.
