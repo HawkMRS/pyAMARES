@@ -514,10 +514,10 @@ def plotAMARES(fid_parameters, fitted_params=None, plotParameters=None, filename
 def print_lmfit_fitting_results(result):
     """
     Print important fitting results from an lmfit MinimizerResult object.
-    
-    Parameters:
-    - result: lmfit.MinimizerResult
-        The result object from an lmfit fitting operation.
+
+    Args:
+        result (lmfit.MinimizerResult): The result object from lmfit fitting. 
+
     """
     print("Lmfit Fitting Results:")
     print("----------------")
