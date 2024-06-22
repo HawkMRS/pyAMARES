@@ -435,6 +435,7 @@ def fitAMARES(
     # report_fit(out_obj)
     report_amares(out_obj.params, fid_parameters, verbose=False)  # CRLB estimation
     resultfid = fft_params(fid_parameters.timeaxis, out_obj.params, fid=True)
+    print_lmfit_fitting_results(out_obj)  # New in 0.3.14. Print out key fitting such as iterations and chi-square. 
     fid_parameters.resNormSq, fid_parameters.relativeNorm = Compare_to_OXSA(
         inputfid=fid_parameters.fid, resultfid=resultfid
     )
@@ -509,3 +510,18 @@ def plotAMARES(fid_parameters, fitted_params=None, plotParameters=None, filename
         plotParameters=plotParameters,
         filename=filename,
     )
+
+def print_lmfit_fitting_results(result):
+    """
+    Print important fitting results from an lmfit MinimizerResult object.
+    
+    Parameters:
+    - result: lmfit.MinimizerResult
+        The result object from an lmfit fitting operation.
+    """
+    print("Lmfit Fitting Results:")
+    print("----------------")
+    print("Number of function evaluations (nfev):", result.nfev)
+    print("Reduced chi-squared (redchi):", result.redchi)
+    print("Fit success status:", "Success" if result.success else "Failure")
+    print("Fit message:", result.message)
