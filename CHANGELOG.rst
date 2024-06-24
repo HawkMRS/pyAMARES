@@ -1,5 +1,15 @@
 This document describes all notable changes to pyAMARES.
 
+v0.3.15
+-------
+
+**Fixed**
+  - Fixed a critical bug where J-coupling expressions ending with ``Hz`` were incorrectly interpreted as ``ppm``.
+  - Fixed a critical bug that prevented correct parsing of prior knowledge when there was a space in J-coupling strings, such as "0.125 ppm" and "15 Hz".
+  - Loosen the bounds of chemical shift of ATP peaks in the attached example prior knowledge datasets of human brain at 7T.
+  - Updated the ``simple_tutorial.ipynb`` to use the new prior knowledge dataset and the new API.
+
+
 v0.3.14
 -------
 

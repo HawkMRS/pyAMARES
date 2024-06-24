@@ -9,6 +9,16 @@ import argparse
 from lmfit import Parameters
 from .fid import fft_params
 
+def refindall(expr):
+    # Work in the same way as matches = re.findall(r"(\d+)(Hz|ppm)", expr) but support decimals  
+    expr = expr.replace(' ','')
+    pattern = re.compile(r"([-+]?\d+(\.\d+)?)(Hz|ppm)?")
+    match = pattern.search(expr)
+    if match:
+        number = match.group(1)
+        unit = match.group(3) if match.group(3) else ""
+        return [(number, unit)]
+    return [("", "")] 
 
 def evaluate_expression_with_units(expr, row, MHz):
     """
@@ -24,14 +34,16 @@ def evaluate_expression_with_units(expr, row, MHz):
         The result of evaluating the modified expression, or the original expression if evaluation fails.
     """
     # Find all parts of the expression that match a pattern like '15Hz' or '15ppm'
-    matches = re.findall(r"(\d+)(Hz|ppm)", expr)
+    expr = expr.replace(" ", "") # 2024/06/23 Remove spaces in such as 15 ppm
+    matches = re.findall(r"(\d+)(Hz|ppm)", expr) 
+    # matches = refindall(expr)
     for match in matches:
         number, unit = match
-        if unit == "Hz":
-            # Remove 'Hz' from the expression
+        if unit == "ppm":
+            # Remove 'ppm' from the expression. The chem shift is always ppm, so no change is needed
             expr = expr.replace(unit, "")
-        elif unit == "ppm":
-            # Replace 'ppm' with the number multiply by MHz
+        elif unit == "Hz":
+            # Replace 'Hz' and convert J-coupling to ppm. Note, the chem shift is always ppm!
             expr = expr.replace(number + unit, f"({number}/{MHz})")
 
     parts = re.split(r"(\W+)", expr)
@@ -98,11 +110,15 @@ def extract_expr(pk, MHz=120.0):
         """
         if isinstance(expr, str):
             # Find all parts of the expression that match a pattern like '15Hz' or '15ppm'
-            matches = re.findall(r"(\d+)(Hz|ppm)", expr)
+            expr = expr.replace(" ", "") # 2024/06/23 Remove spaces in such as 15 ppm
+            # matches = re.findall(r"(\d+)(Hz|ppm)", expr)
+            matches = refindall(expr)
             for match in matches:
                 number, unit = match
                 if unit == "ppm":
-                    converted_value = str(float(number) * MHz)
+                    # 2024/06/23. This function is used to process in Parameters(), where ppm should be convert to Hz. 
+                    # Note this is different from the evaluate_expression_with_units, where chemical shift is ppm and Hz should be converted
+                    converted_value = str(float(number) * MHz)  
                     expr = expr.replace(number + unit, converted_value)
                 elif unit == "Hz":
                     expr = expr.replace(unit, "")
@@ -301,6 +317,7 @@ def generateparameter(
     dfini2 = unitconverter(
         dfini, MHz=MHz
     )  # Convert ppm to Hz, convert FWHM to dk, convert degree to radians.
+    # print(f"{dfini2=}")
     df_lb, df_ub = parse_bounds(pk)  # Parse bounds
     df_expr = extract_expr(pk, MHz=MHz)  # Parse expression
     df_lb2 = unitconverter(df_lb, MHz=MHz)
