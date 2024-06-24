@@ -1,5 +1,11 @@
 This document describes all notable changes to pyAMARES.
 
+v0.3.16
+-------
+
+**Added**
+  - Added ``params_to_result_pd``, which is the inverse function of ``params_to_result_pd``. 
+
 v0.3.15
 -------
 

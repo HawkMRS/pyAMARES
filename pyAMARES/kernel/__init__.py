@@ -6,6 +6,7 @@ from .lmfit import (
     parameters_to_dataframe,
     parameters_to_dataframe_result,
     result_pd_to_params,
+    params_to_result_pd,
     print_lmfit_fitting_results,
 )
 from .lmfit import save_parameter_to_csv, load_parameter_from_csv, set_vary_parameters
