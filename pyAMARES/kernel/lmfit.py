@@ -179,7 +179,7 @@ def parameters_to_dataframe_result(params):
         df = pd.DataFrame(data)
     return df
 
-def result_pd_to_params(result_table, MHz=300.):
+def result_pd_to_params(result_table, MHz=120.):
     """
     Converts fitted results from a DataFrame format into a Parameters object for simulation.
 
@@ -213,6 +213,43 @@ def result_pd_to_params(result_table, MHz=300.):
     
     return params
 
+def params_to_result_pd(params, MHz=300.):
+    """
+    Converts a Parameters object back into a DataFrame format. The inverse function of ``result_pd_to_params``. 
+
+    Args:
+        params (Parameters): The lmfit Parameters() object.
+        MHz (float): Field strength in MHz. 
+
+    Returns:
+        pd.DataFrame: The fitting results table.
+    """
+    df_name = ['amplitude', 'chem shift(ppm)', 'LW(Hz)', 'phase(deg)', 'g']
+    param_name = ['ak', 'freq', 'dk', 'phi', 'g']
+    name_dic = dict(zip(param_name, df_name))
+
+    data = {name: [] for name in df_name}
+    index = []
+
+    for param in params.values():
+        base_name, index_suffix = param.name.rsplit('_', 1)
+        if index_suffix not in index:
+            index.append(index_suffix)
+        
+        if base_name.startswith('dk'):
+            value = param.value / np.pi
+        elif base_name.startswith('phi'):
+            value = np.rad2deg(param.value)
+        elif base_name.startswith('freq'):
+            value = param.value / MHz
+        else:
+            value = param.value
+
+        if base_name in name_dic:
+            data[name_dic[base_name]].append(value)
+
+    result_table = pd.DataFrame(data, index=index)
+    return result_table
 
 def save_parameter_to_csv(params, filename="params.csv"):
     """
