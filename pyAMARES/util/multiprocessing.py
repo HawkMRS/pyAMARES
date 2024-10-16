@@ -28,7 +28,7 @@ def redirect_stdout_to_file(filename):
             sys.stdout, sys.stderr = old_stdout, old_stderr
 
 
-def fit_dataset(fid_current, FIDobj_shared, initial_params, method="leastsq", initialize_with_lm=False):
+def fit_dataset(fid_current, FIDobj_shared, initial_params, method="leastsq", initialize_with_lm=False, objective_func=None):
     """
     Fits a dataset to a shared FID Parameter object using the AMARES algorithm
     with specified initial parameters and fitting method.
@@ -54,14 +54,26 @@ def fit_dataset(fid_current, FIDobj_shared, initial_params, method="leastsq", in
     try:
         FIDobj_current = deepcopy(FIDobj_shared)
         FIDobj_current.fid = fid_current
-        out = fitAMARES(
-            fid_parameters=FIDobj_current,
-            fitting_parameters=initial_params,
-            method=method,  # Use method passed as a parameter to the function
-            initialize_with_lm=initialize_with_lm, # New in 0.3.9
-            ifplot=False,
-            inplace=True,
-        )
+        if objective_func is None:
+            out = fitAMARES(
+                fid_parameters=FIDobj_current,
+                fitting_parameters=initial_params,
+                method=method,  # Use method passed as a parameter to the function
+                initialize_with_lm=initialize_with_lm, # New in 0.3.9
+                ifplot=False,
+                inplace=True,
+            )
+        else:
+            out = fitAMARES(
+                fid_parameters=FIDobj_current,
+                fitting_parameters=initial_params,
+                method=method,  # Use method passed as a parameter to the function
+                initialize_with_lm=initialize_with_lm, # New in 0.3.9
+                ifplot=False,
+                inplace=True,
+                objective_func=objective_func
+            )
+
         result_table = FIDobj_current.result_multiplets
         del FIDobj_current
         return result_table
@@ -78,6 +90,7 @@ def run_parallel_fitting_with_progress(
     initialize_with_lm=False,
     num_workers=8,
     logfilename="multiprocess_log.txt",
+    objective_func=None,
 ):
     """
     Runs parallel AMARES fitting of multiple FID datasets using a shared FID object template and initial parameters.
@@ -120,6 +133,7 @@ def run_parallel_fitting_with_progress(
                     initial_params=initial_params,
                     method=method,
                     initialize_with_lm=initialize_with_lm,
+                    objective_func=objective_func,
                 )
                 for i in range(fid_arrs.shape[0])
             ]
