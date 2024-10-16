@@ -1,5 +1,11 @@
 This document describes all notable changes to pyAMARES.
 
+v0.3.17
+-------
+**Added**
+- Added `objective_func` parameter to `multiprocessing.run_parallel_fitting_with_progress` and `multiprocessing.fit_dataset` functions
+- Fixed minor typos
+
 v0.3.16
 -------
 
