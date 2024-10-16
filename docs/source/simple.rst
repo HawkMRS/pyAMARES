@@ -30,7 +30,7 @@ Run pyAMARES
             fid = pyAMARES.readmrs('./docs/source/notebooks/attachment/fid.txt')
             # Load Prior Knowledge
             FIDobj = pyAMARES.initialize_FID(fid=fid, 
-                                             priorknowledge='./docs/source/notebooks/attachment/example_human_brain_31P_7T.csv',
+                                             priorknowledgefile='./docs/source/notebooks/attachment/example_human_brain_31P_7T.csv',
                                              MHz=MHz, 
                                              sw=sw,
                                              deadtime=deadtime, 
