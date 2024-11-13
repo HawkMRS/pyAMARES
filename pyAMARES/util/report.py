@@ -128,6 +128,8 @@ def contains_non_numeric_strings(df):
 
     return any(not is_numeric_string(str(idx)) for idx in df.index)
 
+def extract_key_parameters(df):
+    return df[['amplitude', 'chem shift(ppm)', 'LW(Hz)', 'phase(deg)', 'SNR', 'CRLB(%)']]
 
 def report_amares(outparams, fid_parameters, verbose=False):
     """
@@ -276,24 +278,29 @@ def report_amares(outparams, fid_parameters, verbose=False):
             styled_df = fid_parameters.result_sum.style.apply(
                 highlight_rows_crlb_less_than_02, axis=1
             ).format("{:.3f}")
+            simple_df = highlight_dataframe(extract_key_parameters(fid_parameters.result_sum))
         else:
             styled_df = (
                 fid_parameters.result_sum
             )  # python 3.7 and older may not support Jinja2
+            simple_df = extract_key_parameters(fid_parameters.result_sum)
     else:  # all numers, HSVD assigned parameters
         if if_style:
             styled_df = fid_parameters.result_multiplets.style.apply(
                 highlight_rows_crlb_less_than_02, axis=1
             ).format("{:.3f}")
+            simple_df = highlight_dataframe(extract_key_parameters(fid_parameters.result_sum))
         else:
             styled_df = (
                 fid_parameters.result_multiplets
             )  # python 3.7 and older may not support Jinja2
+            simple_df = extract_key_parameters(fid_parameters.result_sum)
     if hasattr(fid_parameters, "result_sum"):
         fid_parameters.metabolites = fid_parameters.result_sum.index.to_list()
     else:
         print("There is no result_sum generated, probably there is only 1 peak")
     fid_parameters.styled_df = styled_df
+    fid_parameters.simple_df = simple_df
     return styled_df
 
 def highlight_dataframe(df, by="CRLB(%)", is_smaller=True, threshold=20.0, numeric_format="{:.3f}"):

@@ -1,10 +1,19 @@
 This document describes all notable changes to pyAMARES.
+v0.3.18
+-------
+**Added**
+  - Added ``simple_df`` Dataframe to the ``fid_parameters``. 
+
+**Fixed**
+  - Fixed a typo in the equation in `what.rst`
+  
 
 v0.3.17
 -------
+
 **Added**
-- Added `objective_func` parameter to `multiprocessing.run_parallel_fitting_with_progress` and `multiprocessing.fit_dataset` functions
-- Fixed minor typos
+  - Added ``objective_func`` parameter to ``multiprocessing.run_parallel_fitting_with_progress`` and ``multiprocessing.fit_dataset`` functions
+  - Fixed minor typos
 
 v0.3.16
 -------
