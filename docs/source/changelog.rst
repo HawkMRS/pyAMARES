@@ -1,4 +1,4 @@
 Changelog
 =========
-.. literalinclude:: ../../CHANGELOG.rst
-   :language: rst
+
+.. include:: ../../CHANGELOG.rst
