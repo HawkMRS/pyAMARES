@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from ..kernel import Jac6, Jac6c
 from ..kernel import parameters_to_dataframe_result, parameters_to_dataframe
+from ..kernel import remove_zero_padding
 
 try:
     import jinja2
@@ -128,6 +129,8 @@ def contains_non_numeric_strings(df):
 
     return any(not is_numeric_string(str(idx)) for idx in df.index)
 
+def extract_key_parameters(df):
+    return df[['amplitude', 'chem shift(ppm)', 'LW(Hz)', 'phase(deg)', 'SNR', 'CRLB(%)']]
 
 def report_amares(outparams, fid_parameters, verbose=False):
     """
@@ -237,7 +240,14 @@ def report_amares(outparams, fid_parameters, verbose=False):
         result["phase_sd"] = np.nan
     # Change 'g_CRLB(%)' values to NaN where they are 0.0
     result.loc[result["g_CRLB(%)"] == 0.0, "g_CRLB(%)"] = np.nan
-    std_noise = np.std(fid_parameters.fid[-len(fid_parameters.fid)//10:])
+    zero_ind = remove_zero_padding(fid_parameters.fid)
+    if zero_ind > 0:
+        print("It seems that zeros are padded after %i" % zero_ind)
+        print("Remove padded zeros from residual estimation!")
+        fid_parameters.fid_padding_removed = fid_parameters.fid[:zero_ind]
+        std_noise = np.std(fid_parameters.fid_padding_removed[-len(fid_parameters.fid_padding_removed)//10:])
+    else:
+        std_noise = np.std(fid_parameters.fid[-len(fid_parameters.fid)//10:])
     result["SNR"] = result["amplitude"] / std_noise
     result.columns = [
         "amplitude",
@@ -276,24 +286,29 @@ def report_amares(outparams, fid_parameters, verbose=False):
             styled_df = fid_parameters.result_sum.style.apply(
                 highlight_rows_crlb_less_than_02, axis=1
             ).format("{:.3f}")
+            simple_df = highlight_dataframe(extract_key_parameters(fid_parameters.result_sum))
         else:
             styled_df = (
                 fid_parameters.result_sum
             )  # python 3.7 and older may not support Jinja2
+            simple_df = extract_key_parameters(fid_parameters.result_sum)
     else:  # all numers, HSVD assigned parameters
         if if_style:
             styled_df = fid_parameters.result_multiplets.style.apply(
                 highlight_rows_crlb_less_than_02, axis=1
             ).format("{:.3f}")
+            simple_df = highlight_dataframe(extract_key_parameters(fid_parameters.result_sum))
         else:
             styled_df = (
                 fid_parameters.result_multiplets
             )  # python 3.7 and older may not support Jinja2
+            simple_df = extract_key_parameters(fid_parameters.result_sum)
     if hasattr(fid_parameters, "result_sum"):
         fid_parameters.metabolites = fid_parameters.result_sum.index.to_list()
     else:
         print("There is no result_sum generated, probably there is only 1 peak")
     fid_parameters.styled_df = styled_df
+    fid_parameters.simple_df = simple_df
     return styled_df
 
 def highlight_dataframe(df, by="CRLB(%)", is_smaller=True, threshold=20.0, numeric_format="{:.3f}"):
