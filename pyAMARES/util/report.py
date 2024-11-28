@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from ..kernel import Jac6, Jac6c
 from ..kernel import parameters_to_dataframe_result, parameters_to_dataframe
+from ..kernel import remove_zero_padding
 
 try:
     import jinja2
@@ -239,7 +240,14 @@ def report_amares(outparams, fid_parameters, verbose=False):
         result["phase_sd"] = np.nan
     # Change 'g_CRLB(%)' values to NaN where they are 0.0
     result.loc[result["g_CRLB(%)"] == 0.0, "g_CRLB(%)"] = np.nan
-    std_noise = np.std(fid_parameters.fid[-len(fid_parameters.fid)//10:])
+    zero_ind = remove_zero_padding(fid_parameters.fid)
+    if zero_ind > 0:
+        print("It seems that zeros are padded after %i" % zero_ind)
+        print("Remove padded zeros from residual estimation!")
+        fid_parameters.fid_padding_removed = fid_parameters.fid[:zero_ind]
+        std_noise = np.std(fid_parameters.fid_padding_removed[-len(fid_parameters.fid_padding_removed)//10:])
+    else:
+        std_noise = np.std(fid_parameters.fid[-len(fid_parameters.fid)//10:])
     result["SNR"] = result["amplitude"] / std_noise
     result.columns = [
         "amplitude",

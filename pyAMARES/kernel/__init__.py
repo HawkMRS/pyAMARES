@@ -1,5 +1,5 @@
 from .fid import interleavefid, uninterleave, multieq6, Jac6, Jac6c, process_fid
-from .fid import fidSNR, add_noise_FID, simulate_fid
+from .fid import fidSNR, add_noise_FID, simulate_fid, remove_zero_padding
 from .PriorKnowledge import initialize_FID, generateparameter
 from .lmfit import (
     dataframe_to_parameters,

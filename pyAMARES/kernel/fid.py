@@ -247,6 +247,36 @@ def fft_params(timeaxis, params, fid=False, return_mat=False):
     spec = ng.proc_base.fft((uninterleave(multieq6(params, timeaxis))))
     return spec
 
+def remove_zero_padding(fid, threshold=1e-10, window_size=5):
+    """
+    Detect and remove the zero-filling-like constant tail from an FID signal using derivative analysis.
+
+    This function analyzes an FID signal using derivative analysis to identify and remove
+    constant-value tail sections. These sections may have zero or near-zero values but
+    share the characteristic of being constant.
+
+    Args:
+        fid (numpy.ndarray): Input FID signal.
+        threshold (float): Threshold value for detecting constant regions using signal
+            differentiation. Default: 1e-10
+        window_size (int): Number of consecutive points needed to confirm a constant
+            region. Default: 5
+
+    Returns:
+        int: Index where the signal was truncated.
+    """
+    differences = np.diff(fid)
+    constant_start = np.where(np.abs(differences) < threshold)[0]
+    cutoff_idx = len(fid)
+    
+    for i in range(len(constant_start) - window_size):
+        if np.all(np.diff(constant_start[i:i+window_size]) == 1):
+            cutoff_idx = constant_start[i]
+            break
+    
+    return cutoff_idx
+    # return fid[:cutoff_idx], cutoff_idx
+
 
 def process_fid(fid, deadtime=0.0, sw=10000, lb=5.0, ifphase=False, ifplot=False):
     """
