@@ -10,6 +10,7 @@ v0.3.20
   - Added a bool ``notebook`` to ``run_parallel_fitting_with_progress`` to toggle the Progress Bar for jupyter notebook.
 
 **Fixed**
+  - Fixed an important but not critical bug where lowerbound (``lval``) parameter of linewidth ``dk`` read from prior knowledge dataset by ``initialize_FID`` was always ignored and set to 0 in all versions prior to v0.3.20.
   - Fixed a critical bug introduced in v0.3.19 (commit e319a5c) that broke the function ``run_parallel_fitting_with_progress``.
   - Install ``hlsvdpro`` only when ``platform.machine()`` returns ``x86_64`` or ``amd64``.
 
