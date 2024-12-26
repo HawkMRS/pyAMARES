@@ -56,6 +56,9 @@ def main():
         "--normalize_fid", action="store_true", help="Normalize the FID data"
     )
     parser.add_argument(
+        "--scale_amplitude", type=float, default=1.0, metavar="float", help="Scale the amplitude of the FID data"
+    )
+    parser.add_argument(
         "--flip_axis",
         action="store_true",
         help="Flip the FID axis by taking the complex conjugate",
@@ -149,6 +152,7 @@ def main():
         sw=args.sw,
         deadtime=args.deadtime,
         normalize_fid=args.normalize_fid,
+        scale_amplitude=args.scale_amplitude,
         flip_axis=args.flip_axis,
         preview=args.preview,
         carrier=args.carrier,

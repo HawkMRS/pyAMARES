@@ -5,7 +5,6 @@ from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor
 
 import numpy as np
-from tqdm.notebook import tqdm
 
 from ..kernel.lmfit import fitAMARES
 
@@ -44,6 +43,9 @@ def fit_dataset(fid_current, FIDobj_shared, initial_params, method="leastsq", in
         initial_params (lmfit.Parameters): Initial fitting parameters for the AMARES algorithm.
         method (str, optional): The fitting method to be used. Defaults to "leastsq" (Levenberg-Marquardt).
         initialize_with_lm (bool, optional, default False, new in 0.3.9): If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally. See ``pyAMARES.lmfit.fitAMARES`` for details. 
+        objective_func (callable, optional): Custom objective function for ``pyAMARES.lmfit.fitAMARES``. If None,
+          the default objective function will be used. Defaults to None.
+
 
     Returns:
         pandas.DataFrame or None: A DataFrame containing the fitting results for the current dataset. Returns None if an error occurs during fitting.
@@ -91,6 +93,7 @@ def run_parallel_fitting_with_progress(
     num_workers=8,
     logfilename="multiprocess_log.txt",
     objective_func=None,
+    notebook=True,
 ):
     """
     Runs parallel AMARES fitting of multiple FID datasets using a shared FID object template and initial parameters.
@@ -111,13 +114,26 @@ def run_parallel_fitting_with_progress(
           If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally. See ``pyAMARES.lmfit.fitAMARES`` for details. 
         num_workers (int, optional): The number of worker processes to use in parallel processing. Defaults to 8.
         logfilename (str, optional): The name of the file where the progress log is saved. Defaults to 'multiprocess_log.txt'.
+        objective_func (callable, optional): Custom objective function for ``pyAMARES.lmfit.fitAMARES``. If None,
+          the default objective function will be used. Defaults to None.
+        notebook (bool, optional): If True, uses tqdm.notebook for progress display in Jupyter notebooks.
+          If False, uses standard tqdm. Defaults to True.
 
     Returns:
         list: A list of fitting result objects (e.g., pandas DataFrames) for each FID dataset.
     """
+    if notebook:
+        from tqdm.notebook import tqdm
+    else:
+        from tqdm import tqdm
+
     FIDobj_shared = deepcopy(FIDobj_shared)
     try:
         del FIDobj_shared.styled_df
+    except AttributeError:
+        print("There is no styled_df!")
+    try:
+        del FIDobj_shared.simple_df
     except AttributeError:
         print("There is no styled_df!")
     timebefore = datetime.now()

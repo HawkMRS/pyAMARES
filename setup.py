@@ -1,5 +1,6 @@
 import os
 import ast
+import platform
 from setuptools import setup, find_packages
 from setuptools.command.sdist import sdist as _sdist
 import glob
@@ -69,6 +70,27 @@ doc_requirements = [
     "ipywidgets",
 ]
 
+install_requires=[
+    "pandas>=1.1.0",
+    "matplotlib>=3.1.3",
+    "lmfit",
+    "numpy>=1.18.1",
+    "scipy>=1.2.1",
+    "sympy",
+    "nmrglue",
+    "xlrd",
+    "jinja2",
+    "tqdm",
+    "mat73",
+    "ipython",
+    "ipykernel",
+]
+
+
+if platform.machine().lower() in ['x86_64', 'amd64']:
+    # Exclude macOS arm64
+    install_requires.append("hlsvdpro>=2.0.0")
+
 
 setup(
     name="pyAMARES",
@@ -94,22 +116,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.6",  # Minimum Python version requirement
-    install_requires=[
-        "pandas>=1.1.0",
-        "matplotlib>=3.1.3",
-        "lmfit",
-        "numpy>=1.18.1",
-        "scipy>=1.2.1",
-        "hlsvdpro>=2.0.0",
-        "sympy",
-        "nmrglue",
-        "xlrd",
-        "jinja2",
-        "tqdm",
-        "mat73",
-        "ipython",
-        "ipykernel",
-    ],
+    install_requires=install_requires,
     extras_require={
         "docs": doc_requirements,
         "jupyter": jupyter_requirements,
