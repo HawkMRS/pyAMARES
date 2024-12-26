@@ -1,6 +1,18 @@
 Latest Changes
 --------------
 
+v0.3.20
+~~~~~~~
+
+**Added**
+  - Added ``scale_amplitude`` to ``initialize_FID`` to scale the amplitude of input prior knowledge dataset.
+  - Added ``scale_amplitude`` to script ``amaresfit.py``
+  - Added a bool ``notebook`` to ``run_parallel_fitting_with_progress`` to toggle the Progress Bar for jupyter notebook.
+
+**Fixed**
+  - Fixed a critical bug introduced in v0.3.19 (commit e319a5c) that broke the function ``run_parallel_fitting_with_progress``.
+  - Install ``hlsvdpro`` only when ``platform.machine()`` returns ``x86_64`` or ``amd64``.
+
 v0.3.19
 ~~~~~~~
 
@@ -14,7 +26,7 @@ v0.3.18
   - Added ``simple_df`` Dataframe to the ``fid_parameters``. 
 
 **Fixed**
-  - Fixed a typo in the equation in ``what.rst``
+  - Fixed a typo in the equation in ``what.rst``.
   
 
 v0.3.17

@@ -278,6 +278,7 @@ def generateparameter(
     fname,
     MHz=120.0,
     g_global=0.0,
+    scale_amplitude=1.0,
     paramter_prefix=["ak", "freq", "dk", "phi", "g"],
     preview=False,
 ):
@@ -339,10 +340,17 @@ def generateparameter(
             if np.isnan(uval):
                 uval = np.inf
             name = para + "_" + peak
+            if (para == "ak") and scale_amplitude != 1.0:
+                print(f"scale {name} from {val} to {val * scale_amplitude}")
+                val = val * scale_amplitude
+                lval = lval * scale_amplitude
+                uval = uval * scale_amplitude
             if para == "freq":
                 pass
-            if para == "dk" and (lval != uval):
-                lval = 0
+            if para == "dk" and (lval != uval): # Important bug fix. Prior to 0.3.20, the lval of dk was always ignored and set to 0. 
+                if lval < 0:
+                   print(f"Warning! Linewidth {name} cannot be a negative value! Set the lower bound to 0!")
+                   lval = 0
             if para == "g":
                 if g_global is False:
                     vary = True
@@ -391,6 +399,7 @@ def initialize_FID(
     xlim=None,
     truncate_initial_points=0,
     g_global=0.0,
+    scale_amplitude=1.0,
     carrier=0.0,
     lb=2.0,
     ppm_offset=0,
@@ -407,6 +416,8 @@ def initialize_FID(
         sw (float): The spectral width in Hz.
         deadtime (float): The dead time or begin time in seconds before the FID signal starts.
         normalize_fid (bool): If True, normalize the FID data.
+        scale_amplitude (float, optional): Scaling factor applied to the amplitude parameters loaded from priorknowledgefile.
+          Useful when prior knowledge amplitudes significantly differ from the FID amplitude. Defaults to 1.0 (no scaling).
         flip_axis (bool): If True, flip the FID axis by taking the complex conjugate. Useful in some GE scanners where the MNS axis needs to be flipped.
         preview (bool): If True, display a preview plot of the original and initialized FID spectra.
         xlim (tuple): The x-axis limits for the preview plot in ppm.
@@ -414,6 +425,7 @@ def initialize_FID(
                                        This usually makes baseline more flat.
         g_global (float, optional): Global value for the ``g`` parameter. Defaults to 0.0. If set to False,
         the g values specified in the prior knowledge will be used.
+        lb (float, optional): Line broadening parameter in Hz, used for spectrum visualization. Defaults to 2.0.
         carrier (float, optional): The carrier frequency in ppm, often used for water (4.7 ppm) or other reference metabolite such as Phosphocreatine (0 ppm).
         ppm_offset (float, optional): Adjust the ppm in priorknowledgefile. Default 0 ppm
         noise_var (str or float): Method or value used to estimate the noise variance in the data. Options include:
@@ -488,6 +500,7 @@ def initialize_FID(
     opts.dwelltime = dwelltime
     opts.deadpts = int(deadtime // dwelltime)
     opts.g_global = g_global  # for HSVD initialization
+    opts.scale_amplitude = scale_amplitude 
     opts.ppm_offset = ppm_offset
     opts.noise_var = noise_var
 
@@ -505,11 +518,11 @@ def initialize_FID(
     if priorknowledgefile is not None:
         if preview:
             opts.initialParams, opts.peaklist, opts.PK_table = generateparameter(
-                priorknowledgefile, MHz=MHz, g_global=g_global, preview=True
+                priorknowledgefile, MHz=MHz, g_global=g_global, preview=True, scale_amplitude=scale_amplitude,
             )  # Load prior knowledge
         else:
             opts.initialParams, opts.peaklist = generateparameter(
-                priorknowledgefile, MHz=MHz, g_global=g_global, preview=False
+                priorknowledgefile, MHz=MHz, g_global=g_global, preview=False, scale_amplitude=scale_amplitude,
             )  # Load prior knowledge
         opts.fidini = fft_params(
             timeaxis=opts.timeaxis, params=opts.initialParams, fid=True

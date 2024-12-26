@@ -1,5 +1,5 @@
 __author__ = "Jia Xu, MR Research Facility, University of Iowa"
-__version__ = "0.3.20a"
+__version__ = "0.3.20"
 
 # print("Current pyAMARES version is %s" % __version__)
 # print("Author: %s" % __author__)
