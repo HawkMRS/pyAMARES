@@ -86,14 +86,11 @@ install_requires=[
     "ipykernel",
 ]
 
-
-## [!] Remove platform dependent package handling to test for failure
-if True:
+# use better performing 'hlsvdpro' pacakge on supporting platforms only
+if platform.machine().lower() in ['x86_64', 'amd64']:
     install_requires.append("hlsvdpro>=2.0.0")
-# if platform.machine().lower() in ['x86_64', 'amd64']:
-#     # Exclude macOS arm64
-#     install_requires.append("hlsvdpro>=2.0.0")
-
+else:
+    install_requires.append("hlsvdpropy")
 
 setup(
     name="pyAMARES",
