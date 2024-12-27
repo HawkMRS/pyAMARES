@@ -87,9 +87,12 @@ install_requires=[
 ]
 
 
-if platform.machine().lower() in ['x86_64', 'amd64']:
-    # Exclude macOS arm64
+## [!] Remove platform dependent package handling to test for failure
+if True:
     install_requires.append("hlsvdpro>=2.0.0")
+# if platform.machine().lower() in ['x86_64', 'amd64']:
+#     # Exclude macOS arm64
+#     install_requires.append("hlsvdpro>=2.0.0")
 
 
 setup(
