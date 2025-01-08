@@ -1,6 +1,6 @@
 Copyright Notice and Statement for the pyAMARES project
 
-Copyright (c) 2023-2024, Jia Xu, Magnetic Resonance Research Facility, University of Iowa
+Copyright (c) 2023-2025, Jia Xu, Magnetic Resonance Research Facility, University of Iowa
 
 All rights reserved. 
 
