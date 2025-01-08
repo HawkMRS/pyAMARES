@@ -1,6 +1,13 @@
 Latest Changes
 --------------
 
+v0.3.21
+~~~~~~~
+
+**Added**
+  - Added ``delta_phase`` parameter to ``initialize_FID`` for applying additional phase offset (in degrees) to the prior knowledge phase values.
+  - Added ``delta_phase`` to script ``amaresfit.py``
+
 v0.3.20
 ~~~~~~~
 
