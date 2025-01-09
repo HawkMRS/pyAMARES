@@ -9,7 +9,7 @@ import pyAMARES
 
 project = "pyAMARES"
 copyright = (
-    " 2023-2024, Jia Xu, Magnetic Resonance Research Facility, University of Iowa "
+    " 2023-2025, Jia Xu, Magnetic Resonance Research Facility, University of Iowa "
 )
 author = pyAMARES.__author__
 release = pyAMARES.__version__
