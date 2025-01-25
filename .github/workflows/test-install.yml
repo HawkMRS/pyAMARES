@@ -1,0 +1,36 @@
+name: Test Installation
+
+on:
+  push:
+    branches:
+      - main
+      - CICD # can be removed after merging into main
+
+jobs:
+  test:
+    name: Test installation on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners
+        os: [ubuntu-latest, windows-latest, macos-13, macos-latest]
+        python-version: ["3.8", "3.11"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install .
+
+    - name: Verify installation
+      run: |
+        python -c "import pyAMARES"
+

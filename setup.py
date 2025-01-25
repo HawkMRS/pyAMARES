@@ -86,9 +86,10 @@ install_requires=[
     "ipykernel",
 ]
 
-
+# Use the better-performing 'hlsvdpro' package if running on supported platforms
+# (e.g., x86_64 or amd64 architectures). Otherwise, fall back to the custom
+# 'hlsvdpropy' implementation located in pyAMARES/libs/hlsvd.py.
 if platform.machine().lower() in ['x86_64', 'amd64']:
-    # Exclude macOS arm64
     install_requires.append("hlsvdpro>=2.0.0")
 
 
