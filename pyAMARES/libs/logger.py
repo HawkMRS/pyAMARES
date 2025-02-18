@@ -114,7 +114,8 @@ def set_log_level(level: str = "error", verbose: bool = True):
 
             print(f"{arrow} {lname.upper():<10}")
 
-    # Apply the logging level to all existing loggers
+    # Apply the logging level to all existing loggers from this package
     for logger_name in logging.root.manager.loggerDict:
-        logger = logging.getLogger(logger_name)
-        logger.setLevel(numeric_level)
+        if logger_name.startswith("pyAMARES"):
+            logger = logging.getLogger(logger_name)
+            logger.setLevel(numeric_level)
