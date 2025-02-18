@@ -1,24 +1,29 @@
+import argparse
 import re
 from copy import deepcopy
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import argparse
-
 from lmfit import Parameters
+
+from ..libs.logger import get_logger
 from .fid import fft_params
 
+logger = get_logger(__name__)
+
+
 def refindall(expr):
-    # Work in the same way as matches = re.findall(r"(\d+)(Hz|ppm)", expr) but support decimals  
-    expr = expr.replace(' ','')
+    # Work in the same way as matches = re.findall(r"(\d+)(Hz|ppm)", expr) but support decimals
+    expr = expr.replace(" ", "")
     pattern = re.compile(r"([-+]?\d+(\.\d+)?)(Hz|ppm)?")
     match = pattern.search(expr)
     if match:
         number = match.group(1)
         unit = match.group(3) if match.group(3) else ""
         return [(number, unit)]
-    return [("", "")] 
+    return [("", "")]
+
 
 def evaluate_expression_with_units(expr, row, MHz):
     """
@@ -34,8 +39,8 @@ def evaluate_expression_with_units(expr, row, MHz):
         The result of evaluating the modified expression, or the original expression if evaluation fails.
     """
     # Find all parts of the expression that match a pattern like '15Hz' or '15ppm'
-    expr = expr.replace(" ", "") # 2024/06/23 Remove spaces in such as 15 ppm
-    matches = re.findall(r"(\d+)(Hz|ppm)", expr) 
+    expr = expr.replace(" ", "")  # 2024/06/23 Remove spaces in such as 15 ppm
+    matches = re.findall(r"(\d+)(Hz|ppm)", expr)
     # matches = refindall(expr)
     for match in matches:
         number, unit = match
@@ -110,15 +115,15 @@ def extract_expr(pk, MHz=120.0):
         """
         if isinstance(expr, str):
             # Find all parts of the expression that match a pattern like '15Hz' or '15ppm'
-            expr = expr.replace(" ", "") # 2024/06/23 Remove spaces in such as 15 ppm
+            expr = expr.replace(" ", "")  # 2024/06/23 Remove spaces in such as 15 ppm
             # matches = re.findall(r"(\d+)(Hz|ppm)", expr)
             matches = refindall(expr)
             for match in matches:
                 number, unit = match
                 if unit == "ppm":
-                    # 2024/06/23. This function is used to process in Parameters(), where ppm should be convert to Hz. 
+                    # 2024/06/23. This function is used to process in Parameters(), where ppm should be convert to Hz.
                     # Note this is different from the evaluate_expression_with_units, where chemical shift is ppm and Hz should be converted
-                    converted_value = str(float(number) * MHz)  
+                    converted_value = str(float(number) * MHz)
                     expr = expr.replace(number + unit, converted_value)
                 elif unit == "Hz":
                     expr = expr.replace(unit, "")
@@ -245,12 +250,12 @@ def assert_peak_format(input_str):
     """
     msg = "Error! The peak name can only use numbers as a suffix for multiplet peaks separated by J-coupling."
     if re.search(r"\.\d+$", input_str):
-        print(msg)
+        logger.info(msg)
         raise ValueError(
             "The peak name %s cannot end with a floating-point number!" % input_str
         )
     if re.search(r"\d+[\D]", input_str) or re.search(r"^\d+", input_str):
-        print(msg)
+        logger.info(msg)
         raise ValueError(
             "The peak name %s cannot contain numbers at the beginning or in the middle!"
             % input_str
@@ -260,10 +265,10 @@ def assert_peak_format(input_str):
 def find_header_row(filename, comment_char="#"):
     """Determine the index of the first non-commented line."""
     with open(filename, "r") as file:
-        print("Checking comment lines in the prior knowledge file")
+        logger.info("Checking comment lines in the prior knowledge file")
         for i, line in enumerate(file):
             if "#" in line:
-                print("Comment: in line", i, line)
+                logger.info("Comment: in line", i, line)
     with open(filename, "r") as file:
         for i, line in enumerate(file):
             processedline = line.replace('"', "").replace("'", "").strip()
@@ -324,7 +329,9 @@ def generateparameter(
     df_lb2 = unitconverter(df_lb, MHz=MHz)
     df_ub2 = unitconverter(df_ub, MHz=MHz)
     if g_global is False:
-        print("Parameter g will be fit with the initial value set in the file %s" % fname)
+        logger.info(
+            "Parameter g will be fit with the initial value set in the file %s" % fname
+        )
         # print(f"Parameter g will be fit with the initial value set in the file {fname}")
     allpara = Parameters()
     for peak in dfini2.columns:
@@ -341,16 +348,20 @@ def generateparameter(
                 uval = np.inf
             name = para + "_" + peak
             if (para == "ak") and scale_amplitude != 1.0:
-                print(f"scale {name} from {val} to {val * scale_amplitude}")
+                logger.info(f"scale {name} from {val} to {val * scale_amplitude}")
                 val = val * scale_amplitude
                 lval = lval * scale_amplitude
                 uval = uval * scale_amplitude
             if para == "freq":
                 pass
-            if para == "dk" and (lval != uval): # Important bug fix. Prior to 0.3.20, the lval of dk was always ignored and set to 0. 
+            if (
+                para == "dk" and (lval != uval)
+            ):  # Important bug fix. Prior to 0.3.20, the lval of dk was always ignored and set to 0.
                 if lval < 0:
-                   print(f"Warning! Linewidth {name} cannot be a negative value! Set the lower bound to 0!")
-                   lval = 0
+                    logger.warning(
+                        f"Linewidth {name} cannot be a negative value! Set the lower bound to 0!"
+                    )
+                    lval = 0
             if para == "g":
                 if g_global is False:
                     vary = True
@@ -364,13 +375,15 @@ def generateparameter(
                 if lval == uval:
                     # When lval == uval, set the val to lval and fix it
                     allpara.add(
-                        name=name, value=lval, vary=False,
+                        name=name,
+                        value=lval,
+                        vary=False,
                     )
                 else:
                     allpara.add(
                         name=name, value=val, min=lval, max=uval, vary=vary, expr=expr
                     )
-                    
+
             except NameError as e:
                 e2 = (
                     "This error may be caused by the expr {} being constrained "
@@ -403,7 +416,7 @@ def initialize_FID(
     carrier=0.0,
     lb=2.0,
     ppm_offset=0,
-    noise_var='OXSA',
+    noise_var="OXSA",
 ):
     """
     Initialize fitting parameters from prior knowledge (`priorknowledgefile`) or HSVD initialized result if there is
@@ -430,30 +443,32 @@ def initialize_FID(
         ppm_offset (float, optional): Adjust the ppm in priorknowledgefile. Default 0 ppm
         noise_var (str or float): Method or value used to estimate the noise variance in the data. Options include:
 
-            - ``OXSA``: Uses the default noise variance estimation method employed by OXSA. See ``pyAMARES.util.crlb.evaluateCRB`` for details. 
-            - ``jMRUI``: Employs the default noise variance estimation method used by jMRUI. 
+            - ``OXSA``: Uses the default noise variance estimation method employed by OXSA. See ``pyAMARES.util.crlb.evaluateCRB`` for details.
+            - ``jMRUI``: Employs the default noise variance estimation method used by jMRUI.
             - A float value: Directly specifies the noise variance calculated externally.
 
     Returns:
         argparse.Namespace: An object containing FID fitting parameters.
     """
     if fid is None:
-        print("Warning, fid is None!")
+        logger.warning("Fid is None! Creating unity array instead.")
         fid = np.ones(1024, dtype=complex)
 
-    sw = float(sw)  # Sometimes values from Matlab are uint16 and cause bugs. Make sure they are float.
+    sw = float(
+        sw
+    )  # Sometimes values from Matlab are uint16 and cause bugs. Make sure they are float.
     MHz = float(MHz)
     deadtime = float(deadtime)
     dwelltime = 1.0 / sw
     if truncate_initial_points > 0:
-        print(
+        logger.info(
             "Truncating %i points from the beginning of the FID signal"
             % truncate_initial_points
         )
         deadtime_old = deadtime * 1.0
         deadtime = deadtime + truncate_initial_points * dwelltime
         fid = fid[truncate_initial_points:]
-        print(
+        logger.info(
             "The deadtime is changing from %f seconds to %f seconds"
             % (deadtime_old, deadtime)
         )
@@ -474,10 +489,10 @@ def initialize_FID(
     # opts.timeaxis = np.linspace(deadtime, at, fidpt)
     opts.carrier = carrier  # 4.7 for water, 0 for PCr
     if flip_axis:
-        # This must be done before the shifting FID for carrier. 
+        # This must be done before the shifting FID for carrier.
         fid = np.conj(fid)
     if carrier != 0:
-        print("Shift FID so that center frequency is at %s ppm!" % carrier)
+        logger.info("Shift FID so that center frequency is at %s ppm!" % carrier)
         fid = fid * np.exp(1j * 2 * np.pi * carrier * MHz * opts.timeaxis)
         # ppm = ppm + carrier
         # Hz = Hz + carrier / np.abs(MHz)
@@ -500,7 +515,7 @@ def initialize_FID(
     opts.dwelltime = dwelltime
     opts.deadpts = int(deadtime // dwelltime)
     opts.g_global = g_global  # for HSVD initialization
-    opts.scale_amplitude = scale_amplitude 
+    opts.scale_amplitude = scale_amplitude
     opts.ppm_offset = ppm_offset
     opts.noise_var = noise_var
 
@@ -518,17 +533,25 @@ def initialize_FID(
     if priorknowledgefile is not None:
         if preview:
             opts.initialParams, opts.peaklist, opts.PK_table = generateparameter(
-                priorknowledgefile, MHz=MHz, g_global=g_global, preview=True, scale_amplitude=scale_amplitude,
+                priorknowledgefile,
+                MHz=MHz,
+                g_global=g_global,
+                preview=True,
+                scale_amplitude=scale_amplitude,
             )  # Load prior knowledge
         else:
             opts.initialParams, opts.peaklist = generateparameter(
-                priorknowledgefile, MHz=MHz, g_global=g_global, preview=False, scale_amplitude=scale_amplitude,
+                priorknowledgefile,
+                MHz=MHz,
+                g_global=g_global,
+                preview=False,
+                scale_amplitude=scale_amplitude,
             )  # Load prior knowledge
         opts.fidini = fft_params(
             timeaxis=opts.timeaxis, params=opts.initialParams, fid=True
         )
         if ppm_offset != 0:
-            print("Shifting the ppm by ppm_offset=%2.2f ppm" % ppm_offset)
+            logger.info("Shifting the ppm by ppm_offset=%2.2f ppm" % ppm_offset)
             for p in opts.initialParams:
                 if p.startswith("freq"):
                     hz_offset = opts.ppm_offset * opts.MHz
@@ -540,11 +563,11 @@ def initialize_FID(
                         opts.initialParams[p].max is not None
                     ):  # Check if there's an upper bound set
                         opts.initialParams[p].max += hz_offset
-                    print(
+                    logger.info(
                         "before opts.initialParams[%s].value=%s"
                         % (p, opts.initialParams[p].value)
                     )
-                    print(
+                    logger.info(
                         "new value should be opts.initialParams[%s].value + opts.ppm_offset * opts.MHz=%s"
                         % (p, opts.initialParams[p].value + opts.ppm_offset * opts.MHz)
                     )
@@ -557,7 +580,7 @@ def initialize_FID(
                         opts.initialParams[p].value + hz_offset
                     )
                     # print(f"after {opts.initialParams[p].value=}")
-                    print(
+                    logger.info(
                         "after opts.initialParams[%s].value=%s"
                         % (p, opts.initialParams[p].value)
                     )
@@ -579,12 +602,12 @@ def initialize_FID(
         plt.xlabel("ppm")
         plt.show()
         if priorknowledgefile is not None:
-            print("Printing the Prior Knowledge File %s" % priorknowledgefile)
+            logger.info("Printing the Prior Knowledge File %s" % priorknowledgefile)
             try:
                 from IPython.display import display
 
                 display(opts.PK_table)  # display table
             except ImportError:
-                print(opts.PK_table)
+                logger.info(opts.PK_table)
 
     return opts
