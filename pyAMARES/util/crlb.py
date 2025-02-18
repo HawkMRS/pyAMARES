@@ -1,13 +1,17 @@
 import re
 import warnings
+
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy
-import matplotlib.pyplot as plt
 import sympy
 from sympy.parsing import sympy_parser
 
+from ..kernel import Jac6, multieq6, uninterleave
+from .logging import get_logger
 from .report import report_crlb
-from ..kernel import uninterleave, multieq6, Jac6
+
+logger = get_logger(__name__)
 
 
 def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=False):
@@ -51,10 +55,8 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
     condition_number = np.linalg.cond(Fisher)
     if condition_number > condthreshold:
         # print("Warning: The matrix may be ill-conditioned. Condition number is high:", condition_number)
-        warnings.warn(
-            "Warning: The matrix may be ill-conditioned. Condition number is high: %3.3e"
-            % condition_number,
-            RuntimeWarning,
+        logger.warning(
+            f"Warning: The matrix may be ill-conditioned. Condition number is high: {condition_number:3.3e}"
         )
         CRBcov = P @ scipy.linalg.pinv(Fisher) @ P.T
     else:
@@ -76,7 +78,7 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
             return False
     if np.max(np.diag(CRBcov)) < 1e-5:
         # print("Ill conditioned matrix! CRLB not reliable!")
-        warnings.warn("Ill conditioned matrix! CRLB not reliable!", RuntimeWarning)
+        logger.warning("Ill conditioned matrix! CRLB not reliable!", RuntimeWarning)
     if verbose:
         print("CRBcov.shape", CRBcov.shape)
         print("max CRBcov", np.max(np.diag(CRBcov)))
@@ -111,21 +113,31 @@ def evaluateCRB(outparams, opts, P=None, Jacfunc=Jac6, verbose=False):
     opts.D = Jacfunc(outparams, opts.timeaxis)
     opts.residual = uninterleave(multieq6(outparams, opts.timeaxis)) - opts.fid
     if opts.noise_var.startswith("OXSA"):
-        print("Estimated CRLBs are calculated using the default noise variance estimation used by OXSA.")
+        logger.info(
+            "Estimated CRLBs are calculated using the default noise variance estimation used by OXSA."
+        )
         opts.variance = np.var(
             opts.residual.real
-        )  # OXSA style, the "noise as SD in TD from TD residue" option selected in the Result Window of jMRUI V7. 
+        )  # OXSA style, the "noise as SD in TD from TD residue" option selected in the Result Window of jMRUI V7.
     elif opts.noise_var.lower().startswith("jmrui"):
-        print("Estimated CRLBs are calculated using the default noise variance estimation used by jMRUI.")
+        logger.info(
+            "Estimated CRLBs are calculated using the default noise variance estimation used by jMRUI."
+        )
         opts.variance = np.var(
-            opts.fid[-len(opts.fid)//10 :].real
+            opts.fid[-len(opts.fid) // 10 :].real
         )  # jMRUI style, "noise as SD in TD from TD FID tall option selected in the Result Window of jMRUI V7" (I hard-coded last 10% points)
     else:
         try:
             opts.variance = float(opts.noise_var)
-            print("The CRLB estimation will be divided by the input variance %s" % opts.variance)
+            logger.info(
+                "The CRLB estimation will be divided by the input variance %s"
+                % opts.variance
+            )
         except ValueError:
-            print("Error: noise_var %s is not a recognized string or a valid number." % opts.variance)
+            logger.info(
+                "Error: noise_var %s is not a recognized string or a valid number."
+                % opts.variance
+            )
 
     if verbose:
         print("opts.D.shape=%s" % str(opts.D.shape))
