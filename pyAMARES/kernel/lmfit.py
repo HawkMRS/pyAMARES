@@ -1,12 +1,11 @@
 import re
-import warnings
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
 from lmfit import Minimizer, Parameters
 
-from ..util.logging import get_logger
+from ..libs.logger import get_logger
 from .fid import Compare_to_OXSA, fft_params
 from .objective_func import default_objective
 
@@ -45,7 +44,7 @@ def check_removed_expr(df):
         if parts[0].split("_")[1] not in peaklist:
             # warnings.warn(f"{row['name'].split('_')[1]} is already removed! Parameters restrained to it will be set to vary.", UserWarning)
             logger.warning(
-                f"{row["name"].split("_")[1]} is already removed! Parameters restrained to it will be set to vary."
+                f"{row['name'].split('_')[1]} is already removed! Parameters restrained to it will be set to vary."
             )
             logger.info(
                 f"The expr of {row['name']} is changed from {row['expr']} to None"
@@ -568,9 +567,13 @@ def print_lmfit_fitting_results(result):
         result (lmfit.MinimizerResult): The result object from lmfit fitting.
 
     """
-    print("Lmfit Fitting Results:")
-    print("----------------")
-    print("Number of function evaluations (nfev):", result.nfev)
-    print("Reduced chi-squared (redchi):", result.redchi)
-    print("Fit success status:", "Success" if result.success else "Failure")
-    print("Fit message:", result.message)
+    msg = ["\n    Lmfit Fitting Results:"]
+    msg.append("----------------")
+    msg.append(f"Number of function evaluations (nfev): {result.nfev}")
+    msg.append(f"Reduced chi-squared (redchi): {result.redchi}")
+    msg.append(f"Fit success status: {'Success' if result.success else 'Failure'}")
+    msg.append(f"Fit message: {result.message}")
+
+    msg_string = "\n    ".join(msg)
+
+    logger.info(msg_string)

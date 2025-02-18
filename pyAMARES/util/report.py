@@ -1,9 +1,18 @@
 import warnings
+
 import numpy as np
 import pandas as pd
-from ..kernel import Jac6, Jac6c
-from ..kernel import parameters_to_dataframe_result, parameters_to_dataframe
-from ..kernel import remove_zero_padding
+
+from ..kernel import (
+    Jac6,
+    Jac6c,
+    parameters_to_dataframe,
+    parameters_to_dataframe_result,
+    remove_zero_padding,
+)
+from ..libs.logger import get_logger
+
+logger = get_logger(__name__)
 
 try:
     import jinja2
@@ -11,14 +20,18 @@ try:
     if_style = True
 except ImportError:
     if_style = False
-    print("Jinja2 is not installed. Turn off colored table. Try pip install jinja2.")
+    logger.warning(
+        "Jinja2 is not installed. Turn off colored table. Try pip install jinja2."
+    )
+
 
 def get_min_max_deg(resulttable):
     # Extract min and max degrees from the constraints in the ``resultpd``
-    phitable = resulttable[resulttable.name.str.startswith('phi')]
-    min_deg = np.rad2deg(phitable['min'].min())
-    max_deg = np.rad2deg(phitable['max'].max())
+    phitable = resulttable[resulttable.name.str.startswith("phi")]
+    min_deg = np.rad2deg(phitable["min"].min())
+    max_deg = np.rad2deg(phitable["max"].max())
     return min_deg, max_deg
+
 
 def wrap_degrees(val_deg, min_deg, max_deg):
     # Fold result_pd degrees into the constraints defined in the prior knowledge
@@ -30,13 +43,16 @@ def wrap_degrees(val_deg, min_deg, max_deg):
 
     # If the specified range is within [0, 360)
     if 0 <= min_deg < max_deg <= 360:
-        wrapped_deg = np.where(normalized_deg < min_deg, normalized_deg + 360, normalized_deg)
+        wrapped_deg = np.where(
+            normalized_deg < min_deg, normalized_deg + 360, normalized_deg
+        )
     # If the range includes negative degrees or spans over 0 degrees (e.g., [-180, 180] or [350, 10])
     else:
         range_width = max_deg - min_deg
         wrapped_deg = (normalized_deg - min_deg) % range_width + min_deg
-    
+
     return wrapped_deg
+
 
 def report_crlb(outparams, crlb, Jacfunc=None):
     """
@@ -62,7 +78,7 @@ def report_crlb(outparams, crlb, Jacfunc=None):
     else:
         # print(f"{Jacfunc=} is not supported!")
         # print("Jacfunc=%s is not supported!" % Jacfunc)
-        warnings.warn("Jacfunc=%s is not supported!" % Jacfunc, RuntimeWarning)
+        logger.warning(f"Jacfunc={Jacfunc} is not supported!")
 
     resultpd = pdpoptall.loc[poptall.index]
     resultpd["CRLB %"] = np.abs(crlb / poptall * 100.0)
@@ -109,7 +125,8 @@ def sum_multiplets(df):
     ]
 
     agg_funcs = {
-        col: "first" if col not in ["amplitude", "sd", "SNR"] else "sum" for col in df.columns
+        col: "first" if col not in ["amplitude", "sd", "SNR"] else "sum"
+        for col in df.columns
     }
     grouped_df = df.groupby(base_names).agg(agg_funcs)
 
@@ -120,17 +137,19 @@ def sum_multiplets(df):
 def contains_non_numeric_strings(df):
     def is_numeric_string(s):
         try:
-            float(
-                s
-            )  
+            float(s)
             return True
         except ValueError:
             return False
 
     return any(not is_numeric_string(str(idx)) for idx in df.index)
 
+
 def extract_key_parameters(df):
-    return df[['amplitude', 'chem shift(ppm)', 'LW(Hz)', 'phase(deg)', 'SNR', 'CRLB(%)']]
+    return df[
+        ["amplitude", "chem shift(ppm)", "LW(Hz)", "phase(deg)", "SNR", "CRLB(%)"]
+    ]
+
 
 def report_amares(outparams, fid_parameters, verbose=False):
     """
@@ -198,7 +217,7 @@ def report_amares(outparams, fid_parameters, verbose=False):
     # fid_parameters.result2 = result.copy() # debug
     negative_amplitude = result["amplitude"] < 0
     if negative_amplitude.sum() > 0:
-        print(
+        logger.info(
             "The amplitude of index",
             result.loc[negative_amplitude].index.values,
             " is negative! Make it positive and flip the phase!",
@@ -220,7 +239,7 @@ def report_amares(outparams, fid_parameters, verbose=False):
     val_columns = ["amplitude", "chem shift", "lw", "phase", "g_value"]
     for col, crlb_col, val_col in zip(sd_columns, crlb_columns, val_columns):
         if result[col].isnull().all():
-            print("%s is all None, use crlb instead!" % col)
+            logger.info("%s is all None, use crlb instead!" % col)
             result[col] = result[crlb_col] / 100 * result[val_col]
 
     result["chem shift"] = result["chem shift"] / MHz
@@ -234,20 +253,26 @@ def report_amares(outparams, fid_parameters, verbose=False):
     result["phase"] = wrap_degrees(phase_col, min_deg=min_deg, max_deg=max_deg)
     try:
         result["phase_sd"] = np.rad2deg(result["phase_sd"])
-        result["phase_sd"] = wrap_degrees(result["phase_sd"] , min_deg=min_deg, max_deg=max_deg)
+        result["phase_sd"] = wrap_degrees(
+            result["phase_sd"], min_deg=min_deg, max_deg=max_deg
+        )
     except Exception as e:
-        print(f"Caught an error: {e}")
+        logger.info(f"Caught an error: {e}")
         result["phase_sd"] = np.nan
     # Change 'g_CRLB(%)' values to NaN where they are 0.0
     result.loc[result["g_CRLB(%)"] == 0.0, "g_CRLB(%)"] = np.nan
     zero_ind = remove_zero_padding(fid_parameters.fid)
     if zero_ind > 0:
-        print("It seems that zeros are padded after %i" % zero_ind)
-        print("Remove padded zeros from residual estimation!")
+        logger.info("It seems that zeros are padded after %i" % zero_ind)
+        logger.info("Remove padded zeros from residual estimation!")
         fid_parameters.fid_padding_removed = fid_parameters.fid[:zero_ind]
-        std_noise = np.std(fid_parameters.fid_padding_removed[-len(fid_parameters.fid_padding_removed)//10:])
+        std_noise = np.std(
+            fid_parameters.fid_padding_removed[
+                -len(fid_parameters.fid_padding_removed) // 10 :
+            ]
+        )
     else:
-        std_noise = np.std(fid_parameters.fid[-len(fid_parameters.fid)//10:])
+        std_noise = np.std(fid_parameters.fid[-len(fid_parameters.fid) // 10 :])
     result["SNR"] = result["amplitude"] / std_noise
     result.columns = [
         "amplitude",
@@ -276,7 +301,7 @@ def report_amares(outparams, fid_parameters, verbose=False):
         )  # reorder to the peaklist from the pk, not the local peaklist
     # fid_parameters.peaklist = peaklist
     else:
-        print("No peaklist, probably it is from an HSVD initialized object")
+        logger.info("No peaklist, probably it is from an HSVD initialized object")
     fid_parameters.result_multiplets = result  # Keep the multiplets
     # Sum multiplets if needed
     if contains_non_numeric_strings(result):  # assigned peaks in the index
@@ -286,7 +311,9 @@ def report_amares(outparams, fid_parameters, verbose=False):
             styled_df = fid_parameters.result_sum.style.apply(
                 highlight_rows_crlb_less_than_02, axis=1
             ).format("{:.3f}")
-            simple_df = highlight_dataframe(extract_key_parameters(fid_parameters.result_sum))
+            simple_df = highlight_dataframe(
+                extract_key_parameters(fid_parameters.result_sum)
+            )
         else:
             styled_df = (
                 fid_parameters.result_sum
@@ -297,7 +324,9 @@ def report_amares(outparams, fid_parameters, verbose=False):
             styled_df = fid_parameters.result_multiplets.style.apply(
                 highlight_rows_crlb_less_than_02, axis=1
             ).format("{:.3f}")
-            simple_df = highlight_dataframe(extract_key_parameters(fid_parameters.result_sum))
+            simple_df = highlight_dataframe(
+                extract_key_parameters(fid_parameters.result_sum)
+            )
         else:
             styled_df = (
                 fid_parameters.result_multiplets
@@ -306,27 +335,30 @@ def report_amares(outparams, fid_parameters, verbose=False):
     if hasattr(fid_parameters, "result_sum"):
         fid_parameters.metabolites = fid_parameters.result_sum.index.to_list()
     else:
-        print("There is no result_sum generated, probably there is only 1 peak")
+        logger.info("There is no result_sum generated, probably there is only 1 peak")
     fid_parameters.styled_df = styled_df
     fid_parameters.simple_df = simple_df
     return styled_df
 
-def highlight_dataframe(df, by="CRLB(%)", is_smaller=True, threshold=20.0, numeric_format="{:.3f}"):
+
+def highlight_dataframe(
+    df, by="CRLB(%)", is_smaller=True, threshold=20.0, numeric_format="{:.3f}"
+):
     """
     A versatile tool that highlights rows in a DataFrame based on a specified column's values.
 
-    This function applies a background color to the rows of the input DataFrame. 
-    Rows where the specified column's value meets the threshold condition 
+    This function applies a background color to the rows of the input DataFrame.
+    Rows where the specified column's value meets the threshold condition
     are highlighted in green, while the others are highlighted in red.
 
     Args:
         df (pd.DataFrame): The input DataFrame to be styled.
         by (str): The column name to be used for the threshold comparison.
-        is_smaller (bool): If True, highlight rows where the column value is 
-            less than or equal to the threshold. If False, highlight rows 
+        is_smaller (bool): If True, highlight rows where the column value is
+            less than or equal to the threshold. If False, highlight rows
             where the column value is greater than or equal to the threshold.
         threshold (float): The threshold value to compare against.
-        numeric_format (str): The format string used to display numeric values 
+        numeric_format (str): The format string used to display numeric values
             in the DataFrame. By default, `{:.3f}` formats a float as 0.241, while `{:.1f}` formats it as 0.2.
 
     Returns:
@@ -338,7 +370,7 @@ def highlight_dataframe(df, by="CRLB(%)", is_smaller=True, threshold=20.0, numer
         >>> highlight_dataframe(FIDobj.result_sum, numeric_format='{:1.1f}')
         >>> highlight_dataframe(FIDobj.result_sum, threshold=5, by='SNR', is_smaller=False)
     """
-    
+
     def highlight_rows(row, threshold=threshold, is_smaller=is_smaller):
         # Helper function to apply background color to a row based on the threshold condition.
         if is_smaller:
@@ -359,6 +391,6 @@ def highlight_dataframe(df, by="CRLB(%)", is_smaller=True, threshold=20.0, numer
                 )
                 for _ in row
             ]
-    
+
     styled_df = df.style.apply(highlight_rows, axis=1).format(numeric_format)
     return styled_df

@@ -8,7 +8,7 @@ import sympy
 from sympy.parsing import sympy_parser
 
 from ..kernel import Jac6, multieq6, uninterleave
-from .logging import get_logger
+from ..libs.logger import get_logger
 from .report import report_crlb
 
 logger = get_logger(__name__)
@@ -56,7 +56,7 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
     if condition_number > condthreshold:
         # print("Warning: The matrix may be ill-conditioned. Condition number is high:", condition_number)
         logger.warning(
-            f"Warning: The matrix may be ill-conditioned. Condition number is high: {condition_number:3.3e}"
+            f"The matrix may be ill-conditioned. Condition number is high: {condition_number:3.3e}"
         )
         CRBcov = P @ scipy.linalg.pinv(Fisher) @ P.T
     else:
@@ -208,8 +208,8 @@ def create_pmatrix(pkpd, verbose=False, ifplot=False):
     pm_index2 = pkpd2.iloc[pm_index]["newid"].to_list()
     if np.all(np.isnan(pm_index2)):  # If all NaN
         # print(f"{pm_index2=}")
-        warnings.warn(
-            "Warning: pm_index are all NaNs, return None so that P matrix is a identity matrix!",
+        logger.warning(
+            "pm_index are all NaNs, return None so that P matrix is a identity matrix!",
             RuntimeWarning,
         )
         return None
