@@ -1,6 +1,12 @@
 Latest Changes
 --------------
 
+v0.3.22
+~~~~~~~
+
+**Fixed**
+  - Fixed a bug in ``initialize_FID`` where J-coupling constants in the priori knowledge spreadsheet could not be float numbers.
+
 v0.3.21
 ~~~~~~~
 

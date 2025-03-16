@@ -35,7 +35,8 @@ def evaluate_expression_with_units(expr, row, MHz):
     """
     # Find all parts of the expression that match a pattern like '15Hz' or '15ppm'
     expr = expr.replace(" ", "") # 2024/06/23 Remove spaces in such as 15 ppm
-    matches = re.findall(r"(\d+)(Hz|ppm)", expr) 
+    # matches = re.findall(r"(\d+)(Hz|ppm)", expr)  #2025-03-15: This one does not handle float numbers
+    matches = re.findall(r"(\d+(?:\.\d+)?)(Hz|ppm)", expr)
     # matches = refindall(expr)
     for match in matches:
         number, unit = match
