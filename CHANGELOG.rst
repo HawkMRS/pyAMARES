@@ -1,6 +1,14 @@
 Latest Changes
 --------------
 
+v0.3.23
+~~~~~~~
+
+**Fixed**
+  - Fixed compatibility issues with Numpy 2.0 and Scipy 1.14.0+ and above.
+  - Fixed a critical bug introduced in v0.3.18 where the incorrectly included ``simple_df`` broke ``fitAMARES`` when using HSVD generated parameters
+
+
 v0.3.22
 ~~~~~~~
 

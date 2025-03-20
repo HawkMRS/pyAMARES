@@ -297,12 +297,20 @@ def report_amares(outparams, fid_parameters, verbose=False):
             styled_df = fid_parameters.result_multiplets.style.apply(
                 highlight_rows_crlb_less_than_02, axis=1
             ).format("{:.3f}")
-            simple_df = highlight_dataframe(extract_key_parameters(fid_parameters.result_sum))
+            if hasattr(fid_parameters, "result_sum"):
+                simple_df = highlight_dataframe(extract_key_parameters(fid_parameters.result_sum))
+            else:
+                simple_df = None
+                print("There is no result_sum generated, simple_df is set to None")
         else:
             styled_df = (
                 fid_parameters.result_multiplets
             )  # python 3.7 and older may not support Jinja2
-            simple_df = extract_key_parameters(fid_parameters.result_sum)
+            if hasattr(fid_parameters, "result_sum"):
+                simple_df = extract_key_parameters(fid_parameters.result_sum)
+            else:
+                simple_df = None
+                print("There is no result_sum generated, simple_df is set to None")
     if hasattr(fid_parameters, "result_sum"):
         fid_parameters.metabolites = fid_parameters.result_sum.index.to_list()
     else:

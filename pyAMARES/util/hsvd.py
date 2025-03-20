@@ -9,9 +9,13 @@ import nmrglue as ng
 
 from ..util.visualization import preview_HSVD
 
-try:
-    import hlsvdpro as hlsvd
-except ImportError:
+if int(np.__version__.split('.')[0]) < 2:  # Check if numpy version is less than 2.0
+    try:
+        import hlsvdpro as hlsvd
+    except ImportError:
+        from ..libs import hlsvd
+else:
+    # For NumPy 2.0+, skip hlsvdpro and use the local implementation directly. 2025-03-20
     from ..libs import hlsvd
 
 from ..libs.hlsvd import create_hlsvd_fids
