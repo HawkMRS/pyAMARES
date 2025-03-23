@@ -18,6 +18,7 @@ Tutorials and Examples
    fileio
    notebooks/priorknowledge
    notebooks/simple_tutorial
+   notebooks/X-Nuclei_Example
    notebooks/HSVDinitializer_unknowncompounds
    notebooks/demo_batch
    notebooks/Remove_Metabolite_residuals

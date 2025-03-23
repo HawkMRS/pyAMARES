@@ -2,6 +2,7 @@ from copy import deepcopy
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy
 from scipy.signal import firls, freqz, lfilter
 
 import nmrglue as ng
@@ -25,7 +26,11 @@ def fircls1(M, wc, ri, sup):
 
     weights = [1 / ri, 1 / sup]
 
-    h = firls(M + 1, bands, desired, weights)
+    if scipy.__version__ >= '1.14.0':
+        h = firls(M + 1, bands, desired, weight=weights, fs=2.0)
+    else:
+        # e.g. Scipy 1.10 
+        h = firls(M + 1, bands, desired, weights)
 
     return h
 

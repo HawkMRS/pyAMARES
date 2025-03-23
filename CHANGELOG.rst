@@ -1,6 +1,27 @@
 Latest Changes
 --------------
 
+v0.3.23
+~~~~~~~
+
+**Fixed**
+  - Fixed compatibility issues with Numpy 2.0 and Scipy 1.14.0+ and above.
+  - Fixed a critical bug introduced in v0.3.18 where the incorrectly included ``simple_df`` broke ``fitAMARES`` when using HSVD generated parameters
+
+
+v0.3.22
+~~~~~~~
+
+**Fixed**
+  - Fixed a bug in ``initialize_FID`` where J-coupling constants in the priori knowledge spreadsheet could not be float numbers.
+
+v0.3.21
+~~~~~~~
+
+**Added**
+  - Added ``delta_phase`` parameter to ``initialize_FID`` for applying additional phase offset (in degrees) to the prior knowledge phase values.
+  - Added ``delta_phase`` to script ``amaresfit.py``
+
 v0.3.20
 ~~~~~~~
 
