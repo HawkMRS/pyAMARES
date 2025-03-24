@@ -1,0 +1,52 @@
+name: Test Notebooks
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-notebooks:
+    name: Test with Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false  # Don't stop all tests if one version fails
+      matrix:
+        include:
+          - python-version: "3.7"
+            experimental: true  # Mark as experimental, so it can fail without failing the workflow
+          - python-version: "3.8"
+            experimental: false
+          - python-version: "3.10"
+            experimental: true
+          - python-version: "3.12"
+            experimental: true
+    
+    continue-on-error: ${{ matrix.experimental }}  # Allow failures for experimental versions
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install pytest nbval
+        python -m pip install -e .
+
+    - name: Run notebook tests
+      run: |
+        pytest --nbval-lax tests/
+
+    - name: Upload executed notebooks on failure
+      if: failure() && !matrix.experimental
+      uses: actions/upload-artifact@v3
+      with:
+        name: executed-notebooks-py${{ matrix.python-version }}
+        path: tests/*_executed.ipynb
