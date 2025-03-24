@@ -95,7 +95,7 @@ Fitting Result for Example 31P MRS data
 .. image:: https://raw.githubusercontent.com/HawkMRS/pyAMARES/main/pyAMARES/examples/simple_example.svg
    :width: 400
 
-.. image:: https://github.com/HawkMRS/pyAMARES/blob/4f9ca4431c0d72e1b41fb2b434f72e53feb1657f/pyAMARES/examples/simple_example_html.jpeg
+.. image:: https://raw.githubusercontent.com/HawkMRS/pyAMARES/main/pyAMARES/examples/simple_example_html.jpeg
    :width: 400
 
 How to cite

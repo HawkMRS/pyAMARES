@@ -1,13 +1,22 @@
 Latest Changes
 --------------
 
+v0.3.24
+~~~~~~~
+
+**Added**
+  - Added ``tests`` directory to the package with Jupyter notebook test examples. 
+  - Implemented CI/CD pipeline testing against multiple Python versions (3.7, 3.8, 3.10, and 3.12) on Ubuntu-22.04.
+
+**Fixed**
+  - Fixed an image link in README.rst
+
 v0.3.23
 ~~~~~~~
 
 **Fixed**
   - Fixed compatibility issues with Numpy 2.0 and Scipy 1.14.0+ and above.
-  - Fixed a critical bug introduced in v0.3.18 where the incorrectly included ``simple_df`` broke ``fitAMARES`` when using HSVD generated parameters
-
+  - Fixed a critical bug introduced in v0.3.18 where the incorrectly included ``simple_df`` broke ``fitAMARES`` when using HSVD generated parameters.
 
 v0.3.22
 ~~~~~~~
