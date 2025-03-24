@@ -1,0 +1,13 @@
+Index,Gas,Membrane,RBC
+Initial Values,,,
+amplitude,1,0.6,0.2
+chemicalshift,0,197,210
+linewidth,40,10,10
+phase,0,0,Membrane
+g,0,0.1,0
+Bounds,,,
+amplitude,"(0,","(0,","(0,"
+chemicalshift,"(-25,25)","(192, 205)","(200,215)"
+linewidth,"(0,","(0,200)","(0,200)"
+phase,"(-180,180)","(-180,180)","(-180,180)"
+g,"(0,1)","(0,1)","(0,1)"

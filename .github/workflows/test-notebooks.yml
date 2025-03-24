@@ -1,0 +1,62 @@
+name: Test Notebooks
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-notebooks:
+    name: Test with Python ${{ matrix.python-version }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false  # Don't stop all tests if one version fails
+      matrix:
+        include:
+          - python-version: "3.7"
+            experimental: true  # Mark as experimental, so it can fail without failing the workflow
+          - python-version: "3.8"
+            experimental: true
+          - python-version: "3.10"
+            experimental: true
+          - python-version: "3.12"
+            experimental: true
+    
+    continue-on-error: ${{ matrix.experimental }}  # Allow failures for experimental versions
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install pytest nbval ipykernel
+        # Register the Python kernel
+        python -m ipykernel install --user
+        # Install your package
+        python -m pip install -e .
+
+    - name: Update notebook kernels
+      run: |
+        for nb in tests/*.ipynb; do
+          sed -i 's/"kernel": "mrs"/"kernel": "python3"/g' $nb
+          sed -i 's/"name": "mrs"/"name": "python3"/g' $nb
+        done
+
+    - name: Run notebook tests
+      run: |
+        pytest --nbval-lax --current-env tests/
+
+    - name: Upload executed notebooks on failure
+      if: failure() && !matrix.experimental
+      uses: actions/upload-artifact@v4
+      with:
+        name: executed-notebooks-py${{ matrix.python-version }}
+        path: tests/*_executed.ipynb

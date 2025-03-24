@@ -3,7 +3,6 @@ name: Test Installation
 on:
   push:
     branches:
-      - main
       - dev
 
 jobs:
@@ -14,14 +13,14 @@ jobs:
       matrix:
         # see https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners
         os: [ubuntu-latest, windows-latest, macos-13, macos-latest]
-        python-version: ["3.8", "3.11", "3.12"]
+        python-version: ["3.9", "3.11"]
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
