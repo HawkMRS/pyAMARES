@@ -39,8 +39,9 @@ def evaluate_expression_with_units(expr, row, MHz):
         The result of evaluating the modified expression, or the original expression if evaluation fails.
     """
     # Find all parts of the expression that match a pattern like '15Hz' or '15ppm'
-    expr = expr.replace(" ", "")  # 2024/06/23 Remove spaces in such as 15 ppm
-    matches = re.findall(r"(\d+)(Hz|ppm)", expr)
+    expr = expr.replace(" ", "") # 2024/06/23 Remove spaces in such as 15 ppm
+    # matches = re.findall(r"(\d+)(Hz|ppm)", expr)  #2025-03-15: This one does not handle float numbers
+    matches = re.findall(r"(\d+(?:\.\d+)?)(Hz|ppm)", expr)
     # matches = refindall(expr)
     for match in matches:
         number, unit = match
@@ -286,6 +287,7 @@ def generateparameter(
     scale_amplitude=1.0,
     paramter_prefix=["ak", "freq", "dk", "phi", "g"],
     preview=False,
+    delta_phase_rad=0
 ):
     """
     Generate a lmfit Parameters object for modeling, based on data read from an Excel or CSV file.
@@ -299,6 +301,7 @@ def generateparameter(
         g_global (float, optional): Global value for the ``g`` parameter. Defaults to 0.0. If set to False,
           the g values specified in the prior knowledge will be used.
         parameter_prefix (list of str, optional): List of parameter prefixes (e.g., ak, freq, dk, phi, g). Defaults to ['ak', 'freq', 'dk', 'phi', 'g'].
+        delta_phase_rad (float, optional): Additional phase shift (in radians) to be applied to the prior knowledge phase values. Defaults to 0.0.
 
     Returns:
         lmfit.Parameters: Parameters object with initialized parameters for modeling.
@@ -369,7 +372,7 @@ def generateparameter(
                     val = g_global
                     vary = False
             if para == "phi":
-                pass
+                val = val + delta_phase_rad
             # Add parameter to lmfit Parameters object
             try:
                 if lval == uval:
@@ -416,7 +419,8 @@ def initialize_FID(
     carrier=0.0,
     lb=2.0,
     ppm_offset=0,
-    noise_var="OXSA",
+    noise_var='OXSA',
+    delta_phase=0.0,
 ):
     """
     Initialize fitting parameters from prior knowledge (`priorknowledgefile`) or HSVD initialized result if there is
@@ -446,6 +450,8 @@ def initialize_FID(
             - ``OXSA``: Uses the default noise variance estimation method employed by OXSA. See ``pyAMARES.util.crlb.evaluateCRB`` for details.
             - ``jMRUI``: Employs the default noise variance estimation method used by jMRUI.
             - A float value: Directly specifies the noise variance calculated externally.
+
+        delta_phase (float, optional): Additional phase shift (in degrees) to be applied to the prior knowledge phase values. Defaults to 0.0.
 
     Returns:
         argparse.Namespace: An object containing FID fitting parameters.
@@ -533,19 +539,11 @@ def initialize_FID(
     if priorknowledgefile is not None:
         if preview:
             opts.initialParams, opts.peaklist, opts.PK_table = generateparameter(
-                priorknowledgefile,
-                MHz=MHz,
-                g_global=g_global,
-                preview=True,
-                scale_amplitude=scale_amplitude,
+                priorknowledgefile, MHz=MHz, g_global=g_global, preview=True, scale_amplitude=scale_amplitude, delta_phase_rad=np.deg2rad(delta_phase),
             )  # Load prior knowledge
         else:
             opts.initialParams, opts.peaklist = generateparameter(
-                priorknowledgefile,
-                MHz=MHz,
-                g_global=g_global,
-                preview=False,
-                scale_amplitude=scale_amplitude,
+                priorknowledgefile, MHz=MHz, g_global=g_global, preview=False, scale_amplitude=scale_amplitude,delta_phase_rad=np.deg2rad(delta_phase),
             )  # Load prior knowledge
         opts.fidini = fft_params(
             timeaxis=opts.timeaxis, params=opts.initialParams, fid=True

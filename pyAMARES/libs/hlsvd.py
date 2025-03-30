@@ -149,7 +149,8 @@ def hlsvdpro(data, nsv_sought, m=None, sparse=False):
 
     k = min(k,len(s))               # number of singular values found
         
-    uk = np.mat(u[:, :k])           # trucated U matrix of rank K
+    # uk = np.mat(u[:, :k])           # trucated U matrix of rank K
+    uk = u[:, :k].copy()  			# Jia, compatible with Numpy 2.0
     ub = uk[:-1]                    # Uk with bottom row removed
     ut = uk[1:]                     # Uk with top row removed
 

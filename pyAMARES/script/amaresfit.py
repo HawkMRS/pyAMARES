@@ -113,7 +113,13 @@ def main():
         metavar=("xmin", "xmax"),
         help="The x-axis limits for the preview plot in ppm",
     )
-
+    parser.add_argument(
+        "--delta_phase",
+        type=float,
+        default=0.0,
+        metavar="phase in degrees",
+        help="Additional phase shift in degrees to be applied to the prior knowledge",
+    )
     parser.add_argument(
         "--use_hsvd",
         action="store_true",
@@ -159,6 +165,7 @@ def main():
         xlim=args.xlim,
         ppm_offset=args.ppm_offset,
         g_global=args.g_global,
+        delta_phase=args.delta_phase,
     )
 
     if args.use_hsvd:

@@ -1,0 +1,14 @@
+#  An example of singlet,,
+Index,Peak_A,Peak_B
+Initial Values,,
+amplitude,10,8
+chemicalshift,5,-3
+linewidth,100,50
+phase,0,0
+g,0,0
+Bounds,,
+amplitude,"(0, ","(0, "
+chemicalshift,,
+linewidth,"(0,","(0,"
+phase,"(-180, 180)","(-180, 180)"
+g,"(0,1)","(0,1)"
