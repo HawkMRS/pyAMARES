@@ -1,8 +1,11 @@
 # import re
 import matplotlib.pyplot as plt
+import nmrglue as ng
 import numpy as np
 
-import nmrglue as ng
+from ..libs.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def interleavefid(fid):
@@ -116,12 +119,12 @@ def multieq6(params, x, fid=None, return_mat=False):
     fids = np.array(fidmat)
 
     if return_mat:
-        return fids  
+        return fids
     else:
-        fittedfid = np.sum(fids, axis=0)  
+        fittedfid = np.sum(fids, axis=0)
         if fid is not None:
-            return fittedfid - interleavefid(fid)  
-        return fittedfid  
+            return fittedfid - interleavefid(fid)
+        return fittedfid
 
 
 def Jac6(params, x, fid=None):
@@ -247,6 +250,7 @@ def fft_params(timeaxis, params, fid=False, return_mat=False):
     spec = ng.proc_base.fft((uninterleave(multieq6(params, timeaxis))))
     return spec
 
+
 def remove_zero_padding(fid, threshold=1e-10, window_size=5):
     """
     Detect and remove the zero-filling-like constant tail from an FID signal using derivative analysis.
@@ -268,12 +272,12 @@ def remove_zero_padding(fid, threshold=1e-10, window_size=5):
     differences = np.diff(fid)
     constant_start = np.where(np.abs(differences) < threshold)[0]
     cutoff_idx = len(fid)
-    
+
     for i in range(len(constant_start) - window_size):
-        if np.all(np.diff(constant_start[i:i+window_size]) == 1):
+        if np.all(np.diff(constant_start[i : i + window_size]) == 1):
             cutoff_idx = constant_start[i]
             break
-    
+
     return cutoff_idx
     # return fid[:cutoff_idx], cutoff_idx
 
@@ -320,9 +324,9 @@ def Compare_to_OXSA(inputfid, resultfid):
     dataNormSq = np.linalg.norm(inputfid - np.mean(inputfid)) ** 2
     resNormSq = np.sum(np.abs((resultfid - inputfid)) ** 2)
     relativeNorm = resNormSq / dataNormSq
-    print("Norm of residual = %3.3f" % resNormSq)
-    print("Norm of the data = %3.3f" % dataNormSq)
-    print("resNormSq / dataNormSq = %3.3f" % relativeNorm)
+    logger.info("Norm of residual = %3.3f" % resNormSq)
+    logger.info("Norm of the data = %3.3f" % dataNormSq)
+    logger.info("resNormSq / dataNormSq = %3.3f" % relativeNorm)
     return resNormSq, relativeNorm
 
 

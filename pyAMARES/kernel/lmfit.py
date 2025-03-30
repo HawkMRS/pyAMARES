@@ -1,11 +1,15 @@
-import warnings
 import re
 from datetime import datetime
+
 import numpy as np
 import pandas as pd
 from lmfit import Minimizer, Parameters
-from .fid import fft_params, Compare_to_OXSA
+
+from ..libs.logger import get_logger
+from .fid import Compare_to_OXSA, fft_params
 from .objective_func import default_objective
+
+logger = get_logger(__name__)
 
 
 def check_removed_expr(df):
@@ -39,12 +43,12 @@ def check_removed_expr(df):
         parts = re.split(r"(\W+)", row["expr"])
         if parts[0].split("_")[1] not in peaklist:
             # warnings.warn(f"{row['name'].split('_')[1]} is already removed! Parameters restrained to it will be set to vary.", UserWarning)
-            warnings.warn(
-                "%s is already removed! Parameters restrained to it will be set to vary."
-                % (row["name"].split("_")[1]),
-                UserWarning,
+            logger.warning(
+                f"{row['name'].split('_')[1]} is already removed! Parameters restrained to it will be set to vary."
             )
-            print(f"The expr of {row['name']} is changed from {row['expr']} to None")
+            logger.info(
+                f"The expr of {row['name']} is changed from {row['expr']} to None"
+            )
             return None, True  # Set expr to None and vary to True
         return row["expr"], row["vary"]  # Return original values if condition not met
 
@@ -68,7 +72,7 @@ def filter_param_by_ppm(allpara, fit_ppm, MHz, delta=100):
     """
     fit_Hz = np.array(fit_ppm) * MHz
     # print(f"{fit_Hz=}")
-    print("fit_Hz=%s" % fit_Hz)
+    logger.info("fit_Hz=%s" % fit_Hz)
     tofilter_pd = parameters_to_dataframe(allpara)
     chemshift_pd = tofilter_pd[tofilter_pd["name"].str.startswith("freq")]
 
@@ -102,7 +106,7 @@ def parameters_to_dataframe(params):
         data["value"].append(param.value)
         data["min"].append(param.min)
         data["max"].append(param.max)
-        data["vary"].append(param.vary),
+        (data["vary"].append(param.vary),)
         data["expr"].append(param.expr)
     df = pd.DataFrame(data)
     return df
@@ -174,27 +178,28 @@ def parameters_to_dataframe_result(params):
         data["min"].append(param.min)
         data["max"].append(param.max)
         data["std"].append(param.stderr)
-        data["vary"].append(param.vary),
+        (data["vary"].append(param.vary),)
         data["expr"].append(param.expr)
         df = pd.DataFrame(data)
     return df
 
-def result_pd_to_params(result_table, MHz=120.):
+
+def result_pd_to_params(result_table, MHz=120.0):
     """
     Converts fitted results from a DataFrame format into a Parameters object for simulation.
 
     Args:
         result_table (pd.DataFrame): The fitting results table, which can be like ``result_sum`` or ``result_multiplet``.
-        MHz (float): Field strength in MHz. 
+        MHz (float): Field strength in MHz.
 
     Returns:
-        Parameters: A lmfit Parameters() object, ready for use in simulations but not for fitting, because there is no constraint. 
-        
+        Parameters: A lmfit Parameters() object, ready for use in simulations but not for fitting, because there is no constraint.
+
     Notes:
         This function serves as a utility for ``simulate_fid``.
     """
-    df_name = ['amplitude', 'chem shift(ppm)', 'LW(Hz)', 'phase(deg)', 'g']
-    param_name = ['ak', 'freq', 'dk', 'phi', 'g']
+    df_name = ["amplitude", "chem shift(ppm)", "LW(Hz)", "phase(deg)", "g"]
+    param_name = ["ak", "freq", "dk", "phi", "g"]
     name_dic = dict(zip(df_name, param_name))
     params = Parameters()
 
@@ -202,45 +207,46 @@ def result_pd_to_params(result_table, MHz=120.):
         # print(row[0])
         for name in df_name:
             value = row[1][name]
-            new_name = name_dic[name] + '_' + row[0]
-            if new_name.startswith('dk'):
+            new_name = name_dic[name] + "_" + row[0]
+            if new_name.startswith("dk"):
                 value = value * np.pi
-            if new_name.startswith('phi'):
+            if new_name.startswith("phi"):
                 value = np.deg2rad(value)
-            if new_name.startswith('freq'):
+            if new_name.startswith("freq"):
                 value = value * MHz
             params.add(name=new_name, value=value)
-    
+
     return params
 
-def params_to_result_pd(params, MHz=300.):
+
+def params_to_result_pd(params, MHz=300.0):
     """
-    Converts a Parameters object back into a DataFrame format. The inverse function of ``result_pd_to_params``. 
+    Converts a Parameters object back into a DataFrame format. The inverse function of ``result_pd_to_params``.
 
     Args:
         params (Parameters): The lmfit Parameters() object.
-        MHz (float): Field strength in MHz. 
+        MHz (float): Field strength in MHz.
 
     Returns:
         pd.DataFrame: The fitting results table.
     """
-    df_name = ['amplitude', 'chem shift(ppm)', 'LW(Hz)', 'phase(deg)', 'g']
-    param_name = ['ak', 'freq', 'dk', 'phi', 'g']
+    df_name = ["amplitude", "chem shift(ppm)", "LW(Hz)", "phase(deg)", "g"]
+    param_name = ["ak", "freq", "dk", "phi", "g"]
     name_dic = dict(zip(param_name, df_name))
 
     data = {name: [] for name in df_name}
     index = []
 
     for param in params.values():
-        base_name, index_suffix = param.name.rsplit('_', 1)
+        base_name, index_suffix = param.name.rsplit("_", 1)
         if index_suffix not in index:
             index.append(index_suffix)
-        
-        if base_name.startswith('dk'):
+
+        if base_name.startswith("dk"):
             value = param.value / np.pi
-        elif base_name.startswith('phi'):
+        elif base_name.startswith("phi"):
             value = np.rad2deg(param.value)
-        elif base_name.startswith('freq'):
+        elif base_name.startswith("freq"):
             value = param.value / MHz
         else:
             value = param.value
@@ -250,6 +256,7 @@ def params_to_result_pd(params, MHz=300.):
 
     result_table = pd.DataFrame(data, index=index)
     return result_table
+
 
 def save_parameter_to_csv(params, filename="params.csv"):
     """
@@ -263,7 +270,7 @@ def save_parameter_to_csv(params, filename="params.csv"):
         This function converts the ``params`` object to a DataFrame before saving it as a CSV file.
     """
     df = parameters_to_dataframe(params)
-    print("Saving parameter file to %s" % filename)
+    logger.info(f"Saving parameter file to {filename}")
     df.to_csv(filename)
 
 
@@ -347,7 +354,7 @@ def fitAMARES_kernel(
 
         fit_range = get_ppm_limit(fid_parameters.ppm, fit_range)
         # print(f"Fitting range {fid_parameters.ppm[fit_range[0]]} ppm to {fid_parameters.ppm[fit_range[1]]} ppm!")
-        print(
+        logger.info(
             "Fitting range %s ppm to %s ppm!"
             % (fid_parameters.ppm[fit_range[0]], fid_parameters.ppm[fit_range[1]])
         )
@@ -367,7 +374,7 @@ def fitAMARES_kernel(
         out_obj = min_obj.minimize(method=method)
     timeafter = datetime.now()
     # print(f"Fitting with {method=} took {(timeafter - timebefore).total_seconds()} seconds")
-    print(
+    logger.info(
         "Fitting with method=%s took %s seconds"
         % (method, (timeafter - timebefore).total_seconds())
     )
@@ -397,7 +404,7 @@ def fitAMARES(
         fitting_parameters (lmfit.Parameters): The initial parameters for lmfitting
         objective_func (function): The objective function to be minimized during the fitting.
         method (str, optional): The method to be used for fitting. Defaults to 'least_squares'.
-        initialize_with_lm (bool, optional, default False, new in 0.3.9): If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally.  
+        initialize_with_lm (bool, optional, default False, new in 0.3.9): If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally.
         fit_range (tuple or None, optional): The range within which to perform the fitting. Defaults to None.
         inplace (bool, optional): If True, the original fid_parameters will be modified.
                                     Otherwise, a copy will be modified and returned.
@@ -419,11 +426,11 @@ def fitAMARES(
     from ..util.report import report_amares
 
     if inplace:
-        print("The fid_parameters will be modified inplace!")
+        logger.info("The fid_parameters will be modified inplace!")
     else:
         from copy import deepcopy
 
-        print(
+        logger.info(
             "A copy of the input fid_parameters will be returned because inplace=%s"
             % inplace
         )
@@ -435,44 +442,45 @@ def fitAMARES(
         tol = np.sqrt(amp0) * 1e-6
         fit_kws = {"max_nfev": 1000, "xtol": tol, "ftol": tol}
         # fit_kws = {'max_nfev':1000, 'xtol':tol, 'ftol':tol, 'gtol':tol}
-        print("Autogenerated tol is %3.3e" % tol)
+        logger.info("Autogenerated tol is %3.3e" % tol)
     if not initialize_with_lm:
         # The old API, without an initializer
         out_obj = fitAMARES_kernel(
-        fid_parameters,
-        fitting_parameters,
-        objective_func,
-        method,
-        fit_range,
-        fit_kws=fit_kws,
+            fid_parameters,
+            fitting_parameters,
+            objective_func,
+            method,
+            fit_range,
+            fit_kws=fit_kws,
         )  # fitting kernel
     else:
-        print("Run internal leastsq initializer to optimize fitting parameters for the next %s fitting" % method)
+        logger.info(
+            "Run internal leastsq initializer to optimize fitting parameters for the next %s fitting"
+            % method
+        )
         params_LM = fitAMARES_kernel(
-        fid_parameters,
-        fitting_parameters,
-        objective_func,
-        'leastsq',
-        fit_range,
-        fit_kws=fit_kws,
+            fid_parameters,
+            fitting_parameters,
+            objective_func,
+            "leastsq",
+            fit_range,
+            fit_kws=fit_kws,
         )  # initializer
         out_obj = fitAMARES_kernel(
-        fid_parameters,
-        params_LM.params,
-        objective_func,
-        method,
-        fit_range,
-        fit_kws=fit_kws,
+            fid_parameters,
+            params_LM.params,
+            objective_func,
+            method,
+            fit_range,
+            fit_kws=fit_kws,
         )  # fitting kernel
-
-
-        
-        
 
     # report_fit(out_obj)
     report_amares(out_obj.params, fid_parameters, verbose=False)  # CRLB estimation
     resultfid = fft_params(fid_parameters.timeaxis, out_obj.params, fid=True)
-    print_lmfit_fitting_results(out_obj)  # New in 0.3.14. Print out key fitting such as iterations and chi-square. 
+    print_lmfit_fitting_results(
+        out_obj
+    )  # New in 0.3.14. Print out key fitting such as iterations and chi-square.
     fid_parameters.resNormSq, fid_parameters.relativeNorm = Compare_to_OXSA(
         inputfid=fid_parameters.fid, resultfid=resultfid
     )
@@ -525,7 +533,9 @@ def plotAMARES(fid_parameters, fitted_params=None, plotParameters=None, filename
     from ..util.visualization import combined_plot
 
     if fitted_params is None:
-        print("fitting_parameters is None, just use the fid_parameters.out_obj.params")
+        logger.info(
+            "fitting_parameters is None, just use the fid_parameters.out_obj.params"
+        )
         fitted_params = fid_parameters.out_obj.params
     amares_arr = fft_params(
         fid_parameters.timeaxis, fitted_params, fid=True, return_mat=True
@@ -548,17 +558,22 @@ def plotAMARES(fid_parameters, fitted_params=None, plotParameters=None, filename
         filename=filename,
     )
 
+
 def print_lmfit_fitting_results(result):
     """
     Print important fitting results from an lmfit MinimizerResult object.
 
     Args:
-        result (lmfit.MinimizerResult): The result object from lmfit fitting. 
+        result (lmfit.MinimizerResult): The result object from lmfit fitting.
 
     """
-    print("Lmfit Fitting Results:")
-    print("----------------")
-    print("Number of function evaluations (nfev):", result.nfev)
-    print("Reduced chi-squared (redchi):", result.redchi)
-    print("Fit success status:", "Success" if result.success else "Failure")
-    print("Fit message:", result.message)
+    msg = ["\n    Lmfit Fitting Results:"]
+    msg.append("----------------")
+    msg.append(f"Number of function evaluations (nfev): {result.nfev}")
+    msg.append(f"Reduced chi-squared (redchi): {result.redchi}")
+    msg.append(f"Fit success status: {'Success' if result.success else 'Failure'}")
+    msg.append(f"Fit message: {result.message}")
+
+    msg_string = "\n    ".join(msg)
+
+    logger.info(msg_string)
