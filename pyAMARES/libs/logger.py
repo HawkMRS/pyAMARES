@@ -9,13 +9,13 @@ LOG_MODES = {
     "critical": logging.CRITICAL,
 }
 
-# LOG STYLES:
+# GLOBAL VARIABLE: LOG_STYLES
 #     The output mode for the log messages. Options:
 #     - "plain": Uses `logging.Formatter` and logs to stdout.
 #                Always displays plain text messages in all environments.
 #     - "stderr": Uses `logging.Formatter` and logs to stderr.
-#                 Produces plain text logging to stderr (which appears red in Jupyter notebooks),
-#                 following the standard behavior of the logging package.
+#                 This is the normal behaviour of the python logging module, but
+#                 produces red output in Jupyter notebooks.
 #
 # Accessed by get_logger:
 LOG_STYLE = "plain"
