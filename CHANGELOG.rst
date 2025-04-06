@@ -1,6 +1,27 @@
 Latest Changes
 --------------
 
+v0.3.25
+~~~~~~~
+
+**Added**
+  - Added centralized logging system with ``pyAMARES/libs/logger.py`` module for better debugging and output management.
+  - Implemented configurable log levels (DEBUG, INFO, WARNING) via ``get_logger()`` and ``set_log_level()`` functions.
+  - Replaced print statements with proper logging in several modules (``PriorKnowledge.py``, ``fid.py``, ``lmfit.py``, ``crlb.py``).
+  - Added ability to control output verbosity, especially useful when processing multiple spectra in loops.
+
+**Changed**
+  - Improved code consistency by standardizing status and warning messages across the package.
+  - Enhanced user experience with cleaner console output and better filtering options.
+
+**Fixed**
+  - Addressed console flooding issues when processing large batches of spectra.
+
+Thanks to `@andrewendlinger`_ for contributing this version in `PR #4`_.
+
+.. _PR #4: https://github.com/HawkMRS/pyAMARES/pull/4
+.. _@andrewendlinger: https://github.com/andrewendlinger
+
 v0.3.24
 ~~~~~~~
 
