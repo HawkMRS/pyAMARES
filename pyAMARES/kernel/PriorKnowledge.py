@@ -269,7 +269,7 @@ def find_header_row(filename, comment_char="#"):
         logger.info("Checking comment lines in the prior knowledge file")
         for i, line in enumerate(file):
             if "#" in line:
-                logger.info("Comment: in line", i, line)
+                logger.info("Comment: in line %d: %s", i, line)
     with open(filename, "r") as file:
         for i, line in enumerate(file):
             processedline = line.replace('"', "").replace("'", "").strip()
