@@ -10,13 +10,13 @@ def readmrs(filename):
     Reads MRS data from a file, supporting multiple file formats including ASCII, CSV, NPY, and MATLAB files.
 
     This function detects the file format based on the file extension and loads the MRS data accordingly.
-    For ASCII files, it expects two columns representing the real and imaginary parts. 
-    NPY files should contain a NumPy array, and MATLAB files should contain a variable named ``fid`` and/or ``data``, 
-    when both ``fid`` and ``data`` present, only ``fid`` will be used. 
+    For ASCII files, it expects two columns representing the real and imaginary parts.
+    NPY files should contain a NumPy array, and MATLAB files should contain a variable named ``fid`` and/or ``data``,
+    when both ``fid`` and ``data`` present, only ``fid`` will be used.
     This function detects the file format based on the file extension and loads the MRS data accordingly.
-    For ASCII files, it expects two columns representing the real and imaginary parts. 
-    NPY files should contain a NumPy array, and MATLAB files should contain a variable named ``fid`` and/or ``data``, 
-    when both ``fid`` and ``data`` present, only ``fid`` will be used. 
+    For ASCII files, it expects two columns representing the real and imaginary parts.
+    NPY files should contain a NumPy array, and MATLAB files should contain a variable named ``fid`` and/or ``data``,
+    when both ``fid`` and ``data`` present, only ``fid`` will be used.
 
     Args:
         filename (str): The path and name of the file from which to load the MRS data.
@@ -52,9 +52,7 @@ def readmrs(filename):
         data = np.load(filename)
     elif filename.endswith("mat"):
         if is_mat_file_v7_3(filename):
-            print(
-                "Try to load Matlab V7.3 mat file with the var saved as fid or data"
-            )
+            print("Try to load Matlab V7.3 mat file with the var saved as fid or data")
             matdic = mat73.loadmat(filename)
         else:
             print("Try to load Matlab mat file with the var saved as fid or data")
@@ -79,5 +77,3 @@ def readmrs(filename):
 
     print("data.shape=", data.shape)
     return data
-
-

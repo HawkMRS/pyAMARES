@@ -39,7 +39,7 @@ def evaluate_expression_with_units(expr, row, MHz):
         The result of evaluating the modified expression, or the original expression if evaluation fails.
     """
     # Find all parts of the expression that match a pattern like '15Hz' or '15ppm'
-    expr = expr.replace(" ", "") # 2024/06/23 Remove spaces in such as 15 ppm
+    expr = expr.replace(" ", "")  # 2024/06/23 Remove spaces in such as 15 ppm
     # matches = re.findall(r"(\d+)(Hz|ppm)", expr)  #2025-03-15: This one does not handle float numbers
     matches = re.findall(r"(\d+(?:\.\d+)?)(Hz|ppm)", expr)
     # matches = refindall(expr)
@@ -61,7 +61,7 @@ def evaluate_expression_with_units(expr, row, MHz):
             new_expr = new_expr.replace(part, part_value)
     try:
         return eval(new_expr)
-    except Exception as e:
+    except Exception:
         # Return the original expression if evaluation fails
         return expr
 
@@ -287,7 +287,7 @@ def generateparameter(
     scale_amplitude=1.0,
     paramter_prefix=["ak", "freq", "dk", "phi", "g"],
     preview=False,
-    delta_phase_rad=0
+    delta_phase_rad=0,
 ):
     """
     Generate a lmfit Parameters object for modeling, based on data read from an Excel or CSV file.
@@ -387,7 +387,7 @@ def generateparameter(
                         name=name, value=val, min=lval, max=uval, vary=vary, expr=expr
                     )
 
-            except NameError as e:
+            except NameError:
                 e2 = (
                     "This error may be caused by the expr {} being constrained "
                     "to a peak that is not defined yet. Define it in a column "
@@ -419,7 +419,7 @@ def initialize_FID(
     carrier=0.0,
     lb=2.0,
     ppm_offset=0,
-    noise_var='OXSA',
+    noise_var="OXSA",
     delta_phase=0.0,
 ):
     """
@@ -539,11 +539,21 @@ def initialize_FID(
     if priorknowledgefile is not None:
         if preview:
             opts.initialParams, opts.peaklist, opts.PK_table = generateparameter(
-                priorknowledgefile, MHz=MHz, g_global=g_global, preview=True, scale_amplitude=scale_amplitude, delta_phase_rad=np.deg2rad(delta_phase),
+                priorknowledgefile,
+                MHz=MHz,
+                g_global=g_global,
+                preview=True,
+                scale_amplitude=scale_amplitude,
+                delta_phase_rad=np.deg2rad(delta_phase),
             )  # Load prior knowledge
         else:
             opts.initialParams, opts.peaklist = generateparameter(
-                priorknowledgefile, MHz=MHz, g_global=g_global, preview=False, scale_amplitude=scale_amplitude,delta_phase_rad=np.deg2rad(delta_phase),
+                priorknowledgefile,
+                MHz=MHz,
+                g_global=g_global,
+                preview=False,
+                scale_amplitude=scale_amplitude,
+                delta_phase_rad=np.deg2rad(delta_phase),
             )  # Load prior knowledge
         opts.fidini = fft_params(
             timeaxis=opts.timeaxis, params=opts.initialParams, fid=True

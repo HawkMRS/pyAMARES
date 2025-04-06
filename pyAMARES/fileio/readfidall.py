@@ -12,6 +12,7 @@ def is_mat_file_v7_3(filename):
     # Check if the header contains 'MATLAB 7.3'
     return b"MATLAB 7.3" in header or version == b"HDF5"
 
+
 def header2par(h):
     """
     Extracts MHz, deadtime, and sw from the GE MR header structure.
@@ -82,11 +83,11 @@ def header2par_v73(h):
 
 def read_fidall(filename):
     """
-    Loads MRS data and associated header information from the GE MNS Research Pack ``fidall`` generated MATLAB .mat file, handling both 
+    Loads MRS data and associated header information from the GE MNS Research Pack ``fidall`` generated MATLAB .mat file, handling both
     v7.3 and earlier versions of MATLAB files.
 
-    This function detects the version of the MATLAB file and uses appropriate methods to load the data. 
-    It attempts to extract the complex data ('data') variable from the file. 
+    This function detects the version of the MATLAB file and uses appropriate methods to load the data.
+    It attempts to extract the complex data ('data') variable from the file.
     It also parses the header using a specific function depending on the file version to extract MRS parameters for AMARES fitting
 
     Args:
@@ -96,7 +97,7 @@ def read_fidall(filename):
         tuple:
             - header (argparse.Namespace): A namespace object containing MRS parameters for AMARES fitting
               spectral width (sw), dead time
-            - data (numpy.ndarray): A complex numpy array containing the FID 
+            - data (numpy.ndarray): A complex numpy array containing the FID
 
     Raises:
         FileNotFoundError: If the specified file does not exist.

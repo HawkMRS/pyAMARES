@@ -9,7 +9,7 @@ import nmrglue as ng
 
 from ..util.visualization import preview_HSVD
 
-if int(np.__version__.split('.')[0]) < 2:  # Check if numpy version is less than 2.0
+if int(np.__version__.split(".")[0]) < 2:  # Check if numpy version is less than 2.0
     try:
         import hlsvdpro as hlsvd
     except ImportError:
@@ -140,7 +140,7 @@ def hsvd_initialize_parameters(temp_to_unfold, allpara_hsvd=None, g_global=0.0):
                     lval = -1.0
                     uval = 1.0
                     vary = False
-                    val = g_global
+                    var = g_global  # seems a typo captured by ruff
                 if var_name.startswith("phi"):
                     lval = -np.pi
                     uval = np.pi

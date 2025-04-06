@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 import pandas as pd
 
@@ -15,7 +13,7 @@ from ..libs.logger import get_logger
 logger = get_logger(__name__)
 
 try:
-    import jinja2
+    import jinja2  # noqa F401
 
     if_style = True
 except ImportError:
@@ -325,7 +323,9 @@ def report_amares(outparams, fid_parameters, verbose=False):
                 highlight_rows_crlb_less_than_02, axis=1
             ).format("{:.3f}")
             if hasattr(fid_parameters, "result_sum"):
-                simple_df = highlight_dataframe(extract_key_parameters(fid_parameters.result_sum))
+                simple_df = highlight_dataframe(
+                    extract_key_parameters(fid_parameters.result_sum)
+                )
             else:
                 simple_df = None
                 print("There is no result_sum generated, simple_df is set to None")

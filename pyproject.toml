@@ -1,0 +1,8 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 88
+target-version = "py37"  
+lint.ignore = ["F403", "E741"]

@@ -56,7 +56,11 @@ def main():
         "--normalize_fid", action="store_true", help="Normalize the FID data"
     )
     parser.add_argument(
-        "--scale_amplitude", type=float, default=1.0, metavar="float", help="Scale the amplitude of the FID data"
+        "--scale_amplitude",
+        type=float,
+        default=1.0,
+        metavar="float",
+        help="Scale the amplitude of the FID data",
     )
     parser.add_argument(
         "--flip_axis",
@@ -198,10 +202,12 @@ def main():
         )
 
     out1.result_sum.to_csv(args.output + ".csv")
-    if sys.version_info >= (3,7):
+    if sys.version_info >= (3, 7):
         out1.styled_df.to_html(args.output + ".html")
     else:
-        print("Skipping highlighted table HTML output because it only works with Python >= 3.7")
+        print(
+            "Skipping highlighted table HTML output because it only works with Python >= 3.7"
+        )
     if args.ifplot:
         out1.plotParameters.ifphase = args.ifphase
         out1.plotParameters.lb = args.lb

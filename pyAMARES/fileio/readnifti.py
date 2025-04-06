@@ -1,6 +1,9 @@
 import numpy as np
-import warnings
 import argparse
+from ..libs.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 def read_nifti(filename):
     """
@@ -53,6 +56,6 @@ def read_nifti(filename):
     try:
         mrs_hdr_ext["AcqusitionStartTime"]
         header.deadtime = mrs_hdr_ext["AcqusitionStartTime"]
-    except:
-        warnings.warn("There is no AcqusitionStartTime!")
+    except:  # noqa E722  # Don't remember what the error is, but it is not important
+        logger.warnning.warn("There is no AcqusitionStartTime!")
     return header, fid

@@ -4,7 +4,6 @@ from copy import deepcopy
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor
 
-import numpy as np
 
 from ..kernel.lmfit import fitAMARES
 
@@ -27,7 +26,14 @@ def redirect_stdout_to_file(filename):
             sys.stdout, sys.stderr = old_stdout, old_stderr
 
 
-def fit_dataset(fid_current, FIDobj_shared, initial_params, method="leastsq", initialize_with_lm=False, objective_func=None):
+def fit_dataset(
+    fid_current,
+    FIDobj_shared,
+    initial_params,
+    method="leastsq",
+    initialize_with_lm=False,
+    objective_func=None,
+):
     """
     Fits a dataset to a shared FID Parameter object using the AMARES algorithm
     with specified initial parameters and fitting method.
@@ -42,7 +48,7 @@ def fit_dataset(fid_current, FIDobj_shared, initial_params, method="leastsq", in
         FIDobj_shared (FID object): A shared FID object template to be used for fitting. This object should contain common settings and parameters applicable to all datasets.
         initial_params (lmfit.Parameters): Initial fitting parameters for the AMARES algorithm.
         method (str, optional): The fitting method to be used. Defaults to "leastsq" (Levenberg-Marquardt).
-        initialize_with_lm (bool, optional, default False, new in 0.3.9): If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally. See ``pyAMARES.lmfit.fitAMARES`` for details. 
+        initialize_with_lm (bool, optional, default False, new in 0.3.9): If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally. See ``pyAMARES.lmfit.fitAMARES`` for details.
         objective_func (callable, optional): Custom objective function for ``pyAMARES.lmfit.fitAMARES``. If None,
           the default objective function will be used. Defaults to None.
 
@@ -61,7 +67,7 @@ def fit_dataset(fid_current, FIDobj_shared, initial_params, method="leastsq", in
                 fid_parameters=FIDobj_current,
                 fitting_parameters=initial_params,
                 method=method,  # Use method passed as a parameter to the function
-                initialize_with_lm=initialize_with_lm, # New in 0.3.9
+                initialize_with_lm=initialize_with_lm,  # New in 0.3.9
                 ifplot=False,
                 inplace=True,
             )
@@ -70,14 +76,15 @@ def fit_dataset(fid_current, FIDobj_shared, initial_params, method="leastsq", in
                 fid_parameters=FIDobj_current,
                 fitting_parameters=initial_params,
                 method=method,  # Use method passed as a parameter to the function
-                initialize_with_lm=initialize_with_lm, # New in 0.3.9
+                initialize_with_lm=initialize_with_lm,  # New in 0.3.9
                 ifplot=False,
                 inplace=True,
-                objective_func=objective_func
+                objective_func=objective_func,
             )
 
         result_table = FIDobj_current.result_multiplets
         del FIDobj_current
+        del out
         return result_table
     except Exception as e:
         print(f"Error in fit_dataset: {e}")
@@ -110,8 +117,8 @@ def run_parallel_fitting_with_progress(
           parameters applicable to all datasets.
         initial_params (lmfit.Parameters): Initial fitting parameters for the AMARES algorithm.
         method (str, optional): The fitting method to be used. Defaults to 'leastsq' (Levenberg-Marquardt).
-        initialize_with_lm (bool, optional, default False, new in 0.3.9): 
-          If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally. See ``pyAMARES.lmfit.fitAMARES`` for details. 
+        initialize_with_lm (bool, optional, default False, new in 0.3.9):
+          If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally. See ``pyAMARES.lmfit.fitAMARES`` for details.
         num_workers (int, optional): The number of worker processes to use in parallel processing. Defaults to 8.
         logfilename (str, optional): The name of the file where the progress log is saved. Defaults to 'multiprocess_log.txt'.
         objective_func (callable, optional): Custom objective function for ``pyAMARES.lmfit.fitAMARES``. If None,

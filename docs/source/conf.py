@@ -5,6 +5,9 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+import pathlib
+import sys
+
 import pyAMARES
 
 project = "pyAMARES"
@@ -21,8 +24,6 @@ print(author, release)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here.
-import pathlib
-import sys
 
 sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 

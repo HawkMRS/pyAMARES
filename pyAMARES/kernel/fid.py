@@ -194,7 +194,7 @@ def Jac6c(params, x, fid=None):
     """
     poptall = list(params.valuesdict().values())
     ak = np.array(poptall[::5])
-    dk = np.array(poptall[2::5])
+    dk = np.array(poptall[2::5])  # noqa F841
     g = np.array(poptall[4::5])
 
     # if len(g[g > 1]) > 0:
@@ -299,7 +299,7 @@ def process_fid(fid, deadtime=0.0, sw=10000, lb=5.0, ifphase=False, ifplot=False
         1D numpy array: The processed spectrum.
     """
     fidpt = len(fid)
-    dwelltime = 1 / sw
+    dwelltime = 1 / sw  # noqa F841  #place holder
     # timeaxis = np.arange(0, dwelltime * fidpt, dwelltime) + deadtime
     Hz = np.linspace(-sw / 2, sw / 2, fidpt)
     fid2 = ng.proc_base.em(fid, lb / sw)  # Exponential apodization
@@ -415,7 +415,7 @@ def simulate_fid(
     sw = float(sw)
     MHz = float(MHz)
     deadtime = float(deadtime)
-    dwelltime = 1.0 / sw
+    dwelltime = 1.0 / sw  # noqa F841  #place holder
     timeaxis = np.arange(0, dwelltime * fid_len, dwelltime) + deadtime  # timeaxis
     fidsim = uninterleave(multieq6(x=timeaxis, params=params))
     if snr_target is not None:

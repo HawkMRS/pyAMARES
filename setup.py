@@ -70,7 +70,7 @@ doc_requirements = [
     "ipywidgets",
 ]
 
-install_requires=[
+install_requires = [
     "pandas>=1.1.0",
     "matplotlib>=3.1.3",
     "lmfit",
@@ -86,13 +86,13 @@ install_requires=[
     "ipykernel",
     "requests",
     "ipywidgets>=7.6.0,<8.0.0;python_version<'3.11'",  # For older Python versions
-    "ipywidgets>=8.0.0;python_version>='3.11'",        # For newer Python versions
+    "ipywidgets>=8.0.0;python_version>='3.11'",  # For newer Python versions
 ]
 
 # Use the better-performing 'hlsvdpro' package if running on supported platforms
 # (e.g., x86_64 or amd64 architectures). Otherwise, fall back to the custom
 # 'hlsvdpropy' implementation located in pyAMARES/libs/hlsvd.py.
-if platform.machine().lower() in ['x86_64', 'amd64']:
+if platform.machine().lower() in ["x86_64", "amd64"]:
     install_requires.append("hlsvdpro>=2.0.0")
 
 
