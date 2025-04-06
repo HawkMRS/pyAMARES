@@ -2,7 +2,7 @@ name: Ruff Linting
 
 on:
   push:
-    branches: [ dev-lint]
+    branches: [ devlint]
   pull_request:
     branches: [ main ]
 
