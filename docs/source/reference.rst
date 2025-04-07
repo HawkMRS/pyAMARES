@@ -39,6 +39,7 @@ Objective Function
 .. automodule:: pyAMARES.libs
    :members:
    :show-inheritance:
+   :no-index: MPFIR  # Add this line to exclude MPFIR from indexing at this level
 
 MPFIR 
 ~~~~~

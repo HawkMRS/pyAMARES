@@ -39,4 +39,8 @@ __all__ = [
     "plotAMARES",
     "add_noise_FID",
     "fidSNR",
+    "objective_range",
+    "default_objective",
+    "objective",
+    "objective3",
 ]

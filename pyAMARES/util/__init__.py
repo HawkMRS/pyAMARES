@@ -10,4 +10,5 @@ __all__ = [
     "highlight_dataframe",
     "get_ppm_limit",
     "findnearest",
+    "run_parallel_fitting_with_progress",
 ]

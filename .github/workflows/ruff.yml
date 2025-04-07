@@ -2,9 +2,8 @@ name: Ruff Linting
 
 on:
   push:
-    branches: [ devlint]
-  pull_request:
-    branches: [ main ]
+    branches: [ dev-lint]
+  # No pull_request trigger to avoid running on PRs
 
 jobs:
   ruff:

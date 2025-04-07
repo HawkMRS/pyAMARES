@@ -30,3 +30,4 @@ __pycache__
 *.Identifier
 !requirements.txt
 .jupyter_cache
+tests/multiprocess_log.txt
