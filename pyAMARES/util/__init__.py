@@ -5,9 +5,9 @@ from .multiprocessing import *
 from .misc import get_ppm_limit, findnearest
 
 __all__ = [
-    HSVDinitializer,
-    report_crlb,
-    highlight_dataframe,
-    get_ppm_limit,
-    findnearest,
+    "HSVDinitializer",
+    "report_crlb",
+    "highlight_dataframe",
+    "get_ppm_limit",
+    "findnearest",
 ]
