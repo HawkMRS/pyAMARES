@@ -5,4 +5,4 @@ build-backend = "setuptools.build_meta"
 [tool.ruff]
 line-length = 88
 target-version = "py37"  
-lint.ignore = ["F403", "E741", "F405"]
+lint.ignore = ["F403", "E741", ]

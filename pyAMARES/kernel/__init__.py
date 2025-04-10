@@ -11,7 +11,7 @@ from .lmfit import (
 )
 from .lmfit import save_parameter_to_csv, load_parameter_from_csv, set_vary_parameters
 from .lmfit import fitAMARES, fitAMARES_kernel, plotAMARES, filter_param_by_ppm
-from .objective_func import *
+from .objective_func import default_objective, objective_range, objective, objective3
 
 __all__ = [
     "interleavefid",
