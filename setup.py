@@ -70,6 +70,13 @@ doc_requirements = [
     "ipywidgets",
 ]
 
+ruff_requirements = [
+    "ruff",
+    "pre-commit",
+    "pytest",
+]
+
+
 install_requires = [
     "pandas>=1.1.0",
     "matplotlib>=3.1.3",
@@ -124,6 +131,8 @@ setup(
     extras_require={
         "docs": doc_requirements,
         "jupyter": jupyter_requirements,
+        "ruff": ruff_requirements,
+        "dev": jupyter_requirements + doc_requirements + ruff_requirements,
     },
     cmdclass={
         "sdist": CustomSDist,
