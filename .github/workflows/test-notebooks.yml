@@ -2,7 +2,7 @@ name: Test Notebooks
 
 on:
   push:
-    branches: [ main, dev, devlint ]
+    branches: [ main, dev]
   pull_request:
     branches: [ main ]
 

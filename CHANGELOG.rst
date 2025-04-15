@@ -5,7 +5,7 @@ v0.3.26dev
 ~~~~~~~~~~
 
 **Added**
-  - Added comprehensive code formatting with ``ruff`` as mentioned in Issue #5.
+  - Added comprehensive code formatting with ``ruff`` as mentioned in `Issue #5`_.
   - Added ``ruff`` requirements to setup.py with dedicated install option: ``pip install -e ".[ruff]"``
   - Added ``dev`` dependencies in setup.py to include jupyter, documentation, and code quality tools.
   - Added GitHub CI/CD configuration with ``ruff.yml`` for automated code quality checks.
