@@ -9,13 +9,15 @@ v0.3.26dev
   - Added ``ruff`` requirements to setup.py with dedicated install option: ``pip install -e ".[ruff]"``
   - Added ``dev`` dependencies in setup.py to include jupyter, documentation, and code quality tools.
   - Added GitHub CI/CD configuration with ``ruff.yml`` for automated code quality checks.
-  - Added `contributing.rst` to documentation with guidelines for contributors.
+  - Added CONTRIBUTING.rst to documentation with guidelines for contributors.
 
 **Changed**
   - Significantly reformatted codebase using ``ruff`` for consistent code style.
   - Updated documentation structure with inclusion of CONTRIBUTING.rst.
   - Revised README.rst with improved contributor guidelines.
   - Updated docs/source/index.rst to include links to contribution information.
+
+.. _Issue #5: https://github.com/HawkMRS/pyAMARES/issues/5
 
 v0.3.25
 ~~~~~~~
