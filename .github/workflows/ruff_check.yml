@@ -4,9 +4,9 @@ name: Ruff Check
 # This ensures code is checked (proper formatting etc.) and the main branch stays clean.
 on:
 pull_request:
-  branches: [ main ]
+  branches: [ main, dev, devlint ]
 push:
-  branches: [ main ]
+  branches: [ main, dev, devlint ]
 
 jobs:
 ruff_check:
