@@ -1,6 +1,7 @@
-from scipy import io
-import mat73
 import argparse
+
+import mat73
+from scipy import io
 
 from ..libs.logger import get_logger
 

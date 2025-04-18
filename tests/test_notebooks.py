@@ -1,13 +1,15 @@
 # tests/test_notebooks.py
-import pytest
-import os
 import glob
+import os
+
+import pytest
 
 # Get all notebooks from the same directory as this file
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 notebooks = glob.glob(os.path.join(CURRENT_DIR, "*.ipynb"))
 
-# Skip notebooks that might require user interaction or external data not available during testing
+# Skip notebooks that might require user interaction or external data not available
+# during testing
 SKIP_NOTEBOOKS = [
     # Add any notebooks that shouldn't be tested automatically
     # Example: "interactive_demo.ipynb"

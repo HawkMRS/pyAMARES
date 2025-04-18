@@ -1,5 +1,6 @@
-import sys
 import argparse
+import sys
+
 import pyAMARES
 
 

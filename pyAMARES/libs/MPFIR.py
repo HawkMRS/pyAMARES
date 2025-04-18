@@ -1,11 +1,10 @@
 from copy import deepcopy
 
-import numpy as np
 import matplotlib.pyplot as plt
+import nmrglue as ng
+import numpy as np
 import scipy
 from scipy.signal import firls, freqz, lfilter
-
-import nmrglue as ng
 
 
 def fircls1(M, wc, ri, sup):

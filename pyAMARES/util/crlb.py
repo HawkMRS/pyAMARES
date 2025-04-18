@@ -55,9 +55,11 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
         logger.debug("Fisher.shape=%s P.shape=%s" % (Fisher.shape, P.shape))
     condition_number = np.linalg.cond(Fisher)
     if condition_number > condthreshold:
-        # print("Warning: The matrix may be ill-conditioned. Condition number is high:", condition_number)
+        # print("Warning: The matrix may be ill-conditioned. Condition number is high:"
+        # , condition_number)
         logger.warning(
-            f"The matrix may be ill-conditioned. Condition number is high: {condition_number:3.3e}"
+            f"The matrix may be ill-conditioned. Condition number is high: "
+            f"{condition_number:3.3e}"
         )
         CRBcov = P @ scipy.linalg.pinv(Fisher) @ P.T
     else:
@@ -68,11 +70,13 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
     # Ensure non-negative covariance values
     if np.min(CRBcov) < 0:
         if verbose:
-            # print("np.min(CRBcov)=%s, make the negative values to 0!" % np.min(CRBcov))
+            # print("np.min(CRBcov)=%s, make the negative values to 0!" %
+            # np.min(CRBcov))
             logger.warning(
                 "np.min(CRBcov)=%s, make the negative values to 0!" % np.min(CRBcov)
             )
-        # warnings.warn("np.min(CRBcov)=%s, make the negative values to 0!" % np.min(CRBcov), UserWarning)
+        # warnings.warn("np.min(CRBcov)=%s, make the negative values to 0!" %
+        # np.min(CRBcov), UserWarning)
         CRBcov[CRBcov < 0] = 0.0
 
     if cond:
@@ -126,18 +130,20 @@ def evaluateCRB(outparams, opts, P=None, Jacfunc=Jac6, verbose=False):
     opts.residual = uninterleave(multieq6(outparams, opts.timeaxis)) - opts.fid
     if opts.noise_var.startswith("OXSA"):
         logger.info(
-            "Estimated CRLBs are calculated using the default noise variance estimation used by OXSA."
+            "Estimated CRLBs are calculated using the default noise variance "
+            "estimation used by OXSA."
         )
-        opts.variance = np.var(
-            opts.residual.real
-        )  # OXSA style, the "noise as SD in TD from TD residue" option selected in the Result Window of jMRUI V7.
+        opts.variance = np.var(opts.residual.real)
+        # OXSA style, the "noise as SD in TD from TD residue" option selected in the
+        # Result Window of jMRUI V7.
     elif opts.noise_var.lower().startswith("jmrui"):
         logger.info(
-            "Estimated CRLBs are calculated using the default noise variance estimation used by jMRUI."
+            "Estimated CRLBs are calculated using the default noise variance "
+            "estimation used by jMRUI."
         )
-        opts.variance = np.var(
-            opts.fid[-len(opts.fid) // 10 :].real
-        )  # jMRUI style, "noise as SD in TD from TD FID tall option selected in the Result Window of jMRUI V7" (I hard-coded last 10% points)
+        opts.variance = np.var(opts.fid[-len(opts.fid) // 10 :].real)
+        # jMRUI style, "noise as SD in TD from TD FID tall option selected in the
+        # Result Window of jMRUI V7" (I hard-coded last 10% points)
     else:
         try:
             opts.variance = float(opts.noise_var)
@@ -168,8 +174,8 @@ def extract_strings(input_str):
     if not re.search("[a-zA-Z]", input_str):
         return input_str
     # return re.sub(r'\d+(?:\.\d+)?|\+|\-|\*|/', '', input_str)
-    # Regular expression to match floating-point numbers or integers not surrounded by letters
-    # and mathematical operators
+    # Regular expression to match floating-point numbers or integers not surrounded
+    # by letters and mathematical operators
     pattern = r"(?<!\w)\d+\.\d+|(?<!\w)\d+(?!\w)|(?<!\w)\d+\b|\b\d+(?!\w)|[+\-*/]"
     return re.sub(pattern, "", input_str)
 
@@ -206,7 +212,8 @@ def create_pmatrix(pkpd, verbose=False, ifplot=False):
     )
     pl_index = pkpd.dropna(axis=0).index.values
 
-    # Calculate partial derivatives of expressions using sympy. May simply use string operation in the future.
+    # Calculate partial derivatives of expressions using sympy. May simply use string
+    # operation in the future.
     plm = [
         sympy.diff(sympy_parser.parse_expr(expr)).evalf()
         for expr in pkpd[pkpd.expr.notna()]["expr"]

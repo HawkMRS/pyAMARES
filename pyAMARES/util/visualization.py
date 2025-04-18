@@ -1,6 +1,6 @@
-import numpy as np
 import matplotlib.pyplot as plt
 import nmrglue as ng
+import numpy as np
 
 from ..kernel.fid import process_fid
 

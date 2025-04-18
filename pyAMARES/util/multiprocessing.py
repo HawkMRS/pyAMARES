@@ -1,9 +1,8 @@
-import sys
 import contextlib
+import sys
+from concurrent.futures import ProcessPoolExecutor
 from copy import deepcopy
 from datetime import datetime
-from concurrent.futures import ProcessPoolExecutor
-
 
 from ..kernel.lmfit import fitAMARES
 from ..libs.logger import get_logger

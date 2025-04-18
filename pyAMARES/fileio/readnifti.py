@@ -1,5 +1,9 @@
-import numpy as np
 import argparse
+import json
+
+import nibabel as nib  # should be installed together with spec2nii
+import numpy as np
+
 from ..libs.logger import get_logger
 
 logger = get_logger(__name__)
@@ -36,8 +40,6 @@ def read_nifti(filename):
     """
     # This is a wrapper of the minimal exampe of loading Nifti-MRS using nibabel
     # https://github.com/wtclarke/nifti_mrs_python_example/tree/86a305f28a45f0d07aab29f52daf3a5d880438d8
-    import json
-    import nibabel as nib  # should be installed together with spec2nii
 
     img = nib.load(filename)
     data = img.get_fdata(dtype=np.complex64)

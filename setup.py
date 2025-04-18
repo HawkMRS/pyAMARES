@@ -1,9 +1,10 @@
-import os
 import ast
-import platform
-from setuptools import setup, find_packages
-from setuptools.command.sdist import sdist as _sdist
 import glob
+import os
+import platform
+
+from setuptools import find_packages, setup
+from setuptools.command.sdist import sdist as _sdist
 
 pyamares_init_file = os.path.join(os.path.dirname(__file__), "pyAMARES", "__init__.py")
 
@@ -108,7 +109,10 @@ setup(
     version=__version__,
     author=__author__,
     author_email="jia-xu-1@uiowa.edu",
-    description="pyAMARES, an Open-Source Python Library for Fitting Magnetic Resonance Spectroscopy Data",
+    description=(
+        "PyAMARES, an Open-Source Python Library for Fitting Magnetic Resonance "
+        "Spectroscopy Data"
+    ),
     long_description=open("README.rst").read(),
     long_description_content_type="text/x-rst",
     url="https://github.com/hawkMRS/pyAMARES",  # Optional project URL

@@ -1,6 +1,19 @@
 Latest Changes
 --------------
 
+v0.3.27
+~~~~~~~~~~
+
+**Added**
+  - Added ``logger.py`` module to API documentation.
+  - Added more comprehensive ``ruff`` checking configurations in ``pyproject.toml``.
+
+**Changed**
+  - Replaced remaining ``print`` and ``warning`` statements with the new logging system.
+  - Reorganized import statements across multiple files to follow best practices (alphabetical ordering, standard library imports first).
+  - Excluded Jupyter notebooks and third-party code from ``ruff`` linting. 
+  - Updated long description in ``setup.py`` with proper line breaks for PEP-8 standards.
+
 v0.3.26
 ~~~~~~~~~~
 

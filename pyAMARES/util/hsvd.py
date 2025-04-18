@@ -1,11 +1,11 @@
 from copy import deepcopy
-import numpy as np
-import scipy
-import pandas as pd
-import matplotlib.pyplot as plt
 
-from lmfit import Parameters
+import matplotlib.pyplot as plt
 import nmrglue as ng
+import numpy as np
+import pandas as pd
+import scipy
+from lmfit import Parameters
 
 from ..util.visualization import preview_HSVD
 
@@ -15,14 +15,13 @@ if int(np.__version__.split(".")[0]) < 2:  # Check if numpy version is less than
     except ImportError:
         from ..libs import hlsvd
 else:
-    # For NumPy 2.0+, skip hlsvdpro and use the local implementation directly. 2025-03-20
+    # For NumPy 2.0+, skip hlsvdpro and use the local implementation directly.
+    # 2025-03-20
     from ..libs import hlsvd
 
-from ..libs.hlsvd import create_hlsvd_fids
-
-from ..kernel.fid import equation6, uninterleave, interleavefid, Compare_to_OXSA
+from ..kernel.fid import Compare_to_OXSA, equation6, interleavefid, uninterleave
 from ..kernel.lmfit import parameters_to_dataframe
-
+from ..libs.hlsvd import create_hlsvd_fids
 from ..libs.logger import get_logger
 
 logger = get_logger(__name__)
@@ -163,12 +162,13 @@ def hsvd_initialize_parameters(temp_to_unfold, allpara_hsvd=None, g_global=0.0):
                 ].vary:  # v0.23c, HSVDinitializer only changes varying parameters
                     if var_name.startswith("ak") and var < 0:
                         # print(
-                        #     "Warning ak for %s %s is negative!, Make it positive and flip the phase!"
+                        #     "Warning ak for %s %s is negative!, Make it positive
+                        # and flip the phase!"
                         #     % (peak_name, var)
                         # )
                         logger.warning(
-                            "ak for %s %s is negative!, Make it positive and flip the phase!"
-                            % (peak_name, var)
+                            "ak for %s %s is negative!, Make it positive and flip the "
+                            "phase!" % (peak_name, var)
                         )
                         allpara_hsvd[var_name].set(value=np.abs(var))
                         # Flip the phase

@@ -1,9 +1,9 @@
+import mat73
 import numpy as np
 from scipy import io
-import mat73
-from .readfidall import is_mat_file_v7_3
 
 from ..libs.logger import get_logger
+from .readfidall import is_mat_file_v7_3
 
 logger = get_logger(__name__)
 
