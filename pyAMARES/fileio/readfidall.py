@@ -1,7 +1,10 @@
 from scipy import io
-import warnings
 import mat73
 import argparse
+
+from ..libs.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def is_mat_file_v7_3(filename):
@@ -126,10 +129,11 @@ def read_fidall(filename):
         raise KeyError("Neither 'fid' nor 'data' found in the loaded .mat file")
 
     if len(data.shape) != 1:
-        warnings.warn(
+        logger.warning(
             "Note pyAMARES.fitAMARES only fits 1D MRS data, however, your data shape is {data.shape}. Is it MRSI or raw MRS data that needs to be coil-combined?"
         )
 
-    print("data.shape=", data.shape)
+    # print("data.shape=", data.shape)
+    logger.info("data.shape=", data.shape)
 
     return header, data

@@ -6,6 +6,9 @@ from concurrent.futures import ProcessPoolExecutor
 
 
 from ..kernel.lmfit import fitAMARES
+from ..libs.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 @contextlib.contextmanager
@@ -87,7 +90,8 @@ def fit_dataset(
         del out
         return result_table
     except Exception as e:
-        print(f"Error in fit_dataset: {e}")
+        # print(f"Error in fit_dataset: {e}")
+        logger.critical("Error in fit_dataset: %s", e)
         return None
 
 
@@ -138,11 +142,13 @@ def run_parallel_fitting_with_progress(
     try:
         del FIDobj_shared.styled_df
     except AttributeError:
-        print("There is no styled_df!")
+        # print("There is no styled_df!")
+        logger.warning("There is no styled_df!")
     try:
         del FIDobj_shared.simple_df
     except AttributeError:
-        print("There is no styled_df!")
+        # print("There is no styled_df!")
+        logger.warning("There is no simple_df!")
     timebefore = datetime.now()
     results = []
 
@@ -165,8 +171,14 @@ def run_parallel_fitting_with_progress(
                 results.append(future.result())
 
     timeafter = datetime.now()
-    print(
-        "Fitting %i spectra with %i processors took %i seconds"
-        % (len(fid_arrs), num_workers, (timeafter - timebefore).total_seconds())
+    # print(
+    #     "Fitting %i spectra with %i processors took %i seconds"
+    #     % (len(fid_arrs), num_workers, (timeafter - timebefore).total_seconds())
+    # )
+    logger.info(
+        "Fitting %i spectra with %i processors took %i seconds",
+        len(fid_arrs),
+        num_workers,
+        (timeafter - timebefore).total_seconds(),
     )
     return results

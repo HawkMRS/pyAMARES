@@ -23,6 +23,10 @@ from ..libs.hlsvd import create_hlsvd_fids
 from ..kernel.fid import equation6, uninterleave, interleavefid, Compare_to_OXSA
 from ..kernel.lmfit import parameters_to_dataframe
 
+from ..libs.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 def HSVDp0(hsvdfid, timeaxis, ppm, MHz=120, ifplot=True):
     """
@@ -157,12 +161,13 @@ def hsvd_initialize_parameters(temp_to_unfold, allpara_hsvd=None, g_global=0.0):
                 if allpara_hsvd[
                     var_name
                 ].vary:  # v0.23c, HSVDinitializer only changes varying parameters
-                    # print(f"{var_name=} {allpara_hsvd[var_name].vary=}")
-                    # print(f"Setting {var_name} {allpara_hsvd[var_name].value} to {var}, it is {allpara_hsvd[var_name]}")
                     if var_name.startswith("ak") and var < 0:
-                        # print(f"Warning ak for {peak_name} {var} is negative!, Make it positive and flip the phase!")
-                        print(
-                            "Warning ak for %s %s is negative!, Make it positive and flip the phase!"
+                        # print(
+                        #     "Warning ak for %s %s is negative!, Make it positive and flip the phase!"
+                        #     % (peak_name, var)
+                        # )
+                        logger.warning(
+                            "ak for %s %s is negative!, Make it positive and flip the phase!"
                             % (peak_name, var)
                         )
                         allpara_hsvd[var_name].set(value=np.abs(var))
@@ -257,12 +262,14 @@ def HSVDinitializer(
         )
         plist.append(p2)
         if verbose:
-            print("fitted p0", p2)
+            # print("fitted p0", p2)
+            logger.debug("fitted p0 %s" % p2)
 
     p_pd = pd.DataFrame(np.array(plist))
     p_pd.columns = ["ak", "freq", "dk", "phi", "g"]
     if verbose:
-        print("Filtering peaks with linewidth broader than %i Hz" % lw_threshold)
+        # print("Filtering peaks with linewidth broader than %i Hz" % lw_threshold)
+        logger.debug("Filtering peaks with linewidth broader than %i Hz" % lw_threshold)
     p_pd = p_pd[p_pd["dk"] < lw_threshold]  # filter out too broadened peaks
     p_pd["g"] = (
         fid_parameters.g_global

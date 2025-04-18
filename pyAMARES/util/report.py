@@ -328,7 +328,10 @@ def report_amares(outparams, fid_parameters, verbose=False):
                 )
             else:
                 simple_df = None
-                print("There is no result_sum generated, simple_df is set to None")
+                # print("There is no result_sum generated, simple_df is set to None")
+                logger.warning(
+                    "There is no result_sum generated, simple_df is set to None"
+                )
         else:
             styled_df = (
                 fid_parameters.result_multiplets
@@ -337,7 +340,10 @@ def report_amares(outparams, fid_parameters, verbose=False):
                 simple_df = extract_key_parameters(fid_parameters.result_sum)
             else:
                 simple_df = None
-                print("There is no result_sum generated, simple_df is set to None")
+                # print("There is no result_sum generated, simple_df is set to None")
+                logger.warning(
+                    "There is no result_sum generated, simple_df is set to None"
+                )
     if hasattr(fid_parameters, "result_sum"):
         fid_parameters.metabolites = fid_parameters.result_sum.index.to_list()
     else:
