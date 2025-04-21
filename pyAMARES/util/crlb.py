@@ -233,7 +233,9 @@ def create_pmatrix(pkpd, verbose=False, ifplot=False):
             RuntimeWarning,
         )
         return None
-    pm_index = [int(x) for x in pm_index2]
+    # pm_index = [int(x) for x in pm_index2]
+    pm_index = [int(x) for x in pm_index2 if not np.isnan(x)]
+
     # Fill the diagonal for free parameters
     for ind in freepd.index:
         if verbose:
