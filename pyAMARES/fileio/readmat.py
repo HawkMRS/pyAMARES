@@ -86,5 +86,5 @@ def readmrs(filename):
         )
 
     # print("data.shape=", data.shape)
-    logger.info("data.shape=", data.shape)
+    logger.info("data.shape=%s", data.shape)
     return data

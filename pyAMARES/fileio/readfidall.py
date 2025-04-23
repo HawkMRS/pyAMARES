@@ -135,6 +135,6 @@ def read_fidall(filename):
         )
 
     # print("data.shape=", data.shape)
-    logger.info("data.shape=", data.shape)
+    logger.info("data.shape=%s", data.shape)
 
     return header, data

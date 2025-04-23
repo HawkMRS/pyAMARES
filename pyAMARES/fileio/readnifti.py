@@ -59,5 +59,5 @@ def read_nifti(filename):
         mrs_hdr_ext["AcqusitionStartTime"]
         header.deadtime = mrs_hdr_ext["AcqusitionStartTime"]
     except:  # noqa E722  # Don't remember what the error is, but it is not important
-        logger.warnning.warn("There is no AcqusitionStartTime!")
+        logger.warning("There is no AcqusitionStartTime!")
     return header, fid
