@@ -86,7 +86,7 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
             return False
     if np.max(np.diag(CRBcov)) < 1e-5:
         # print("Ill conditioned matrix! CRLB not reliable!")
-        logger.warning("Ill conditioned matrix! CRLB not reliable!", RuntimeWarning)
+        logger.warning("Ill conditioned matrix! CRLB not reliable!")
     if verbose:
         msg = ["\n    Debug Information:"]
         msg.append("----------------")
@@ -229,8 +229,7 @@ def create_pmatrix(pkpd, verbose=False, ifplot=False):
     if np.all(np.isnan(pm_index2)):  # If all NaN
         # print(f"{pm_index2=}")
         logger.warning(
-            "pm_index are all NaNs, return None so that P matrix is a identity matrix!",
-            RuntimeWarning,
+            "pm_index are all NaNs, return None so that P matrix is a identity matrix!"
         )
         return None
     # pm_index = [int(x) for x in pm_index2]

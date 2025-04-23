@@ -1,6 +1,12 @@
 Latest Changes
 --------------
 
+v0.3.28
+~~~~~~~~~~
+**Fixed**
+  - Fixed a bug in CRLB calculation that caused failures when multiple fitting parameters were fixed.
+  - Fixed logger print format typos across multiple files.
+
 v0.3.27
 ~~~~~~~~~~
 
