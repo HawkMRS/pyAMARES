@@ -77,6 +77,10 @@ ruff_requirements = [
     "pytest",
 ]
 
+streamlit_requirements = [
+    "streamlit>=1.24.0",
+]
+
 
 install_requires = [
     "pandas>=1.1.0",
@@ -136,7 +140,11 @@ setup(
         "docs": doc_requirements,
         "jupyter": jupyter_requirements,
         "ruff": ruff_requirements,
-        "dev": jupyter_requirements + doc_requirements + ruff_requirements,
+        "streamlit": streamlit_requirements,
+        "dev": jupyter_requirements
+        + doc_requirements
+        + ruff_requirements
+        + streamlit_requirements,
     },
     cmdclass={
         "sdist": CustomSDist,
