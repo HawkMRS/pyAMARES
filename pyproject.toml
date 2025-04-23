@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 88
+target-version = "py37"  
+# Exclude all Jupyter notebooks and third-party code
+exclude = ["*.ipynb", 
+           "pyAMARES/libs/hlsvd.py" ]  
+lint.select = ["E", "F", "W", "I"]
+lint.ignore = ["E741", "E501",]
+
+# E501 (line length limit) is skipped because Sphinx does not allow manual line breaks 
+# in docstrings, and there is currently no way to enforce E501 for code while 
+# selectively ignoring docstrings.

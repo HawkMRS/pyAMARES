@@ -31,7 +31,7 @@ def check_removed_expr(df):
     Raises:
         UserWarning: If an 'expr' is found to be dependent on a removed parameter.
     """
-    print(
+    logger.info(
         "Check if the expr for all parameters is restricted to a parameter that has already been filtered out."
     )
     result_df = df.copy()

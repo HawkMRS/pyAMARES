@@ -1,6 +1,6 @@
-import numpy as np
 import matplotlib.pyplot as plt
 import nmrglue as ng
+import numpy as np
 
 from ..kernel.fid import process_fid
 
@@ -157,7 +157,7 @@ def combined_plot(
         fid_fit (numpy.ndarray): Array containing the fitted FID data.
         xlim (tuple, optional): Lower and upper limits for the x-axis. Defaults to None.
         mode (str, optional): Mode for plotting the spectrum
-             (``real`` for real part, ``abs`` or ``mag`` for magnitude). Defaults to ``real``. 
+             (``real`` for real part, ``abs`` or ``mag`` for magnitude). Defaults to ``real``.
         label (str, optional): Label for the fitted spectrum line in the plot. Defaults to 'Fitted Spectrum'.
         title (str, optional): Title for the entire figure. Defaults to None.
         xlabel (str, optional): Label for the x-axis, shared by both subplots. Defaults to None.

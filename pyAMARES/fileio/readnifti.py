@@ -1,6 +1,11 @@
-import numpy as np
-import warnings
 import argparse
+
+import numpy as np
+
+from ..libs.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 def read_nifti(filename):
     """
@@ -33,8 +38,8 @@ def read_nifti(filename):
     """
     # This is a wrapper of the minimal exampe of loading Nifti-MRS using nibabel
     # https://github.com/wtclarke/nifti_mrs_python_example/tree/86a305f28a45f0d07aab29f52daf3a5d880438d8
-    import json
-    import nibabel as nib  # should be installed together with spec2nii
+    import json  # noqa: I001
+    import nibabel as nib  # noqa: I001 # should be installed together with spec2nii
 
     img = nib.load(filename)
     data = img.get_fdata(dtype=np.complex64)
@@ -53,6 +58,6 @@ def read_nifti(filename):
     try:
         mrs_hdr_ext["AcqusitionStartTime"]
         header.deadtime = mrs_hdr_ext["AcqusitionStartTime"]
-    except:
-        warnings.warn("There is no AcqusitionStartTime!")
+    except:  # noqa E722  # Don't remember what the error is, but it is not important
+        logger.warning("There is no AcqusitionStartTime!")
     return header, fid

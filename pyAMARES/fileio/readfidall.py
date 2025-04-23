@@ -1,7 +1,11 @@
-from scipy import io
-import warnings
-import mat73
 import argparse
+
+import mat73
+from scipy import io
+
+from ..libs.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def is_mat_file_v7_3(filename):
@@ -11,6 +15,7 @@ def is_mat_file_v7_3(filename):
 
     # Check if the header contains 'MATLAB 7.3'
     return b"MATLAB 7.3" in header or version == b"HDF5"
+
 
 def header2par(h):
     """
@@ -82,11 +87,11 @@ def header2par_v73(h):
 
 def read_fidall(filename):
     """
-    Loads MRS data and associated header information from the GE MNS Research Pack ``fidall`` generated MATLAB .mat file, handling both 
+    Loads MRS data and associated header information from the GE MNS Research Pack ``fidall`` generated MATLAB .mat file, handling both
     v7.3 and earlier versions of MATLAB files.
 
-    This function detects the version of the MATLAB file and uses appropriate methods to load the data. 
-    It attempts to extract the complex data ('data') variable from the file. 
+    This function detects the version of the MATLAB file and uses appropriate methods to load the data.
+    It attempts to extract the complex data ('data') variable from the file.
     It also parses the header using a specific function depending on the file version to extract MRS parameters for AMARES fitting
 
     Args:
@@ -96,7 +101,7 @@ def read_fidall(filename):
         tuple:
             - header (argparse.Namespace): A namespace object containing MRS parameters for AMARES fitting
               spectral width (sw), dead time
-            - data (numpy.ndarray): A complex numpy array containing the FID 
+            - data (numpy.ndarray): A complex numpy array containing the FID
 
     Raises:
         FileNotFoundError: If the specified file does not exist.
@@ -125,10 +130,11 @@ def read_fidall(filename):
         raise KeyError("Neither 'fid' nor 'data' found in the loaded .mat file")
 
     if len(data.shape) != 1:
-        warnings.warn(
+        logger.warning(
             "Note pyAMARES.fitAMARES only fits 1D MRS data, however, your data shape is {data.shape}. Is it MRSI or raw MRS data that needs to be coil-combined?"
         )
 
-    print("data.shape=", data.shape)
+    # print("data.shape=", data.shape)
+    logger.info("data.shape=%s", data.shape)
 
     return header, data

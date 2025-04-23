@@ -39,6 +39,7 @@ Objective Function
 .. automodule:: pyAMARES.libs
    :members:
    :show-inheritance:
+   :no-index: MPFIR  # Add this line to exclude MPFIR from indexing at this level
 
 MPFIR 
 ~~~~~
@@ -59,6 +60,15 @@ HSVD initialization
 ~~~~~~~~~~~~
 
 The `hlsvd` documentation can be found in the `VESPA documentation <https://vespa-mrs.github.io/vespa.io/other_packages/dev_hlsvdpro/>`_.
+
+**Logging System**
+~~~~~~~~~~~~~~~~~~
+
+.. automodule:: pyAMARES.libs.logger
+   :members:
+   :show-inheritance:
+    f"The matrix may be ill-conditioned. Condition number is high: "
+    f"{condition_number:3.3e}"
 
 **Utilities**
 -------------

@@ -1,0 +1,44 @@
+name: Ruff Check
+
+# Run checks on Pull Requests targeting the main branch and on pushes to main
+# This ensures code is checked (proper formatting etc.) and the main branch stays clean.
+on:
+  pull_request:
+    branches: [ main, dev]
+  push:
+    branches: [ main, dev]
+
+jobs:
+  ruff_check:
+    name: Run Ruff Lint & Format Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      # Checks out your repository's code so the workflow can access it
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.8
+      # Sets up the specific Python version requested
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies (including Ruff)
+      # Installs necessary packages. Assumes Ruff is listed as a dev dependency.
+      run: |
+        python -m pip install --upgrade pip
+        # Installs dependencies from pyproject.toml (you could also do ... install ".[ruff]")
+        python -m pip install ruff
+
+    - name: Run Ruff linter check
+      # Runs Ruff to find linting errors (style, potential bugs etc.)
+      # If errors are found, Ruff exits with an error code, failing this step.
+      # GitHub Actions will show Ruff's output listing the errors (informative message).
+      run: ruff check .
+
+    - name: Run Ruff formatter check
+      # Runs Ruff's formatter in 'check' mode. It reports files that *would* be reformatted.
+      # If any files need reformatting, Ruff exits with an error code, failing this step.
+      # GitHub Actions will show Ruff's output listing the files that need formatting (informative message).
+      run: ruff format --check .

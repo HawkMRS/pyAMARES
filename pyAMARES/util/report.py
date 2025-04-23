@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 import pandas as pd
 
@@ -15,7 +13,7 @@ from ..libs.logger import get_logger
 logger = get_logger(__name__)
 
 try:
-    import jinja2
+    import jinja2  # noqa F401
 
     if_style = True
 except ImportError:
@@ -217,10 +215,10 @@ def report_amares(outparams, fid_parameters, verbose=False):
     # fid_parameters.result2 = result.copy() # debug
     negative_amplitude = result["amplitude"] < 0
     if negative_amplitude.sum() > 0:
-        logger.info(
-            "The amplitude of index",
+        logger.warning(
+            "The amplitude of index %s is negative!"
+            " Make it positive and flip the phase!",
             result.loc[negative_amplitude].index.values,
-            " is negative! Make it positive and flip the phase!",
         )
         result.loc[negative_amplitude, "amplitude"] = result.loc[
             negative_amplitude, "amplitude"
@@ -325,10 +323,15 @@ def report_amares(outparams, fid_parameters, verbose=False):
                 highlight_rows_crlb_less_than_02, axis=1
             ).format("{:.3f}")
             if hasattr(fid_parameters, "result_sum"):
-                simple_df = highlight_dataframe(extract_key_parameters(fid_parameters.result_sum))
+                simple_df = highlight_dataframe(
+                    extract_key_parameters(fid_parameters.result_sum)
+                )
             else:
                 simple_df = None
-                print("There is no result_sum generated, simple_df is set to None")
+                # print("There is no result_sum generated, simple_df is set to None")
+                logger.warning(
+                    "There is no result_sum generated, simple_df is set to None"
+                )
         else:
             styled_df = (
                 fid_parameters.result_multiplets
@@ -337,7 +340,10 @@ def report_amares(outparams, fid_parameters, verbose=False):
                 simple_df = extract_key_parameters(fid_parameters.result_sum)
             else:
                 simple_df = None
-                print("There is no result_sum generated, simple_df is set to None")
+                # print("There is no result_sum generated, simple_df is set to None")
+                logger.warning(
+                    "There is no result_sum generated, simple_df is set to None"
+                )
     if hasattr(fid_parameters, "result_sum"):
         fid_parameters.metabolites = fid_parameters.result_sum.index.to_list()
     else:

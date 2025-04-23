@@ -1,9 +1,10 @@
-import os
 import ast
-import platform
-from setuptools import setup, find_packages
-from setuptools.command.sdist import sdist as _sdist
 import glob
+import os
+import platform
+
+from setuptools import find_packages, setup
+from setuptools.command.sdist import sdist as _sdist
 
 pyamares_init_file = os.path.join(os.path.dirname(__file__), "pyAMARES", "__init__.py")
 
@@ -70,7 +71,14 @@ doc_requirements = [
     "ipywidgets",
 ]
 
-install_requires=[
+ruff_requirements = [
+    "ruff",
+    "pre-commit",
+    "pytest",
+]
+
+
+install_requires = [
     "pandas>=1.1.0",
     "matplotlib>=3.1.3",
     "lmfit",
@@ -86,13 +94,13 @@ install_requires=[
     "ipykernel",
     "requests",
     "ipywidgets>=7.6.0,<8.0.0;python_version<'3.11'",  # For older Python versions
-    "ipywidgets>=8.0.0;python_version>='3.11'",        # For newer Python versions
+    "ipywidgets>=8.0.0;python_version>='3.11'",  # For newer Python versions
 ]
 
 # Use the better-performing 'hlsvdpro' package if running on supported platforms
 # (e.g., x86_64 or amd64 architectures). Otherwise, fall back to the custom
 # 'hlsvdpropy' implementation located in pyAMARES/libs/hlsvd.py.
-if platform.machine().lower() in ['x86_64', 'amd64']:
+if platform.machine().lower() in ["x86_64", "amd64"]:
     install_requires.append("hlsvdpro>=2.0.0")
 
 
@@ -101,7 +109,10 @@ setup(
     version=__version__,
     author=__author__,
     author_email="jia-xu-1@uiowa.edu",
-    description="pyAMARES, an Open-Source Python Library for Fitting Magnetic Resonance Spectroscopy Data",
+    description=(
+        "PyAMARES, an Open-Source Python Library for Fitting Magnetic Resonance "
+        "Spectroscopy Data"
+    ),
     long_description=open("README.rst").read(),
     long_description_content_type="text/x-rst",
     url="https://github.com/hawkMRS/pyAMARES",  # Optional project URL
@@ -124,6 +135,8 @@ setup(
     extras_require={
         "docs": doc_requirements,
         "jupyter": jupyter_requirements,
+        "ruff": ruff_requirements,
+        "dev": jupyter_requirements + doc_requirements + ruff_requirements,
     },
     cmdclass={
         "sdist": CustomSDist,

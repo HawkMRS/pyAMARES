@@ -1,11 +1,10 @@
 from copy import deepcopy
 
-import numpy as np
 import matplotlib.pyplot as plt
+import nmrglue as ng
+import numpy as np
 import scipy
 from scipy.signal import firls, freqz, lfilter
-
-import nmrglue as ng
 
 
 def fircls1(M, wc, ri, sup):
@@ -22,14 +21,14 @@ def fircls1(M, wc, ri, sup):
         numpy.ndarray: Filter coefficients.
     """
     bands = [0, wc, wc + 2 * (1 - wc) / (M + 1), 1]
-    desired = [1, 1, 0, 0]  
+    desired = [1, 1, 0, 0]
 
     weights = [1 / ri, 1 / sup]
 
-    if scipy.__version__ >= '1.14.0':
+    if scipy.__version__ >= "1.14.0":
         h = firls(M + 1, bands, desired, weight=weights, fs=2.0)
     else:
-        # e.g. Scipy 1.10 
+        # e.g. Scipy 1.10
         h = firls(M + 1, bands, desired, weights)
 
     return h
@@ -38,16 +37,14 @@ def fircls1(M, wc, ri, sup):
 def leja(x_in):
     x = np.array(x_in).flatten()  # Ensure x is a 1D array
     n = len(x)
-    x_out = np.zeros(
-        n, dtype=complex
-    )  
+    x_out = np.zeros(n, dtype=complex)
 
     a = np.tile(x, (n + 1, 1))
     a[0, :] = np.abs(a[0, :])
 
     ind = np.argmax(a[0, :n])
     if ind != 0:
-        a[:, [0, ind]] = a[:, [ind, 0]]  
+        a[:, [0, ind]] = a[:, [ind, 0]]
 
     x_out[0] = a[n, 0]
     a[1, 1:n] = np.abs(a[1, 1:n] - x_out[0])
@@ -59,13 +56,13 @@ def leja(x_in):
         x_out[l] = a[n, l]
         a[l + 1, l + 1 : n] = np.abs(a[l + 1, l + 1 : n] - x_out[l])
 
-    x_out[-1] = a[n, n - 1]  
+    x_out[-1] = a[n, n - 1]
     return x_out
 
 
 def minphlpnew(h0):
     M = len(h0)
-    rh = np.roots(h0)  
+    rh = np.roots(h0)
 
     rn = [rh[i] for i in range(M - 1) if abs(rh[i]) < 0.99]
     rn2 = [rh[i] for i in range(M - 1) if 0.99 < abs(rh[i]) < 1.01]
@@ -101,6 +98,8 @@ def pbfirnew(wl, wh, signal, ri, M0):
     mnew = 1e10
     ok = 1
     M = M0
+    Mold = M0  # Initialize here
+    supold = sup  # Initialize here
 
     while ok == 1:
         # print(f'try M={M} wc={wc} ri={ri} sup={sup}')
@@ -116,15 +115,16 @@ def pbfirnew(wl, wh, signal, ri, M0):
             phas = np.arctan(np.imag(phastemp) / np.real(phastemp))
         # print(f"{phas=}")
         fir_h = fir_h * np.exp(-1j * phas)
-        fir_h3 = fir_h
         # f = filter(fir_h, 1, signal[::-1])
         f = lfilter(fir_h, [1], signal[::-1])  # needs to check
 
-        ff = np.abs(np.fft.fftshift(np.fft.fft(f[::-1][:M], 2048)))
+        ff = np.abs(
+            # np.fft.fftshift(np.fft.fft(f[::-1][:M], 2048))
+            np.fft.fftshift(np.fft.fft(f[::-1][M - 1 :], 2048))
+        )  # needs to check f[::-1][M-1:]
         mold = np.max(ff[: round((wl + 1) * 1024) - 10]) / np.sqrt(N)
         mold2 = np.max(ff[round((wh + 1) * 1024) + 10 :]) / np.sqrt(N)
         mold = max(mold, mold2)
-        ttt = 2 * noise
         if mold < 2 * noise:
             ok = 0
         else:
@@ -201,7 +201,7 @@ def MPFIR(
         1. T. Sundin et al, JMR, 139(2):189-204, 1999.
         2. Poullet et al, Manual: Simulation Package based on In vitro Databases (SPID).
     """
-    signal = fid.copy()  
+    signal = fid.copy()
     step = dwelltime * 1000  # s to ms
     frequency = MHz * 1e3  # to kHz
     xmin = (min(ppm_range) - carrier) * frequency / 1e6  # in kHz

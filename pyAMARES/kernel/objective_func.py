@@ -1,6 +1,7 @@
-import numpy as np
 import nmrglue as ng
-from .fid import interleavefid, uninterleave, multieq6
+import numpy as np
+
+from .fid import interleavefid, multieq6, uninterleave
 
 
 def default_objective(params, x, fid):

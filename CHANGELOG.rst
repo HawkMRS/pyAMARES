@@ -1,6 +1,43 @@
 Latest Changes
 --------------
 
+v0.3.28
+~~~~~~~~~~
+**Fixed**
+  - Fixed a bug in CRLB calculation that caused failures when multiple fitting parameters were fixed.
+  - Fixed logger print format typos across multiple files.
+
+v0.3.27
+~~~~~~~~~~
+
+**Added**
+  - Added ``logger.py`` module to API documentation.
+  - Added more comprehensive ``ruff`` checking configurations in ``pyproject.toml``.
+
+**Changed**
+  - Replaced remaining ``print`` and ``warning`` statements with the new logging system.
+  - Reorganized import statements across multiple files to follow best practices (alphabetical ordering, standard library imports first).
+  - Excluded Jupyter notebooks and third-party code from ``ruff`` linting. 
+  - Updated long description in ``setup.py`` with proper line breaks for PEP-8 standards.
+
+v0.3.26
+~~~~~~~~~~
+
+**Added**
+  - Added comprehensive code formatting with ``ruff`` as mentioned in `Issue #5`_.
+  - Added ``ruff`` requirements to setup.py with dedicated install option: ``pip install -e ".[ruff]"``
+  - Added ``dev`` dependencies in setup.py to include jupyter, documentation, and code quality tools.
+  - Added GitHub CI/CD configuration with ``ruff.yml`` for automated code quality checks.
+  - Added CONTRIBUTING.rst to documentation with guidelines for contributors.
+
+**Changed**
+  - Significantly reformatted codebase using ``ruff`` for consistent code style.
+  - Updated documentation structure with inclusion of CONTRIBUTING.rst.
+  - Revised README.rst with improved contributor guidelines.
+  - Updated docs/source/index.rst to include links to contribution information.
+
+.. _Issue #5: https://github.com/HawkMRS/pyAMARES/issues/5
+
 v0.3.25
 ~~~~~~~
 

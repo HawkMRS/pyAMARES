@@ -1,8 +1,11 @@
+import mat73
 import numpy as np
 from scipy import io
-import warnings
-import mat73
+
+from ..libs.logger import get_logger
 from .readfidall import is_mat_file_v7_3
+
+logger = get_logger(__name__)
 
 
 def readmrs(filename):
@@ -10,13 +13,13 @@ def readmrs(filename):
     Reads MRS data from a file, supporting multiple file formats including ASCII, CSV, NPY, and MATLAB files.
 
     This function detects the file format based on the file extension and loads the MRS data accordingly.
-    For ASCII files, it expects two columns representing the real and imaginary parts. 
-    NPY files should contain a NumPy array, and MATLAB files should contain a variable named ``fid`` and/or ``data``, 
-    when both ``fid`` and ``data`` present, only ``fid`` will be used. 
+    For ASCII files, it expects two columns representing the real and imaginary parts.
+    NPY files should contain a NumPy array, and MATLAB files should contain a variable named ``fid`` and/or ``data``,
+    when both ``fid`` and ``data`` present, only ``fid`` will be used.
     This function detects the file format based on the file extension and loads the MRS data accordingly.
-    For ASCII files, it expects two columns representing the real and imaginary parts. 
-    NPY files should contain a NumPy array, and MATLAB files should contain a variable named ``fid`` and/or ``data``, 
-    when both ``fid`` and ``data`` present, only ``fid`` will be used. 
+    For ASCII files, it expects two columns representing the real and imaginary parts.
+    NPY files should contain a NumPy array, and MATLAB files should contain a variable named ``fid`` and/or ``data``,
+    when both ``fid`` and ``data`` present, only ``fid`` will be used.
 
     Args:
         filename (str): The path and name of the file from which to load the MRS data.
@@ -40,24 +43,29 @@ def readmrs(filename):
         - For MATLAB files, both traditional (.mat) and V7.3 (.mat) files are supported, but the variable must be named ``fid`` or ``data``.
     """
     if filename.endswith("csv"):
-        print("Try to load 2-column CSV")
+        # print("Try to load 2-column CSV")
+        logger.info("Try to load 2-column CSV")
         data = np.loadtxt(filename, delimiter=",")
         data = data[:, 0] + 1j * data[:, 1]
     elif filename.endswith("txt"):
-        print("Try to load 2-column ASCII data")
+        # print("Try to load 2-column ASCII data")
+        logger.info("Try to load 2-column ASCII data")
         data = np.loadtxt(filename, delimiter=" ")
         data = data[:, 0] + 1j * data[:, 1]
     elif filename.endswith("npy"):
-        print("Try to load python NPY file")
+        # print("Try to load python NPY file")
+        logger.info("Try to load python NPY file")
         data = np.load(filename)
     elif filename.endswith("mat"):
         if is_mat_file_v7_3(filename):
-            print(
+            # print("Try to load Matlab V7.3 mat file with the var saved as fid or data")
+            logger.info(
                 "Try to load Matlab V7.3 mat file with the var saved as fid or data"
             )
             matdic = mat73.loadmat(filename)
         else:
-            print("Try to load Matlab mat file with the var saved as fid or data")
+            # print("Try to load Matlab mat file with the var saved as fid or data")
+            logger.info("Try to load Matlab mat file with the var saved as fid or data")
             matdic = io.loadmat(filename)
         if "fid" in matdic.keys() and "data" in matdic.keys():
             data = matdic["fid"].squeeze().astype("complex")
@@ -73,11 +81,10 @@ def readmrs(filename):
         )
     # assert len(data.shape) == 1
     if len(data.shape) != 1:
-        warnings.warn(
+        logger.warning(
             "Note pyAMARES.fitAMARES only fits 1D MRS data, however, your data shape is {data.shape}. Is it MRSI or raw MRS data that needs to be coil-combined?"
         )
 
-    print("data.shape=", data.shape)
+    # print("data.shape=", data.shape)
+    logger.info("data.shape=%s", data.shape)
     return data
-
-
