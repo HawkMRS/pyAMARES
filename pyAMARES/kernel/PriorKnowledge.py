@@ -440,8 +440,7 @@ def initialize_FID(
         xlim (tuple): The x-axis limits for the preview plot in ppm.
         truncate_initial_points (int): Truncate initial points from FID to remove fast decaying components (e.g. macromolecule).
                                        This usually makes baseline more flat.
-        g_global (float, optional): Global value for the ``g`` parameter. Defaults to 0.0. If set to False,
-        the g values specified in the prior knowledge will be used.
+        g_global (float, optional): Global value for the ``g`` parameter. Defaults to 0.0. If set to False, the g values specified in the prior knowledge will be used.
         lb (float, optional): Line broadening parameter in Hz, used for spectrum visualization. Defaults to 2.0.
         carrier (float, optional): The carrier frequency in ppm, often used for water (4.7 ppm) or other reference metabolite such as Phosphocreatine (0 ppm).
         ppm_offset (float, optional): Adjust the ppm in priorknowledgefile. Default 0 ppm
