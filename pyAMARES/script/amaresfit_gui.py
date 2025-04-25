@@ -2,13 +2,15 @@ import base64
 import os
 import sys
 import tempfile
+from io import BytesIO
 
 import pandas as pd
+import requests
 import streamlit as st
 
 import pyAMARES
 
-st.set_page_config(page_title="pyAMARES Web Interface", layout="wide")
+st.set_page_config(page_title="PyAMARES Web Interface", layout="wide")
 
 
 def get_download_link(file_path, link_text):
@@ -57,29 +59,12 @@ def display_editable_pk(pk_file):
         # Display the editable dataframe using st.data_editor
         st.write("Prior Knowledge File Content (Editable):")
 
-        # Configure column configuration for different column types
-        column_config = {}
-        for col in df.columns:
-            if "name" in col.lower() or "description" in col.lower():
-                # Text fields
-                column_config[col] = st.column_config.TextColumn(col, width="large")
-            elif "chemical" in col.lower() or "ppm" in col.lower():
-                # Chemical shift values
-                column_config[col] = st.column_config.NumberColumn(
-                    col, format="%.4f", width="medium"
-                )
-            elif any(x in col.lower() for x in ["amplitude", "linewidth", "phase"]):
-                # Numeric values
-                column_config[col] = st.column_config.NumberColumn(
-                    col, format="%.2f", width="small"
-                )
-
         # Use data_editor with the configuration
         updated_df = st.data_editor(
             df,
-            column_config=column_config,
+            column_config=None,
             num_rows="dynamic",
-            use_container_width=True,
+            # use_container_width=True,
             height=400,
             key="pk_editor",
         )
@@ -111,34 +96,80 @@ def display_editable_pk(pk_file):
 
 
 def main():
-    st.title("pyAMARES: MRS Data Analysis")
+    st.title("PyAMARES: MRS Data Analysis Web Interface")
+    # Add a separator
+    st.markdown("---")
+
+    # Create an info box with better formatting
+    with st.container():
+        st.info("""
+        ### About pyAMARES
+
+        This is a web interface for [pyAMARES](https://github.com/HawkMRS/pyAMARES), an open-source Python library for fitting magnetic resonance spectroscopy (MRS) data.
+
+        We recommend using pyAMARES in Jupyter notebooks or Python scripts for more advanced features and flexibility.
+
+        For more information, please visit the [pyAMARES documentation](https://pyamares.readthedocs.io/en/dev/).
+        """)
+
+    demo_col1, demo_col2 = st.columns([3, 1])
+    with demo_col1:
+        st.write(
+            "New to PyAMARES? Try the demo mode to see how the application works with sample data."
+        )
+    with demo_col2:
+        demo_button = st.button("Try Demo Mode", type="primary")
+
+    # Add this section to handle the button click
+    if demo_button:
+        st.session_state.demo_mode = True
+        st.success("Demo mode activated! Example files will be loaded automatically.")
+        st.markdown("---")
+        st.rerun()  # This forces a rerun to apply the demo mode changes
+
+    # GitHub raw URLs for the example files
+    GITHUB_RAW_BASE_URL = "https://raw.githubusercontent.com/HawkMRS/pyAMARES/main"
+    FID_EXAMPLE_URL = f"{GITHUB_RAW_BASE_URL}/pyAMARES/examples/fid.txt"
+    PK_EXAMPLE_URL = (
+        f"{GITHUB_RAW_BASE_URL}/pyAMARES/examples/example_human_brain_31P_7T.csv"
+    )
+
+    # Function to load file from GitHub raw URL
+    def load_file_from_github(url):
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.content
+        else:
+            st.error(
+                f"Failed to load demo file from {url}. Status code: {response.status_code}"
+            )
+            return None
 
     # Initialize session state for storing dataframes and processing status
+    st.header("Input FID and Prior Knowledge File")
     if "pk_dataframe" not in st.session_state:
         st.session_state.pk_dataframe = None
     if "processing_complete" not in st.session_state:
         st.session_state.processing_complete = False
 
     # Move FID file upload to sidebar
-    st.sidebar.header("FID Data")
-    fid_file = st.sidebar.file_uploader(
-        "Upload FID file (CSV, TXT, NPY, or Matlab)", type=["csv", "txt", "npy", "mat"]
-    )
-
-    # Move basic parameters to sidebar
-    st.sidebar.header("Basic Parameters")
-    mhz = st.sidebar.number_input("Field strength (MHz)", value=120.0, format="%.1f")
-    sw = st.sidebar.number_input("Spectral width (Hz)", value=10000.0, format="%.1f")
-    deadtime = st.sidebar.number_input(
-        "Dead time (seconds)", value=300e-6, format="%.2e"
-    )
-
-    # Sidebar Analysis Options
-    st.sidebar.header("Analysis Options")
-    method = st.sidebar.selectbox(
-        "Fitting method", ["least_squares", "leastsq"], index=0
-    )
-    output_prefix = st.sidebar.text_input("Output file prefix", "amares_results")
+    st.subheader("FID Data")
+    if "demo_mode" in st.session_state and st.session_state.demo_mode:
+        fid_file = st.file_uploader(
+            "Upload FID file or use the demo file",
+        )
+        if fid_file is None:
+            # Load FID file from GitHub
+            fid_content = load_file_from_github(FID_EXAMPLE_URL)
+            if fid_content is not None:
+                fid_file = BytesIO(fid_content)
+                fid_file.name = "demo_fid.txt"
+                st.info("Using demo FID file: demo_fid.txt")
+    else:
+        fid_file = st.file_uploader(
+            "Upload FID file (e.g., CSV, TXT, NPY, or Matlab), "
+            "[File I/O Instruction](https://pyamares.readthedocs.io/en/dev/fileio.html)",
+        )
 
     # Check if processing is complete and show notification on main page
     if st.session_state.processing_complete:
@@ -146,63 +177,221 @@ def main():
 
     # File upload for prior knowledge on main page
     st.subheader("Prior Knowledge File")
-    pk_file = st.file_uploader(
-        "Upload Prior Knowledge file (CSV, XLSX)", type=["csv", "xlsx"]
+    if "demo_mode" in st.session_state and st.session_state.demo_mode:
+        pk_file = st.file_uploader(
+            "Upload Prior Knowledge file or use the demo file",
+            type=["csv", "xlsx"],
+        )
+        if pk_file is None:
+            # Load PK file from GitHub
+            pk_content = load_file_from_github(PK_EXAMPLE_URL)
+            if pk_content is not None:
+                pk_file = BytesIO(pk_content)
+                pk_file.name = "demo_pk.csv"
+                st.info("Using demo Prior Knowledge file: demo_pk.csv")
+    else:
+        pk_file = st.file_uploader(
+            "Upload [Prior Knowledge file]"
+            "(https://pyamares.readthedocs.io/en/dev/notebooks/priorknowledge.html) "
+            " (CSV, XLSX)",
+            type=["csv", "xlsx"],
+        )
+    st.markdown(
+        "Please read the "
+        "[prior knowledge tutorial]"
+        "(https://pyamares.readthedocs.io/en/dev/notebooks/priorknowledge.html) "
+        "for how to create and edit a prior knowledge file."
     )
+
+    # Set default parameter values if in demo mode
+    if "demo_mode" in st.session_state and st.session_state.demo_mode:
+        # Add guided instructions for demo mode
+        with st.expander("Demo Mode Guide", expanded=True):
+            st.markdown("""
+            ### Getting Started - A Simple Example
+
+            You're now using PyAMARES with sample 31P MRS data at 7T. Here's what's happening:
+
+            1. We've loaded a sample **FID (Free Induction Decay)** file and a **Prior Knowledge** file directly from the PyAMARES GitHub repository
+            2. Default parameters have been set appropriate for this data:
+            - Field strength: 120.0 MHz (appropriate for 31P at 7T)
+            - Spectral width: 10,000 Hz
+            - Dead time: 300 microseconds
+
+            3. **Next Steps:**
+            - Examine the Prior Knowledge file data (it's editable!)
+            - Click "Process Data" to run the analysis
+            - View and download the results below after processing
+
+            """)
+
+    # Add reset demo mode button if in demo mode
+    if "demo_mode" in st.session_state and st.session_state.demo_mode:
+        if st.button("Exit Demo Mode"):
+            if "demo_mode" in st.session_state:
+                del st.session_state.demo_mode
+            st.rerun()
 
     # Display and make PK file editable immediately when uploaded
     if pk_file is not None:
         pk_dataframe = display_editable_pk(pk_file)
 
-    # Create expanders for advanced options on main page
-    with st.expander("Advanced Options", expanded=False):
-        adv_col1, adv_col2 = st.columns(2)
-
-        with adv_col1:
-            normalize_fid = st.checkbox("Normalize FID data")
-            scale_amplitude = st.number_input(
-                "Scale amplitude", value=1.0, format="%.2f"
-            )
-            flip_axis = st.checkbox("Flip FID axis")
-            ifphase = st.checkbox("Phase the spectrum")
-            lb = st.number_input(
-                "Line Broadening factor (Hz)", value=2.0, format="%.1f"
-            )
-
-        with adv_col2:
-            # preview = st.checkbox("Preview spectra")
-            initialize_with_lm = st.checkbox(
-                "Initialize Fitting Parameters with Levenberg-Marquardt method",
-                value=True,
-            )
-            carrier = st.number_input(
-                "Carrier frequency (ppm)", value=0.0, format="%.2f"
-            )
-            truncate_initial_points = st.number_input(
-                "Truncate initial points", value=0, min_value=0
-            )
-            g_global = st.number_input("Global g parameter", value=0.0, format="%.2f")
-            ppm_offset = st.number_input("PPM offset", value=0.0, format="%.2f")
-            delta_phase = st.number_input(
-                "Additional phase shift (degrees)", value=0.0, format="%.1f"
-            )
-
-    # X limits
-    with st.expander("X-axis limits (ppm)", expanded=False):
-        xlim_col1, xlim_col2 = st.columns(2)
-        with xlim_col1:
-            x_min = st.number_input("Min", value=-20.0, format="%.1f")
-        with xlim_col2:
-            x_max = st.number_input("Max", value=10.0, format="%.1f")
-        xlim = (x_min, x_max) if x_min < x_max else None
-
-    # HSVD options
-    with st.expander("HSVD", expanded=False):
-        use_hsvd = st.checkbox("Use HSVD for initial parameters")
-        num_of_component = st.number_input(
-            "Number of components for HSVD", value=12, min_value=1
+    st.header("Basic Fitting Parameters")
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        mhz = st.number_input(
+            "Field strength (MHz)", value=120.0, format="%.1f", key="basic_mhz"
+        )
+    with col2:
+        sw = st.number_input(
+            "Spectral width (Hz)", value=10000.0, format="%.1f", key="basic_sw"
+        )
+    with col3:
+        deadtime = st.number_input(
+            "Dead time (seconds)",
+            value=300e-6,
+            format="%.2e",
+            help="The dead time or begin time in seconds before the FID signal starts",
+            key="basic_deadtime",
+        )
+    with col4:
+        truncate_initial_points = st.number_input(
+            "Truncate initial points",
+            value=0,
+            min_value=0,
+            help="Truncate initial points from FID to remove fast decaying "
+            "components (e.g. macromolecule). This usually makes baseline more flat.",
+        )
+    with col5:
+        g_global = st.number_input(
+            "Global g parameter",
+            value=0.0,
+            format="%.2f",
+            help="Global value for the `g` parameter. "
+            "Defaults to 0.0. If set to False, the g values "
+            "specified in the prior knowledge will be used.",
+        )
+    col6, col7 = st.columns(2)
+    with col6:
+        options = {
+            "least_squares": "Trust Region Reflective (least_squares) ",
+            "leastsq": "Levenberg–Marquardt (leastsq)",
+        }
+        method = st.selectbox(
+            "Fitting method",
+            options=list(options.keys()),
+            index=0,
+            format_func=lambda x: options[x],
+            help="leatsq is faster, least_squares is better",
+        )
+    with col7:
+        output_prefix = st.text_input("Output file prefix", "amares_results")
+    col8, col9, col10 = st.columns([4, 2, 2])
+    with col8:
+        initialize_with_lm = st.checkbox(
+            "Initialize Fitting Parameters with Levenberg-Marquardt method",
+            value=True,
+            help="If True, a Levenberg-Marquardt initializer (least_sq) is executed "
+            " internally.",
+        )
+    with col9:
+        flip_axis = st.checkbox(
+            "Flip Spectrum Axis",
+            help="If True, flip the FID axis by taking the complex "
+            "conjugate. Useful in some GE scanners where the MNS "
+            "axis needs to be flipped.",
+        )
+    with col10:
+        normalize_fid = st.checkbox(
+            "Normalize FID data", help=" If True, normalize the FID data."
         )
 
+    # Create expanders for advanced options on main page
+    st.header("Advanced Options")
+    with st.expander("Advanced Options", expanded=False):
+        adv_col1, adv_col2 = st.columns([3, 1])
+        with adv_col1:
+            st.write("Advanced Fitting Options")
+            sub_col1, sub_col2 = st.columns(2)
+            with sub_col1:
+                scale_amplitude = st.number_input(
+                    "Scale amplitude",
+                    value=1.0,
+                    format="%.2f",
+                    help="Scaling factor applied to the amplitude parameters loaded "
+                    "from priorknowledgefile. Useful when prior knowledge amplitudes "
+                    "significantly differ from the FID amplitude. Defaults to 1.0 "
+                    "(no scaling).",
+                )
+                delta_phase = st.number_input(
+                    "Additional phase shift (degrees)",
+                    value=0.0,
+                    format="%.1f",
+                    help="Additional phase shift (in degrees) to be applied to the "
+                    "prior knowledge phase values. Defaults to 0.0",
+                )
+                st.markdown(
+                    "[Initialize the fitting parameters]"
+                    "(https://pyamares.readthedocs.io/en/dev/"
+                    "notebooks/HSVDinitializer_unknowncompounds.html) "
+                    "with HSVD"
+                )
+                use_hsvd = st.checkbox("Use HSVD for initial parameters")
+            with sub_col2:
+                carrier = st.number_input(
+                    "Carrier frequency (ppm)",
+                    value=0.0,
+                    format="%.2f",
+                    help="carrier frequency in ppm, often used for water (4.7 ppm) "
+                    "or other reference metabolite such as Phosphocreatine "
+                    "(0 ppm).",
+                )
+                ppm_offset = st.number_input(
+                    "PPM offset",
+                    value=0.0,
+                    format="%.2f",
+                    help=" Adjust the ppm in `priorknowledgefile`. Default 0 ppm",
+                )
+                if use_hsvd:
+                    num_of_component = st.number_input(
+                        "Number of components for HSVD",
+                        value=12,
+                        min_value=1,
+                        help="Number of components to decompose the FID into.",
+                    )
+        with adv_col2:
+            st.write("Visualization Options")
+            ifphase = st.checkbox(
+                "Phase the spectrum",
+                help="Turn on 0th and 1st "
+                "order phasing for **visualization**. This does not "
+                "affect the fitting.",
+            )
+            lb = st.number_input(
+                "Line Broadening factor (Hz)",
+                value=2.0,
+                format="%.1f",
+                help="Line broadening parameter in Hz, used for spectrum "
+                "**visualization** only. Defaults to 2.0.",
+            )
+            use_custom_xlim = st.checkbox("Use custom X-axis limits", value=True)
+
+            # Show slider only if checkbox is checked and set xlim accordingly
+            if use_custom_xlim:
+                x_min, x_max = st.slider(
+                    "Display X-axis range (ppm)",
+                    help="The x-axis limits for the **visualization** of spectrum in ppm. "
+                    "This does not affect the fitting.",
+                    min_value=-50.0,
+                    max_value=50.0,
+                    value=(-20.0, 10.0),  # Default values (min, max)
+                    step=0.5,
+                    format="%.1f",
+                )
+                xlim = (x_max, x_min)  # Inverted for MRS convention
+            else:
+                # Disable custom limits
+                xlim = None
     # Process button - make it more prominent in the main page
     process_button = st.button("Process Data", type="primary")
 
@@ -270,15 +459,15 @@ def main():
                 else:
                     fitting_parameters = FIDobj.initialParams
 
-                    # Fittign
-                    out1 = pyAMARES.fitAMARES(
-                        fid_parameters=FIDobj,
-                        fitting_parameters=fitting_parameters,
-                        method=method,
-                        ifplot=False,
-                        inplace=False,
-                        initialize_with_lm=initialize_with_lm,
-                    )
+                # Fitting
+                out1 = pyAMARES.fitAMARES(
+                    fid_parameters=FIDobj,
+                    fitting_parameters=fitting_parameters,
+                    method=method,
+                    ifplot=False,
+                    inplace=False,
+                    initialize_with_lm=initialize_with_lm,
+                )
 
                 # Save results to temporary files
                 temp_dir = tempfile.mkdtemp()

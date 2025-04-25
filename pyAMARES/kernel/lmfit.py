@@ -535,6 +535,7 @@ def plotAMARES(fid_parameters, fitted_params=None, plotParameters=None, filename
     if fitted_params is None:
         logger.info(
             "fitting_parameters is None, just use the fid_parameters.out_obj.params"
+            " for plotAMARES"
         )
         fitted_params = fid_parameters.out_obj.params
     amares_arr = fft_params(
