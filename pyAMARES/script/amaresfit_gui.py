@@ -96,7 +96,7 @@ def display_editable_pk(pk_file):
 
 
 def main():
-    st.title("PyAMARES: MRS Data Analysis Web Interface")
+    st.title(f"PyAMARES: MRS Data Analysis Web Interface\n v{pyAMARES.__version__}")
     # Add a separator
     st.markdown("---")
 

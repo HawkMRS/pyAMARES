@@ -10,4 +10,5 @@ mat73
 tqdm
 notebook
 streamlit>=1.24.0
+git+https://github.com/HawkMRS/pyAMARES.git@dev#egg=pyAMARES
 # hlsvdpro==2.0.0 #arm64 does not have it
