@@ -227,7 +227,7 @@ def main():
 
     # Add reset demo mode button if in demo mode
     if "demo_mode" in st.session_state and st.session_state.demo_mode:
-        if st.button("Exit Demo Mode"):
+        if st.button("Exit Demo Mode", type="primary"):
             if "demo_mode" in st.session_state:
                 del st.session_state.demo_mode
             st.rerun()

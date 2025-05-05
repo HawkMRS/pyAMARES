@@ -9,4 +9,5 @@ lmfit
 mat73
 tqdm
 notebook
+streamlit>=1.24.0,
 # hlsvdpro==2.0.0 #arm64 does not have it
