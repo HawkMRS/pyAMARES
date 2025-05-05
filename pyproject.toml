@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.ruff]
 line-length = 88
-target-version = "py37"  
+target-version = "py38"  
 # Exclude all Jupyter notebooks and third-party code
 exclude = ["*.ipynb", 
            "pyAMARES/libs/hlsvd.py" ]  
