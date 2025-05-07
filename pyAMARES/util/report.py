@@ -215,10 +215,10 @@ def report_amares(outparams, fid_parameters, verbose=False):
     # fid_parameters.result2 = result.copy() # debug
     negative_amplitude = result["amplitude"] < 0
     if negative_amplitude.sum() > 0:
-        logger.info(
-            "The amplitude of index",
+        logger.warning(
+            "The amplitude of index %s is negative!"
+            " Make it positive and flip the phase!",
             result.loc[negative_amplitude].index.values,
-            " is negative! Make it positive and flip the phase!",
         )
         result.loc[negative_amplitude, "amplitude"] = result.loc[
             negative_amplitude, "amplitude"

@@ -119,7 +119,8 @@ def pbfirnew(wl, wh, signal, ri, M0):
         f = lfilter(fir_h, [1], signal[::-1])  # needs to check
 
         ff = np.abs(
-            np.fft.fftshift(np.fft.fft(f[::-1][:M], 2048))
+            # np.fft.fftshift(np.fft.fft(f[::-1][:M], 2048))
+            np.fft.fftshift(np.fft.fft(f[::-1][M - 1 :], 2048))
         )  # needs to check f[::-1][M-1:]
         mold = np.max(ff[: round((wl + 1) * 1024) - 10]) / np.sqrt(N)
         mold2 = np.max(ff[round((wh + 1) * 1024) + 10 :]) / np.sqrt(N)
