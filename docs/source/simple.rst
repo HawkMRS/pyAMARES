@@ -11,6 +11,29 @@ Run pyAMARES
 
    .. tabs::
 
+      .. tab:: Web Browser (New!)
+
+         Run pyAMARES in any web browser:
+
+            .. note:: 
+              **New:** PyAMARES now offers a user-friendly web interface for fitting AMARES models without writing any code. The web app provides a graphical interface to:
+
+         `Try pyAMARES in your browser <https://pyamares.streamlit.app/>`_
+
+         * Upload your FID data file
+         * Upload the prior knowledge spreadsheet (Excel or CSV)
+         * Edit the prior knowledge spreadsheet as needed
+         * Set MR parameters (MHz, spectrum width, deadtime, etc)
+         * Visualize results with interactive plots
+         * Download fitted results and figures
+
+         .. image:: https://static.streamlit.io/badges/streamlit_badge_black_white.svg
+            :target: https://pyamares.streamlit.app/
+            :alt: Streamlit App
+
+         No installation required - just visit the link and start analyzing your MRS data right away!
+
+
       .. tab:: Jupyter Notebook
 
          Run pyAMARES in a Jupyter Notebook:
@@ -114,7 +137,6 @@ Run pyAMARES
 
             
          You can also copy ``pyAMARES/script/amaresfit.py`` and edit it yourself.
-
 
 
 
