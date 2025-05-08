@@ -103,7 +103,8 @@ class TestDemoMode:
             mock_bytesio.return_value = mock_file
 
             # Prevent actual pyAMARES calls
-            with patch("pyAMARES.script.amaresfit_gui.pyAMARES"):
+            with patch("pyAMARES.script.amaresfit_gui.pyAMARES") as mock_pyamares:
+                mock_pyamares.__version__ = "0.0.0"  # null version id for test
                 # Patch tempfile to avoid file operations
                 with patch("pyAMARES.script.amaresfit_gui.tempfile"):
                     # Patch os.path functions
@@ -140,7 +141,8 @@ class TestDemoMode:
             mock_bytesio.side_effect = [mock_fid_file, mock_pk_file]
 
             # Prevent actual pyAMARES calls and file processing
-            with patch("pyAMARES.script.amaresfit_gui.pyAMARES"):
+            with patch("pyAMARES.script.amaresfit_gui.pyAMARES") as mock_pyamares:
+                mock_pyamares.__version__ = "0.0.0"  # null version id for test
                 # Patch tempfile to avoid file operations
                 with patch("pyAMARES.script.amaresfit_gui.tempfile"):
                     # Patch os.path functions
