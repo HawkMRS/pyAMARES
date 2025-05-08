@@ -44,7 +44,7 @@ See the `Installation Guide <https://pyamares.readthedocs.io/en/latest/install.h
 Run pyAMARES in any web browser
 -------------------------------
 
-**New:** PyAMARES now offers a user-friendly web interface for fitting AMARES models without writing any code. The web app provides a graphical interface to:
+**New:** PyAMARES now offers `a user-friendly web interface <https://pyamares.streamlit.app/>`_ for fitting AMARES models without writing any code. The web app provides a graphical interface to:
 
 * Upload your FID data file
 * Upload the prior knowledge spreadsheet (Excel or CSV)
@@ -57,7 +57,7 @@ Run pyAMARES in any web browser
    :target: https://pyamares.streamlit.app/
    :alt: Streamlit App
 
-No installation required - just visit the link and start fittting your MRS data right away!
+No installation required - just visit the `link <https://pyamares.streamlit.app/>`_ and start fittting your MRS data right away!
 
 Run pyAMARES as standard-alone script
 -------------------------------------
