@@ -129,7 +129,8 @@ __________________
       .. code-block:: bash
 
          conda activate env_name
-         python -m pip install git+https://github.com/HawkMRS/pyAMARES.git@gui#egg=pyAMARES[streamlit]
+         python -m pip install git+https://github.com/HawkMRS/pyAMARES.git@dev#egg=pyAMARES  # install pyAMARES first
+         python -m pip install git+https://github.com/HawkMRS/pyAMARES.git@gui#egg=pyAMARES[streamlit]  # install web interface 
 
       After installation, you can run one of these commands to launch the web interface locally:
 

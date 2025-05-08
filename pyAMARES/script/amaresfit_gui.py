@@ -249,7 +249,9 @@ def main():
     with col3:
         deadtime = st.number_input(
             "Dead time (seconds)",
-            value=300e-6,
+            value=300e-6
+            if "demo_mode" in st.session_state and st.session_state.demo_mode
+            else 0.0,
             format="%.2e",
             help="The dead time or begin time in seconds before the FID signal starts",
             key="basic_deadtime",
@@ -285,7 +287,12 @@ def main():
             help="leatsq is faster, least_squares is better",
         )
     with col7:
-        output_prefix = st.text_input("Output file prefix", "amares_results")
+        output_prefix = st.text_input(
+            "Output file prefix",
+            value="simple_example"
+            if "demo_mode" in st.session_state and st.session_state.demo_mode
+            else "amares_results",
+        )
     col8, col9, col10 = st.columns([4, 2, 2])
     with col8:
         initialize_with_lm = st.checkbox(
@@ -374,7 +381,12 @@ def main():
                 help="Line broadening parameter in Hz, used for spectrum "
                 "**visualization** only. Defaults to 2.0.",
             )
-            use_custom_xlim = st.checkbox("Use custom X-axis limits", value=True)
+            use_custom_xlim = st.checkbox(
+                "Use custom X-axis limits",
+                value=True
+                if "demo_mode" in st.session_state and st.session_state.demo_mode
+                else False,
+            )
 
             # Show slider only if checkbox is checked and set xlim accordingly
             if use_custom_xlim:

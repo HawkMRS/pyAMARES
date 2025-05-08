@@ -4,7 +4,7 @@ Latest Changes
 v0.3.29
 ~~~~~~~
 **Added** 
-  - Added a streamlit app ``script/amaresfit_gui.py`` to provide a graphical user interface for the ``fitAMARES`` function. This app allows users to easily fit AMARES models using a web-based interface.
+  - Added a streamlit app ``script/amaresfit_gui.py`` to provide a graphical user interface for pyAMARES. 
 
 v0.3.28
 ~~~~~~~
