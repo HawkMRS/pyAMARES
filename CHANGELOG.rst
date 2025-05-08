@@ -1,14 +1,19 @@
 Latest Changes
 --------------
 
+v0.3.29
+~~~~~~~
+**Added** 
+  - Added a streamlit app ``script/amaresfit_gui.py`` to provide a graphical user interface for pyAMARES. 
+
 v0.3.28
-~~~~~~~~~~
+~~~~~~~
 **Fixed**
   - Fixed a bug in CRLB calculation that caused failures when multiple fitting parameters were fixed.
   - Fixed logger print format typos across multiple files.
 
 v0.3.27
-~~~~~~~~~~
+~~~~~~~
 
 **Added**
   - Added ``logger.py`` module to API documentation.
@@ -21,7 +26,7 @@ v0.3.27
   - Updated long description in ``setup.py`` with proper line breaks for PEP-8 standards.
 
 v0.3.26
-~~~~~~~~~~
+~~~~~~~
 
 **Added**
   - Added comprehensive code formatting with ``ruff`` as mentioned in `Issue #5`_.

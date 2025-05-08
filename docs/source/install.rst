@@ -122,6 +122,29 @@ __________________
 
       This command tells ``pip`` to install the package directly from the ``dev`` branch of the Github repository. 
 
+   .. tab:: Install Web Interface Locally (New!)
+
+      If you want to install the `web interface of pyAMARES <https://pyamares.streamlit.app/>`_ locally, you can do so by running the following command:
+
+      .. code-block:: bash
+
+         conda activate env_name
+         python -m pip install git+https://github.com/HawkMRS/pyAMARES.git@dev#egg=pyAMARES  # install pyAMARES first
+         python -m pip install git+https://github.com/HawkMRS/pyAMARES.git@gui#egg=pyAMARES[streamlit]  # install web interface 
+
+      After installation, you can run one of these commands to launch the web interface locally:
+
+      .. code-block:: bash
+
+         # Launch pyAMARES and automatically open in your default browser
+         streamlit run https://raw.githubusercontent.com/HawkMRS/pyAMARES/refs/heads/gui/pyAMARES/script/amaresfit_gui.py
+
+         # Launch the web server only (access via http://localhost:8501 in your browser)
+         streamlit run https://raw.githubusercontent.com/HawkMRS/pyAMARES/refs/heads/gui/pyAMARES/script/amaresfit_gui.py --server.headless true
+
+
+      For more information about running Streamlit apps, please visit the `Streamlit documentation <https://docs.streamlit.io/develop/concepts/architecture/run-your-app>`_.
+
 
 Update Installed pyAMARES
 _________________________
