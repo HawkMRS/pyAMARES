@@ -413,7 +413,7 @@ def main():
         "Select Mode:",
         ["AMARES Fitting", "Simple FID Simulation"],
         index=0,
-        help="Choose between AMARES Fitting or simulating FID data using AMARES equation",
+        help="Choose between AMARES Fitting or simulating FID data",
     )
 
     # Convert to boolean for backward compatibility
