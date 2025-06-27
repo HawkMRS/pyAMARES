@@ -1,4 +1,5 @@
 import base64
+import io
 import os
 import sys
 import tempfile
@@ -50,36 +51,28 @@ def get_download_link_data(data, filename, link_text):
     return f'<a href="data:file/csv;base64,{b64}" download="{filename}">{link_text}</a>'
 
 
-def clean_dataframe(df):
-    """
-    Clean a dataframe by:
-    1. Removing rows where the first column starts with #
-    2. Removing the # prefix from column names that start with #
-    """
-    # Filter out rows where the first column starts with #
-    df = df[~df.iloc[:, 0].astype(str).str.startswith("#")]
-
-    # Clean column headers - remove # prefix instead of replacing with empty string
-    df.columns = [
-        col[1:] if isinstance(col, str) and col.startswith("#") else col
-        for col in df.columns
-    ]
-
-    return df
-
-
 def display_editable_pk(pk_file):
-    """Display and allow editing of the prior knowledge file"""
+    """Display and allow editing of the prior knowledge file (filter any line with #)"""
     try:
         if pk_file.name.endswith(".csv"):
-            df = pd.read_csv(pk_file)
-            df = clean_dataframe(df)
+            # Read the raw content first
+            content = pk_file.getvalue().decode("utf-8")
+            # Filter out any line containing #
+            lines = content.split("\n")
+            cleaned_lines = [line for line in lines if "#" not in line]
+            cleaned_content = "\n".join(cleaned_lines)
+            # Now read with pandas
+            df = pd.read_csv(io.StringIO(cleaned_content))
         elif pk_file.name.endswith(".xlsx"):
             df = pd.read_excel(pk_file)
+            # For Excel files, still need to clean afterwards
             df = clean_dataframe(df)
 
         # Display the editable dataframe using st.data_editor
         st.write("Prior Knowledge File Content (Editable):")
+        st.info(
+            "Note: Comment rows (containing #) are automatically filtered out and won't be shown in the editor."
+        )
 
         # Use data_editor with the configuration
         updated_df = st.data_editor(
@@ -114,6 +107,22 @@ def display_editable_pk(pk_file):
     except Exception as e:
         st.error(f"Error reading file: {str(e)}")
         return None
+
+
+def clean_dataframe(df):
+    """
+    Clean a dataframe by removing rows where any column contains #
+    (This is mainly for Excel files)
+    """
+    if len(df) > 0:
+        # Create a mask to filter out rows containing # in any column
+        mask = ~df.astype(str).apply(
+            lambda row: row.str.contains("#", na=False).any(), axis=1
+        )
+        df = df[mask]
+        df.reset_index(drop=True, inplace=True)
+
+    return df
 
 
 def perturb_value(value, percentage=5):

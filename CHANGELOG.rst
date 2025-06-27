@@ -8,6 +8,9 @@ v0.3.30
 s needed
   - Added ``extra_line_broadening`` to ``fid.simulate_fid`` to allow users to add extra line broadening to the simulated FID before adding noise. This avoid SNR bias introduced by extra global linebroadening factors
 
+**Fixed**
+  - Fixed a bug in the Streamlit app where editing prior knowledge (PK) would remove ``#`` symbols from comment rows, causing file parsing to fail when the comment line appears as the first line
+
 v0.3.29
 ~~~~~~~
 **Added** 
