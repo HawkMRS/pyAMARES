@@ -387,6 +387,7 @@ def simulate_fid(
     indsignal=(0, 10),
     pts_noise=200,
     preview=False,
+    extra_line_broadening=0.0,
 ):
     """
     A function that simulates an FID from an lmfit Parameter object and optionally adds Gaussian white noise to achieve a target SNR.
@@ -407,6 +408,8 @@ def simulate_fid(
           should be no signal in this region.
         preview (bool, optional): If True, plots the FTed simulated FID signal.
           Defaults to False.
+        extra_line_broadening (float, optional): Additional line broadening in Hz to apply to the simulated FID.
+           Defaults to 0.0.
 
     Returns:
         numpy.ndarray: The simulated FID signal, optionally with added noise to achieve the target SNR.
@@ -418,6 +421,11 @@ def simulate_fid(
     dwelltime = 1.0 / sw  # noqa F841  #place holder
     timeaxis = np.arange(0, dwelltime * fid_len, dwelltime) + deadtime  # timeaxis
     fidsim = uninterleave(multieq6(x=timeaxis, params=params))
+    if extra_line_broadening > 0:
+        logger.info(
+            "Applying extra line broadening of %2.2f Hz" % extra_line_broadening
+        )
+        fidsim = ng.proc_base.em(fidsim, extra_line_broadening / sw)
     if snr_target is not None:
         fidsim = add_noise_FID(fidsim, snr_target, indsignal, pts_noise)
     if preview:

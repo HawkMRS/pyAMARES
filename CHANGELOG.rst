@@ -1,6 +1,13 @@
 Latest Changes
 --------------
 
+v0.3.30
+~~~~~~~
+**Added** 
+  - Added a new "Simple FID Simulation" mode to the Streamlit app ``script/amaresfit_gui.py``. This mode allows users to simulate FIDs using prior knowledge dataset and perturbed the parameters 
+s needed
+  - Added ``extra_line_broadening`` to ``fid.simulate_fid`` to allow users to add extra line broadening to the simulated FID before adding noise. This avoid SNR bias introduced by extra global linebroadening factors
+
 v0.3.29
 ~~~~~~~
 **Added** 
