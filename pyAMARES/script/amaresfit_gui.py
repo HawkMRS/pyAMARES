@@ -133,45 +133,71 @@ def perturb_value(value, percentage=5):
 
 
 def perturb_table(
-    inputparams, percentage=5, freq_shift=5, phase_shift=0, extra_freq_drift=0
+    inputparams,
+    percentage=5,
+    freq_shift=5,
+    phase_shift=0,
+    extra_freq_drift=0,
+    deadtime=300e-6,
+    override_constraints=True,
 ):
     """Apply perturbation to parameter table"""
     params = deepcopy(inputparams)
     all_deltas = {}
 
-    for i in params:
-        original_value = params[i].value
+    # Override constraints if requested
+    if override_constraints:
+        for param in params.values():
+            param.min = -np.inf
+            param.max = np.inf
+            param.vary = True
+            param.expr = None
 
-        if params[i].name.startswith("ak") or params[i].name.startswith("dk"):
-            params[i].value = perturb_value(params[i].value, percentage)
-            all_deltas[params[i].name] = params[i].value - original_value
+    # Calculate deadtime-induced phase correction
+    deadtime_phase_correction = (
+        2 * np.pi * extra_freq_drift * deadtime if extra_freq_drift != 0 else 0
+    )
+    if deadtime_phase_correction != 0:
+        print(
+            f"deadtime_freq_phase_correction = {np.rad2deg(deadtime_phase_correction):.3f} degrees"
+        )
 
-        elif params[i].name.startswith("freq"):
+    # Apply perturbations
+    for param in params.values():
+        original_value = param.value
+        param_name = param.name
+
+        if param_name.startswith(("ak", "dk")):
+            param.value = perturb_value(param.value, percentage)
+            all_deltas[param_name] = param.value - original_value
+
+        elif param_name.startswith("freq"):
             freq_random_shift = np.random.uniform(-freq_shift, freq_shift)
-            params[i].value += extra_freq_drift
-            params[i].value += freq_random_shift
-            all_deltas[params[i].name] = extra_freq_drift + freq_random_shift
+            param.value += extra_freq_drift + freq_random_shift
+            all_deltas[param_name] = extra_freq_drift + freq_random_shift
 
-        elif params[i].name.startswith("phi"):
+        elif param_name.startswith("phi"):
             phase_random_shift = np.random.uniform(
                 -np.deg2rad(phase_shift), np.deg2rad(phase_shift)
             )
-            params[i].value += phase_random_shift
-            all_deltas[params[i].name] = phase_random_shift
+            # Chu-Yu wanted it this way: with frequency drift, no first point phase change happens
+            corrected_phase = (
+                param.value + phase_random_shift - deadtime_phase_correction
+            )
+            param.value = np.angle(np.exp(1j * corrected_phase))
+            all_deltas[param_name] = param.value - original_value
 
-    # Find the ak parameter with the biggest absolute value
+    # Find the ak parameter with the biggest absolute perturbation
     ak_deltas = {k: v for k, v in all_deltas.items() if k.startswith("ak")}
     biggest_ak_name = max(ak_deltas.items(), key=lambda x: abs(x[1]))[0]
-
-    # Extract the suffix (e.g., "BATP" from "ak_BATP")
     suffix = biggest_ak_name.split("_", 1)[1]
 
     # Create simplified deltas for this parameter group
-    deltas = {}
-    for param_type in ["ak", "dk", "freq", "phi"]:
-        param_name = f"{param_type}_{suffix}"
-        if param_name in all_deltas:
-            deltas[param_type] = all_deltas[param_name]
+    deltas = {
+        param_type: all_deltas.get(f"{param_type}_{suffix}")
+        for param_type in ["ak", "dk", "freq", "phi"]
+        if f"{param_type}_{suffix}" in all_deltas
+    }
 
     return params, deltas
 
@@ -220,6 +246,13 @@ def plot_drift_arrays(ak_arr, dk_arr, freq_arr, phase_arr):
         ax.grid(True, alpha=0.3)
 
     plt.tight_layout()
+    return fig
+
+
+def plot_first_point_phase(fidarr):
+    fig = plt.figure(figsize=(10, 6))
+    angle_list = [np.rad2deg(np.angle(x[0])) for x in fidarr]
+    plt.plot(angle_list, "o-")
     return fig
 
 
@@ -989,7 +1022,7 @@ def main():
             col1, col2 = st.columns(2)
             with col1:
                 sim_snr = st.number_input(
-                    "Target SNR",
+                    "Target SNR. Set to 0 for no noise",
                     value=20.0,
                     min_value=0.0,
                     max_value=1000.0,
@@ -1010,7 +1043,7 @@ def main():
                 )
             with col2:
                 batch_snr = st.number_input(
-                    "Target SNR for each spectrum in the batch",
+                    "Target SNR for each spectrum in the batch. Set to 0 for no noise",
                     value=20.0,
                     min_value=0.0,
                     max_value=1000.0,
@@ -1031,7 +1064,7 @@ def main():
                 )
             with col2:
                 transient_snr = st.number_input(
-                    "SNR per transient",
+                    "SNR per transient. Set to 0 for no noise",
                     value=2.0,
                     min_value=0.0,
                     max_value=1000.0,
@@ -1042,8 +1075,14 @@ def main():
             with col3:
                 st.metric(
                     "Expected final SNR",
-                    f"{transient_snr * np.sqrt(num_transients):.1f}",
-                    help="SNR improves with √N for N transients",
+                    (
+                        f"{transient_snr * np.sqrt(num_transients):.1f}"
+                        if transient_snr > 0
+                        else "Ideal (noise-free)"
+                    ),
+                    help="SNR improves with √N for N transients"
+                    if transient_snr > 0
+                    else "Perfect signal conditions",
                 )
 
             # Add output format selection for Multiple Transients mode
@@ -1119,8 +1158,16 @@ def main():
                     help="Random phase variations",
                 )
 
-            # Second row: Frequency variation and Frequency drift
+            # Second row: Override constraints, Frequency variation and Frequency drift
             freq_col1, freq_col2, freq_col3 = st.columns(3)
+
+            with freq_col1:
+                override_constraints = st.checkbox(
+                    "Override Prior Knowledge Constraints",
+                    value=True,
+                    disabled=not use_perturbation,
+                    help="Allow perturbations to exceed prior knowledge bounds and constraints",
+                )
 
             with freq_col2:
                 freq_perturb = st.number_input(
@@ -1202,7 +1249,12 @@ def main():
                                     params,
                                     percentage=amp_perturb,
                                     freq_shift=freq_perturb,
-                                    extra_freq_drift=phase_perturb,
+                                    phase_shift=phase_perturb,
+                                    extra_freq_drift=freq_drift,
+                                    # sw=sw,
+                                    # n_points=sim_fid_len,
+                                    deadtime=deadtime,
+                                    override_constraints=override_constraints,
                                 )
 
                             # Generate single FID
@@ -1314,6 +1366,10 @@ def main():
                                         freq_shift=freq_perturb,
                                         phase_shift=phase_perturb,
                                         extra_freq_drift=freq_drift_arr[i],
+                                        # sw=sw,
+                                        # n_points=sim_fid_len,
+                                        deadtime=deadtime,
+                                        override_constraints=override_constraints,
                                     )
 
                                     ak_drift_arr[i] = deltas.get("ak", 0.0)
@@ -1438,6 +1494,10 @@ def main():
                                         freq_shift=freq_perturb,
                                         phase_shift=phase_perturb,
                                         extra_freq_drift=freq_drift_arr[i],
+                                        # sw=sw,
+                                        # n_points=sim_fid_len,
+                                        deadtime=deadtime,
+                                        override_constraints=override_constraints,
                                     )
 
                                     ak_drift_arr[i] = deltas.get("ak", 0.0)
@@ -1644,6 +1704,12 @@ def main():
                                         )
                                         st.pyplot(fig2)
                                         plt.close()
+
+                                        # For Debug. Chu-Yu wants the frequency drift not alter the first point phase
+                                        # st.subheader("First Point Phase")
+                                        # fig3 = plot_first_point_phase(transients_array)
+                                        # st.pyplot(fig3)
+                                        # plt.close()
 
                         # Clean up
                         os.unlink(pk_path_sim)

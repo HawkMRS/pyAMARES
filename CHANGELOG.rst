@@ -1,11 +1,21 @@
 Latest Changes
 --------------
 
+v0.3.32
+~~~~~~~
+**Added**
+  - Added an ``override_constraints`` option to the simulation mode of the web interface. This allows users to override the constraints defined in the prior knowledge dataset.
+  - Added clear indications in the web interface that simulating with target SNR=0 produces a noise-free ideal FID.
+
+**Fixed**
+  - Fixed a bug where frequency drift in the web interface affected the first point phase of the simulated FID.
+
 v0.3.31
 ~~~~~~~
 **Fixed**
   - Fixed a bug in the web interface where non-``.txt`` format FIDs were incorrectly identified as ``.txt`` files, causing program crashes.
   - Fixed a bug in both the web interface and command-line script where the code attempted to access non-existent ``result_sum`` and ``simple_pd`` from the fitted result object.
+  - Fixed a bug that the precision of Mhz in the web interface could only be set to 1 decimal place, which was kHz and too coarse. 
 
 v0.3.30
 ~~~~~~~
