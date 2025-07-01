@@ -202,7 +202,11 @@ def main():
             inplace=False,
         )
 
-    out1.result_sum.to_csv(args.output + ".csv")
+    if args.use_hsvd:
+        out1.result_multiplets.to_csv(args.output + ".csv")
+    else:
+        out1.result_sum.to_csv(args.output + ".csv")
+
     if sys.version_info >= (3, 7):
         out1.styled_df.to_html(args.output + ".html")
     else:

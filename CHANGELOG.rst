@@ -1,12 +1,18 @@
 Latest Changes
 --------------
 
+v0.3.31
+~~~~~~~
+**Fixed**
+  - Fixed a bug in the web interface where non-``.txt`` format FIDs were incorrectly identified as ``.txt`` files, causing program crashes.
+  - Fixed a bug in both the web interface and command-line script where the code attempted to access non-existent ``result_sum`` and ``simple_pd`` from the fitted result object.
+
 v0.3.30
 ~~~~~~~
 **Added** 
-  - Added a new "Simple FID Simulation" mode to the Streamlit app ``script/amaresfit_gui.py``. This mode allows users to simulate FIDs using prior knowledge dataset and perturbed the parameters 
+  - Added a new "Simple FID Simulation" mode to the Streamlit app ``script/amaresfit_gui.py``. This mode allows users to simulate FIDs using prior knowledge dataset and perturbed the parameters.
 s needed
-  - Added ``extra_line_broadening`` to ``fid.simulate_fid`` to allow users to add extra line broadening to the simulated FID before adding noise. This avoid SNR bias introduced by extra global linebroadening factors
+  - Added ``extra_line_broadening`` to ``fid.simulate_fid`` to allow users to add extra line broadening to the simulated FID before adding noise. This avoid SNR bias introduced by extra global linebroadening factors.
 
 **Fixed**
   - Fixed a bug in the Streamlit app where editing prior knowledge (PK) would remove ``#`` symbols from comment rows, causing file parsing to fail when the comment line appears as the first line

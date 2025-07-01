@@ -698,7 +698,9 @@ def main():
                         "[Initialize the fitting parameters]"
                         "(https://pyamares.readthedocs.io/en/dev/"
                         "notebooks/HSVDinitializer_unknowncompounds.html) "
-                        "with HSVD"
+                        "with HSVD",
+                        help="If checked, the prior knowledge file will be ignored "
+                        "and peaks will be numbered automatically using HSVD ",
                     )
                     use_hsvd = st.checkbox("Use HSVD for initial parameters")
                 with sub_col2:
@@ -777,8 +779,9 @@ def main():
 
                 with st.spinner("Processing data..."):
                     # Create temporary files for the uploads
+                    fid_file_extension = os.path.splitext(fid_file.name)[1]
                     with tempfile.NamedTemporaryFile(
-                        delete=False, suffix=".txt"
+                        delete=False, suffix=fid_file_extension
                     ) as tmp_fid:
                         tmp_fid.write(fid_file.getvalue())
                         fid_path = tmp_fid.name
@@ -853,7 +856,10 @@ def main():
                         svg_path = os.path.join(temp_dir, f"{output_prefix}.svg")
 
                         # Save results
-                        out1.result_sum.to_csv(csv_path)
+                        if use_hsvd:
+                            out1.result_multiplets.to_csv(csv_path)
+                        else:
+                            out1.result_sum.to_csv(csv_path)
 
                         if sys.version_info >= (3, 7):
                             out1.styled_df.to_html(html_path)
@@ -878,7 +884,12 @@ def main():
                         # Reorder display elements - table first, then fitted spectrum
                         # Display the result table
                         st.subheader("Fitting Results")
-                        st.dataframe(out1.simple_df)
+                        if use_hsvd:
+                            st.dataframe(
+                                pyAMARES.highlight_dataframe(out1.result_multiplets)
+                            )
+                        else:
+                            st.dataframe(out1.simple_df)
 
                         # Create download links
                         st.subheader("Download Results")
