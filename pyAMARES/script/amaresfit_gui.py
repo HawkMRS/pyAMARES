@@ -582,7 +582,11 @@ def main():
     col1, col2, col3 = st.columns(3)
     with col1:
         mhz = st.number_input(
-            "Field strength (MHz)", value=120.0, format="%.1f", key="shared_mhz"
+            "Field strength (MHz)",
+            value=120.0,
+            format="%.6f",
+            step=0.00001,
+            key="shared_mhz",
         )
     with col2:
         sw = st.number_input(
