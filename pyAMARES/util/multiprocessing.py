@@ -1,5 +1,3 @@
-import contextlib
-import sys
 from concurrent.futures import ProcessPoolExecutor
 from copy import deepcopy
 from datetime import datetime
@@ -7,24 +5,6 @@ from datetime import datetime
 from loguru import logger
 
 from ..kernel.lmfit import fitAMARES
-
-
-@contextlib.contextmanager
-def redirect_stdout_to_file(filename):
-    """
-    A context manager that redirects stdout and stderr to a specified file.
-
-    This function temporarily redirects the standard output (stdout) and
-    standard error (stderr) streams to a file, capturing all outputs generated
-    within the context block.
-    """
-    with open(filename, "w") as f:
-        old_stdout, old_stderr = sys.stdout, sys.stderr
-        sys.stdout, sys.stderr = f, f
-        try:
-            yield
-        finally:
-            sys.stdout, sys.stderr = old_stdout, old_stderr
 
 
 def fit_dataset(
@@ -99,7 +79,7 @@ def run_parallel_fitting_with_progress(
     method="leastsq",
     initialize_with_lm=False,
     num_workers=8,
-    logfilename="multiprocess_log.txt",
+    logfilename="multiprocess.log",
     objective_func=None,
     notebook=True,
 ):
@@ -121,7 +101,7 @@ def run_parallel_fitting_with_progress(
         initialize_with_lm (bool, optional, default False, new in 0.3.9):
           If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally. See ``pyAMARES.lmfit.fitAMARES`` for details.
         num_workers (int, optional): The number of worker processes to use in parallel processing. Defaults to 8.
-        logfilename (str, optional): The name of the file where the progress log is saved. Defaults to 'multiprocess_log.txt'.
+        logfilename (str, optional): The name of the file where the progress log is saved. Defaults to 'multiprocess.log'.
         objective_func (callable, optional): Custom objective function for ``pyAMARES.lmfit.fitAMARES``. If None,
           the default objective function will be used. Defaults to None.
         notebook (bool, optional): If True, uses tqdm.notebook for progress display in Jupyter notebooks.
@@ -147,23 +127,26 @@ def run_parallel_fitting_with_progress(
     timebefore = datetime.now()
     results = []
 
-    with redirect_stdout_to_file(logfilename):
-        with ProcessPoolExecutor(max_workers=num_workers) as executor:
-            futures = [
-                executor.submit(
-                    fit_dataset,
-                    fid_current=fid_arrs[i, :],
-                    FIDobj_shared=FIDobj_shared,
-                    initial_params=initial_params,
-                    method=method,
-                    initialize_with_lm=initialize_with_lm,
-                    objective_func=objective_func,
-                )
-                for i in range(fid_arrs.shape[0])
-            ]
+    loggerID = logger.add(logfilename, level="DEBUG", rotation="10 MB")
 
-            for future in tqdm(futures, total=len(futures), desc="Processing Datasets"):
-                results.append(future.result())
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        futures = [
+            executor.submit(
+                fit_dataset,
+                fid_current=fid_arrs[i, :],
+                FIDobj_shared=FIDobj_shared,
+                initial_params=initial_params,
+                method=method,
+                initialize_with_lm=initialize_with_lm,
+                objective_func=objective_func,
+            )
+            for i in range(fid_arrs.shape[0])
+        ]
+
+        for future in tqdm(futures, total=len(futures), desc="Processing Datasets"):
+            results.append(future.result())
+
+    logger.remove(loggerID)
 
     timeafter = datetime.now()
     logger.info(
