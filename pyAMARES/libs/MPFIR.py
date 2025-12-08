@@ -218,8 +218,7 @@ def MPFIR(
             ppm_range[1],
             color="gray",
             alpha=0.1,
-            label="selected region\n%i to %i ppm"
-            % (np.min(ppm_range), np.max(ppm_range)),
+            label=f"selected region\n{np.min(ppm_range)} to {np.max(ppm_range)} ppm",
         )
         plt.legend()
         plt.xlabel("ppm")

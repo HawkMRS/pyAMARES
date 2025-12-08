@@ -37,8 +37,8 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
     D = uninterleave(D)
     Dmat = np.dot(D.conj().T, D)
     if verbose:
-        logger.debug("D.shape=%s Dmat.shape=%s" % (D.shape, Dmat.shape))
-        logger.debug("P.shape=%s" % str(P.shape))
+        logger.debug(f"D.shape={D.shape} Dmat.shape={Dmat.shape}")
+        logger.debug(f"P.shape={str(P.shape)}")
 
     # Compute the Fisher information matrix
     if P is None:  # No prior knowledge
@@ -47,7 +47,7 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
     else:
         Fisher = np.real(P.T @ Dmat @ P) / variance
     if verbose:
-        logger.debug("Fisher.shape=%s P.shape=%s" % (Fisher.shape, P.shape))
+        logger.debug(f"Fisher.shape={Fisher.shape} P.shape={P.shape}")
     condition_number = np.linalg.cond(Fisher)
     if condition_number > condthreshold:
         logger.warning(
@@ -65,10 +65,8 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
         if verbose:
             # np.min(CRBcov))
             logger.warning(
-                "np.min(CRBcov)=%s, make the negative values to 0!" % np.min(CRBcov)
+                f"np.min(CRBcov)={np.min(CRBcov)}, make the negative values to 0!"
             )
-        # warnings.warn("np.min(CRBcov)=%s, make the negative values to 0!" %
-        # np.min(CRBcov), UserWarning)
         CRBcov[CRBcov < 0] = 0.0
 
     if cond:
@@ -135,17 +133,15 @@ def evaluateCRB(outparams, opts, P=None, Jacfunc=Jac6, verbose=False):
         try:
             opts.variance = float(opts.noise_var)
             logger.debug(
-                "The CRLB estimation will be divided by the input variance %s"
-                % opts.variance
+                f"The CRLB estimation will be divided by the input variance {opts.variance}"
             )
         except ValueError:
             logger.error(
-                "Error: noise_var %s is not a recognized string or a valid number."
-                % opts.variance
+                f"Error: noise_var {opts.variance} is not a recognized string or a valid number."
             )
 
     if verbose:
-        logger.debug("opts.D.shape=%s" % str(opts.D.shape))
+        logger.debug(f"opts.D.shape={str(opts.D.shape)}")
         plt.plot(opts.residual.real)
         plt.title("residual")
         plt.show()
@@ -221,13 +217,13 @@ def create_pmatrix(pkpd, verbose=False, ifplot=False):
     # Fill the diagonal for free parameters
     for ind in freepd.index:
         if verbose:
-            logger.debug("ind=%s newid=%s" % (ind, freepd.loc[ind]["newid"]))
+            logger.debug(f"ind={ind} newid={freepd.loc[ind]['newid']}")
         Pmatrix[freepd.loc[ind]["newid"], ind] = 1.0
 
     # Fill in partial derivatives for parameter relationships
     for x, y, partial_d in zip(pl_index, pm_index, plm):
         if verbose:
-            logger.debug("x=%s y=%s partial_d=%s" % (x, y, partial_d))
+            logger.debug(f"x={x} y={y} partial_d={partial_d}")
 
         Pmatrix[y, x] = partial_d
     if ifplot:

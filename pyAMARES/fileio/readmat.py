@@ -80,5 +80,5 @@ def readmrs(filename):
             "Note pyAMARES.fitAMARES only fits 1D MRS data, however, your data shape is {data.shape}. Is it MRSI or raw MRS data that needs to be coil-combined?"
         )
 
-    logger.debug("data.shape=%s", data.shape)
+    logger.debug(f"data.shape={data.shape}")
     return data

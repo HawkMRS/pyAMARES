@@ -1,7 +1,7 @@
 __author__ = "Jia Xu, MR Research Facility, University of Iowa"
 __version__ = "0.3.34dev"
 
-# print("Author: %s" % __author__)
+# print(f"Author: {__author__)}"
 
 from .fileio import *  # noqa: F403
 from .kernel import *  # noqa: F403

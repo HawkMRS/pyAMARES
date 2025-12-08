@@ -268,13 +268,12 @@ def assert_peak_format(input_str):
     if re.search(r"\.\d+$", input_str):
         logger.error(msg)
         raise ValueError(
-            "The peak name %s cannot end with a floating-point number!" % input_str
+            f"The peak name {input_str} cannot end with a floating-point number!"
         )
     if re.search(r"\d+[\D]", input_str) or re.search(r"^\d+", input_str):
         logger.error(msg)
         raise ValueError(
-            "The peak name %s cannot contain numbers at the beginning or in the middle!"
-            % input_str
+            f"The peak name {input_str} cannot contain numbers at the beginning or in the middle!"
         )
 
 
@@ -284,7 +283,7 @@ def find_header_row(filename, comment_char="#"):
         logger.info("Checking comment lines in the prior knowledge file")
         for i, line in enumerate(file):
             if "#" in line:
-                logger.info("Comment: in line %d: %s", i, line)
+                logger.info(f"Comment: in line {i}: {line}")
     with open(filename, "r") as file:
         for i, line in enumerate(file):
             processedline = line.replace('"', "").replace("'", "").strip()
@@ -358,7 +357,7 @@ def generateparameter(
     df_ub2 = backward_compatible_map(df_ub2, safe_convert_to_numeric)
     if g_global is False:
         logger.debug(
-            "Parameter g will be fit with the initial value set in the file %s" % fname
+            f"Parameter g will be fit with the initial value set in the file {fname}"
         )
     allpara = Parameters()
     for peak in dfini2.columns:
@@ -492,15 +491,13 @@ def initialize_FID(
     dwelltime = 1.0 / sw
     if truncate_initial_points > 0:
         logger.info(
-            "Truncating %i points from the beginning of the FID signal"
-            % truncate_initial_points
+            f"Truncating {truncate_initial_points} points from the beginning of the FID signal"
         )
         deadtime_old = deadtime * 1.0
         deadtime = deadtime + truncate_initial_points * dwelltime
         fid = fid[truncate_initial_points:]
         logger.info(
-            "The deadtime is changing from %f seconds to %f seconds"
-            % (deadtime_old, deadtime)
+            f"The deadtime is changing from {deadtime} seconds to {deadtime_old} seconds"
         )
     fidpt = len(fid)
     # TD = fidpt * 2
@@ -518,7 +515,7 @@ def initialize_FID(
         # This must be done before the shifting FID for carrier.
         fid = np.conj(fid)
     if carrier != 0:
-        logger.info("Shift FID so that center frequency is at %s ppm!" % carrier)
+        logger.info(f"Shift FID so that center frequency is at {carrier} ppm!")
         fid = fid * np.exp(1j * 2 * np.pi * carrier * MHz * opts.timeaxis)
         # ppm = ppm + carrier
         # Hz = Hz + carrier / np.abs(MHz)
@@ -579,7 +576,7 @@ def initialize_FID(
             timeaxis=opts.timeaxis, params=opts.initialParams, fid=True
         )
         if ppm_offset != 0:
-            logger.info("Shifting the ppm by ppm_offset=%2.2f ppm" % ppm_offset)
+            logger.info(f"Shifting the ppm by ppm_offset={ppm_offset:.2f} ppm")
             for p in opts.initialParams:
                 if p.startswith("freq"):
                     hz_offset = opts.ppm_offset * opts.MHz
@@ -592,19 +589,17 @@ def initialize_FID(
                     ):  # Check if there's an upper bound set
                         opts.initialParams[p].max += hz_offset
                     logger.debug(
-                        "before opts.initialParams[%s].value=%s"
-                        % (p, opts.initialParams[p].value)
+                        f"before opts.initialParams[{p}].value={opts.initialParams[p].value}"
                     )
                     logger.debug(
-                        "new value should be opts.initialParams[%s].value + opts.ppm_offset * opts.MHz=%s"
-                        % (p, opts.initialParams[p].value + opts.ppm_offset * opts.MHz)
+                        f"new value should be opts.initialParams[{p}].value + opts.ppm_offset * opts.MHz="
+                        f"{opts.initialParams[p].value + opts.ppm_offset * opts.MHz}"
                     )
                     opts.initialParams[p].value = (
                         opts.initialParams[p].value + hz_offset
                     )
                     logger.debug(
-                        "after opts.initialParams[%s].value=%s"
-                        % (p, opts.initialParams[p].value)
+                        f"after opts.initialParams[{p}].value={opts.initialParams[p].value}"
                     )
 
         opts.allpara = opts.initialParams  # obsolete API, will be removed
@@ -624,7 +619,7 @@ def initialize_FID(
         plt.xlabel("ppm")
         plt.show()
         if priorknowledgefile is not None:
-            logger.info("Printing the Prior Knowledge File %s" % priorknowledgefile)
+            logger.info(f"Printing the Prior Knowledge File {priorknowledgefile}")
             try:
                 from IPython.display import display
 

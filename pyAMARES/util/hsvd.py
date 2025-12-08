@@ -161,8 +161,7 @@ def hsvd_initialize_parameters(temp_to_unfold, allpara_hsvd=None, g_global=0.0):
                 ].vary:  # v0.23c, HSVDinitializer only changes varying parameters
                     if var_name.startswith("ak") and var < 0:
                         logger.warning(
-                            "ak for %s %s is negative!, Make it positive and flip the "
-                            "phase!" % (peak_name, var)
+                            f"ak for {peak_name} {var} is negative! Making it positive and flipping the phase!"
                         )
                         allpara_hsvd[var_name].set(value=np.abs(var))
                         # Flip the phase
@@ -269,12 +268,12 @@ def HSVDinitializer(
         )
         plist.append(p2)
         if verbose:
-            logger.debug("fitted p0 %s" % p2)
+            logger.debug(f"fitted p0 {p2}")
 
     p_pd = pd.DataFrame(np.array(plist))
     p_pd.columns = ["ak", "freq", "dk", "phi", "g"]
     if verbose:
-        logger.debug("Filtering peaks with linewidth broader than %i Hz" % lw_threshold)
+        logger.debug(f"Filtering peaks with linewidth broader than {lw_threshold} Hz")
     p_pd = p_pd[p_pd["dk"] < lw_threshold]  # filter out too broadened peaks
     p_pd["g"] = (
         fid_parameters.g_global

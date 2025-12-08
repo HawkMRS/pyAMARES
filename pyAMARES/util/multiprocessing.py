@@ -88,7 +88,7 @@ def fit_dataset(
         del out
         return result_table
     except Exception as e:
-        logger.critical("Error in fit_dataset: %s", e)
+        logger.critical(f"Error in fit_dataset: {e}")
         return None
 
 

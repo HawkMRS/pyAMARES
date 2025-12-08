@@ -211,9 +211,8 @@ def report_amares(outparams, fid_parameters, verbose=False):
     negative_amplitude = result["amplitude"] < 0
     if negative_amplitude.sum() > 0:
         logger.warning(
-            "The amplitude of index %s is negative!"
-            " Make it positive and flip the phase!",
-            result.loc[negative_amplitude].index.values,
+            f"The amplitude of index {result.loc[negative_amplitude].index.values} is negative! "
+            f"Make it positive and flip the phase!"
         )
         result.loc[negative_amplitude, "amplitude"] = result.loc[
             negative_amplitude, "amplitude"
@@ -232,7 +231,7 @@ def report_amares(outparams, fid_parameters, verbose=False):
     val_columns = ["amplitude", "chem shift", "lw", "phase", "g_value"]
     for col, crlb_col, val_col in zip(sd_columns, crlb_columns, val_columns):
         if result[col].isnull().all():
-            logger.info("%s is all None, use crlb instead!" % col)
+            logger.info(f"{col} is all None, use crlb instead!")
             result[col] = result[crlb_col] / 100 * result[val_col]
 
     result["chem shift"] = result["chem shift"] / MHz
@@ -256,7 +255,7 @@ def report_amares(outparams, fid_parameters, verbose=False):
     result.loc[result["g_CRLB(%)"] == 0.0, "g_CRLB(%)"] = np.nan
     zero_ind = remove_zero_padding(fid_parameters.fid)
     if zero_ind > 0:
-        logger.info("It seems that zeros are padded after %i" % zero_ind)
+        logger.info(f"It seems that zeros are padded after {zero_ind}")
         logger.info("Remove padded zeros from residual estimation!")
         fid_parameters.fid_padding_removed = fid_parameters.fid[:zero_ind]
         std_noise = np.std(
