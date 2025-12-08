@@ -2,10 +2,7 @@
 import matplotlib.pyplot as plt
 import nmrglue as ng
 import numpy as np
-
-from ..libs.logger import get_logger
-
-logger = get_logger(__name__)
+from loguru import logger
 
 
 def interleavefid(fid):
@@ -147,10 +144,6 @@ def Jac6(params, x, fid=None):
     dk = np.array(poptall[2::5])
     g = np.array(poptall[4::5])
 
-    # if len(g[g > 1]) > 0:
-    #     print("Warning, g>1", g)
-    # if len(g[g < 0]):
-    #     print("warning! g<0", g)
     g[g > 1] = 1.0
     g[g < 0] = 0.0
 
@@ -197,10 +190,6 @@ def Jac6c(params, x, fid=None):
     dk = np.array(poptall[2::5])  # noqa F841
     g = np.array(poptall[4::5])
 
-    # if len(g[g > 1]) > 0:
-    #     print("Warning, g>1", g)
-    # if len(g[g < 0]):
-    #     print("warning! g<0", g)
     g[g > 1] = 1.0
     g[g < 0] = 0.0
 

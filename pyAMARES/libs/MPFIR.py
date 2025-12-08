@@ -87,7 +87,6 @@ def minphlpnew(h0):
 def pbfirnew(wl, wh, signal, ri, M0):
     N = np.max(signal.shape)
     wc = (wh - wl) / 2
-    # print(f"{wc=} {wh=} {wl=}")
 
     noise = np.std(np.real(signal[-20:]))
     maxs = np.max(np.abs(np.fft.fft(signal))) / np.sqrt(N)
@@ -102,7 +101,6 @@ def pbfirnew(wl, wh, signal, ri, M0):
     supold = sup  # Initialize here
 
     while ok == 1:
-        # print(f'try M={M} wc={wc} ri={ri} sup={sup}')
         fir_h = fircls1(M, wc, ri, sup)
         fir_h = minphlpnew(fir_h)
         M2 = len(fir_h)
@@ -113,7 +111,6 @@ def pbfirnew(wl, wh, signal, ri, M0):
             phas = np.pi + np.arctan(np.imag(phastemp) / np.real(phastemp))
         else:
             phas = np.arctan(np.imag(phastemp) / np.real(phastemp))
-        # print(f"{phas=}")
         fir_h = fir_h * np.exp(-1j * phas)
         # f = filter(fir_h, 1, signal[::-1])
         f = lfilter(fir_h, [1], signal[::-1])  # needs to check
@@ -208,7 +205,6 @@ def MPFIR(
     xmax = (max(ppm_range) - carrier) * frequency / 1e6  # in kHz
     wl = xmin * 2 * step
     wh = xmax * 2 * step
-    # print(f"{wl=} {wh=}")
     fir_h = pbfirnew(wl, wh, signal, rippass, M)
     signal = lfilter(np.flip(fir_h), 1, signal)
     signal = np.concatenate([signal[len(fir_h) - 1 :], np.zeros(len(fir_h) - 1)])

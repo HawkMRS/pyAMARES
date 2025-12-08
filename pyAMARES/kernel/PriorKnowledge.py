@@ -11,11 +11,9 @@ if hasattr(pd.options, "future") and hasattr(pd.options.future, "infer_string"):
     pd.options.future.infer_string = False
 
 from lmfit import Parameters
+from loguru import logger
 
-from ..libs.logger import get_logger
 from .fid import fft_params
-
-logger = get_logger(__name__)
 
 
 def safe_convert_to_numeric(x):
@@ -292,8 +290,6 @@ def find_header_row(filename, comment_char="#"):
             processedline = line.replace('"', "").replace("'", "").strip()
             if not processedline.startswith(comment_char):
                 return i
-            # else:
-            #     print("Comment:", processedline)
     return None  # Return None if all lines are comments or file is empty
 
 
@@ -353,7 +349,6 @@ def generateparameter(
     dfini2 = unitconverter(
         dfini, MHz=MHz
     )  # Convert ppm to Hz, convert FWHM to dk, convert degree to radians.
-    # print(f"{dfini2=}")
     df_lb, df_ub = parse_bounds(pk)  # Parse bounds
     df_expr = extract_expr(pk, MHz=MHz)  # Parse expression
     df_lb2 = unitconverter(df_lb, MHz=MHz)
@@ -365,7 +360,6 @@ def generateparameter(
         logger.debug(
             "Parameter g will be fit with the initial value set in the file %s" % fname
         )
-        # print(f"Parameter g will be fit with the initial value set in the file {fname}")
     allpara = Parameters()
     for peak in dfini2.columns:
         for i, para in enumerate(paramter_prefix):
@@ -514,10 +508,6 @@ def initialize_FID(
 
     ppm = np.linspace(-sw / 2, sw / 2, fidpt) / np.abs(MHz)
     Hz = np.linspace(-sw / 2, sw / 2, fidpt)
-    # print(f"{sw=}")
-    # print(f"{np.max(ppm)=} {np.min(ppm)=}")
-    # print(f"{np.max(Hz)=} {np.min(Hz)=}")
-    # print(f"{-sw/2=}")
 
     opts = argparse.Namespace()
     opts.deadtime = deadtime
@@ -609,15 +599,9 @@ def initialize_FID(
                         "new value should be opts.initialParams[%s].value + opts.ppm_offset * opts.MHz=%s"
                         % (p, opts.initialParams[p].value + opts.ppm_offset * opts.MHz)
                     )
-
-                    # print(f"before {opts.initialParams[p].value=}")
-                    # print(
-                    #     f"new value should be {opts.initialParams[p].value + opts.ppm_offset * opts.MHz=}"
-                    # )
                     opts.initialParams[p].value = (
                         opts.initialParams[p].value + hz_offset
                     )
-                    # print(f"after {opts.initialParams[p].value=}")
                     logger.debug(
                         "after opts.initialParams[%s].value=%s"
                         % (p, opts.initialParams[p].value)

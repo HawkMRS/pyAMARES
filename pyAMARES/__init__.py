@@ -1,7 +1,6 @@
 __author__ = "Jia Xu, MR Research Facility, University of Iowa"
 __version__ = "0.3.34dev"
 
-# print("Current pyAMARES version is %s" % __version__)
 # print("Author: %s" % __author__)
 
 from .fileio import *  # noqa: F403

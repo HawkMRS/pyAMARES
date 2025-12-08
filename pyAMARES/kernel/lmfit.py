@@ -4,12 +4,10 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 from lmfit import Minimizer, Parameters
+from loguru import logger
 
-from ..libs.logger import get_logger
 from .fid import Compare_to_OXSA, fft_params
 from .objective_func import default_objective
-
-logger = get_logger(__name__)
 
 
 def check_removed_expr(df):
@@ -71,7 +69,6 @@ def filter_param_by_ppm(allpara, fit_ppm, MHz, delta=100):
         DataFrame: DataFrame filtered based on the specified criteria.
     """
     fit_Hz = np.array(fit_ppm) * MHz
-    # print(f"{fit_Hz=}")
     logger.info("fit_Hz=%s" % fit_Hz)
     tofilter_pd = parameters_to_dataframe(allpara)
     chemshift_pd = tofilter_pd[tofilter_pd["name"].str.startswith("freq")]
@@ -204,7 +201,6 @@ def result_pd_to_params(result_table, MHz=120.0):
     params = Parameters()
 
     for row in result_table.iterrows():
-        # print(row[0])
         for name in df_name:
             value = row[1][name]
             new_name = name_dic[name] + "_" + row[0]
@@ -353,7 +349,6 @@ def fitAMARES_kernel(
         from ..util import get_ppm_limit
 
         fit_range = get_ppm_limit(fid_parameters.ppm, fit_range)
-        # print(f"Fitting range {fid_parameters.ppm[fit_range[0]]} ppm to {fid_parameters.ppm[fit_range[1]]} ppm!")
         logger.debug(
             "Fitting range %s ppm to %s ppm!"
             % (fid_parameters.ppm[fit_range[0]], fid_parameters.ppm[fit_range[1]])
@@ -373,7 +368,6 @@ def fitAMARES_kernel(
     else:
         out_obj = min_obj.minimize(method=method)
     timeafter = datetime.now()
-    # print(f"Fitting with {method=} took {(timeafter - timebefore).total_seconds()} seconds")
     logger.debug(
         "Fitting with method=%s took %s seconds"
         % (method, (timeafter - timebefore).total_seconds())
@@ -543,7 +537,6 @@ def plotAMARES(fid_parameters, fitted_params=None, plotParameters=None, filename
     ).T
     if plotParameters is None:
         plotParameters = fid_parameters.plotParameters
-    # print(f"{plotParameters.xlim=}")
     combined_plot(
         amares_arr,
         ppm=fid_parameters.ppm,

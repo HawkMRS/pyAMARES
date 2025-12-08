@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from loguru import logger
 
 from ..kernel import (
     Jac6,
@@ -8,9 +9,6 @@ from ..kernel import (
     parameters_to_dataframe_result,
     remove_zero_padding,
 )
-from ..libs.logger import get_logger
-
-logger = get_logger(__name__)
 
 try:
     import jinja2  # noqa F401
@@ -65,7 +63,6 @@ def report_crlb(outparams, crlb, Jacfunc=None):
         pandas.DataFrame: DataFrame with CRLB information for relevant parameters.
     """
     pdpoptall = parameters_to_dataframe_result(outparams)
-    # print(f"{Jacfunc=}, {pdpoptall=} {outparams=}")
     if Jacfunc is None or Jacfunc is Jac6:
         # You'll need to assert there is a peaklist in the fid_parameters
         poptall = pdpoptall["value"]
@@ -74,8 +71,6 @@ def report_crlb(outparams, crlb, Jacfunc=None):
     # elif Jacfunc is flexible_Jac:
     #    poptall = pdpoptall[pdpoptall['vary']]['value'] # Parameters with vary=True
     else:
-        # print(f"{Jacfunc=} is not supported!")
-        # print("Jacfunc=%s is not supported!" % Jacfunc)
         logger.warning(f"Jacfunc={Jacfunc} is not supported!")
 
     resultpd = pdpoptall.loc[poptall.index]
@@ -328,7 +323,6 @@ def report_amares(outparams, fid_parameters, verbose=False):
                 )
             else:
                 simple_df = None
-                # print("There is no result_sum generated, simple_df is set to None")
                 logger.warning(
                     "There is no result_sum generated, simple_df is set to None"
                 )
@@ -340,7 +334,6 @@ def report_amares(outparams, fid_parameters, verbose=False):
                 simple_df = extract_key_parameters(fid_parameters.result_sum)
             else:
                 simple_df = None
-                # print("There is no result_sum generated, simple_df is set to None")
                 logger.warning(
                     "There is no result_sum generated, simple_df is set to None"
                 )

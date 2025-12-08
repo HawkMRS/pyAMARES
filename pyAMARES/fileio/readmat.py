@@ -1,11 +1,9 @@
 import mat73
 import numpy as np
+from loguru import logger
 from scipy import io
 
-from ..libs.logger import get_logger
 from .readfidall import is_mat_file_v7_3
-
-logger = get_logger(__name__)
 
 
 def readmrs(filename):
@@ -43,28 +41,23 @@ def readmrs(filename):
         - For MATLAB files, both traditional (.mat) and V7.3 (.mat) files are supported, but the variable must be named ``fid`` or ``data``.
     """
     if filename.endswith("csv"):
-        # print("Try to load 2-column CSV")
         logger.debug("Try to load 2-column CSV")
         data = np.loadtxt(filename, delimiter=",")
         data = data[:, 0] + 1j * data[:, 1]
     elif filename.endswith("txt"):
-        # print("Try to load 2-column ASCII data")
         logger.debug("Try to load 2-column ASCII data")
         data = np.loadtxt(filename, delimiter=" ")
         data = data[:, 0] + 1j * data[:, 1]
     elif filename.endswith("npy"):
-        # print("Try to load python NPY file")
         logger.debug("Try to load python NPY file")
         data = np.load(filename)
     elif filename.endswith("mat"):
         if is_mat_file_v7_3(filename):
-            # print("Try to load Matlab V7.3 mat file with the var saved as fid or data")
             logger.debug(
                 "Try to load Matlab V7.3 mat file with the var saved as fid or data"
             )
             matdic = mat73.loadmat(filename)
         else:
-            # print("Try to load Matlab mat file with the var saved as fid or data")
             logger.debug(
                 "Try to load Matlab mat file with the var saved as fid or data"
             )
@@ -87,6 +80,5 @@ def readmrs(filename):
             "Note pyAMARES.fitAMARES only fits 1D MRS data, however, your data shape is {data.shape}. Is it MRSI or raw MRS data that needs to be coil-combined?"
         )
 
-    # print("data.shape=", data.shape)
     logger.debug("data.shape=%s", data.shape)
     return data

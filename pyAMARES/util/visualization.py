@@ -171,7 +171,6 @@ def combined_plot(
 
           filename (str or None, optional): If provided, the figure will be saved to this file. Defaults to None.
     """
-    # print(f"{xlim=}")
     fig, (ax1, ax2) = plt.subplots(
         2, 1, figsize=(10, 8), sharex=True, layout="constrained"
     )
