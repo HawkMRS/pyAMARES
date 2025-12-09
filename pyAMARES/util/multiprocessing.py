@@ -80,8 +80,8 @@ def run_parallel_fitting_with_progress(
     method="leastsq",
     initialize_with_lm=False,
     num_workers=8,
-    logfilename="multiprocess.log",
-    loglevel=21,
+    logfilename="logs/parellelfitting.log",
+    loglevel=31,
     objective_func=None,
     notebook=True,
 ):
@@ -103,8 +103,8 @@ def run_parallel_fitting_with_progress(
         initialize_with_lm (bool, optional, default False, new in 0.3.9):
           If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally. See ``pyAMARES.lmfit.fitAMARES`` for details.
         num_workers (int, optional): The number of worker processes to use in parallel processing. Defaults to 8.
-        logfilename (str, optional): The name of the file where the progress log is saved. Defaults to 'multiprocess.log'.
-        loglevel (int, optional): The logging level for the logger. Defaults to 21 - just above info.
+        logfilename (str, optional): The name of the file where the progress log is saved. Defaults to 'logs/parellelfitting.log'.
+        loglevel (int, optional): The logging level for the logger. Defaults to 31 - just above warning.
         objective_func (callable, optional): Custom objective function for ``pyAMARES.lmfit.fitAMARES``. If None,
           the default objective function will be used. Defaults to None.
         notebook (bool, optional): If True, uses tqdm.notebook for progress display in Jupyter notebooks.
@@ -131,7 +131,11 @@ def run_parallel_fitting_with_progress(
     results = []
 
     loggerID = logger.add(logfilename, level=loglevel, rotation="10 min")
-    logger.level("BATCH_INFO", no=21)
+    try:
+        logger.level("BATCH_INFO", no=loglevel)
+    except ValueError:
+        # This means the logger level "BATCH_INFO" was already added
+        pass
 
     data = [
         {
