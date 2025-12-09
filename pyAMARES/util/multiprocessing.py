@@ -127,7 +127,7 @@ def run_parallel_fitting_with_progress(
     timebefore = datetime.now()
     results = []
 
-    loggerID = logger.add(logfilename, level="DEBUG", rotation="10 MB")
+    loggerID = logger.add(logfilename, level="DEBUG", rotation="10 min")
 
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
         futures = [
