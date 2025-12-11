@@ -29,7 +29,7 @@ def check_removed_expr(df):
     Raises:
         UserWarning: If an 'expr' is found to be dependent on a removed parameter.
     """
-    logger.info(
+    logger.debug(
         "Check if the expr for all parameters is restricted to a parameter that has already been filtered out."
     )
     result_df = df.copy()
@@ -69,7 +69,7 @@ def filter_param_by_ppm(allpara, fit_ppm, MHz, delta=100):
         DataFrame: DataFrame filtered based on the specified criteria.
     """
     fit_Hz = np.array(fit_ppm) * MHz
-    logger.info(f"fit_Hz={fit_Hz}")
+    logger.debug(f"fit_Hz={fit_Hz}")
     tofilter_pd = parameters_to_dataframe(allpara)
     chemshift_pd = tofilter_pd[tofilter_pd["name"].str.startswith("freq")]
 
@@ -266,7 +266,7 @@ def save_parameter_to_csv(params, filename="params.csv"):
         This function converts the ``params`` object to a DataFrame before saving it as a CSV file.
     """
     df = parameters_to_dataframe(params)
-    logger.info(f"Saving parameter file to {filename}")
+    logger.debug(f"Saving parameter file to {filename}")
     df.to_csv(filename)
 
 
@@ -566,4 +566,4 @@ def print_lmfit_fitting_results(result):
 
     msg_string = "\n    ".join(msg)
 
-    logger.info(msg_string)
+    logger.debug(msg_string)

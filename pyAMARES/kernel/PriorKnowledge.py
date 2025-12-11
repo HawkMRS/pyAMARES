@@ -280,10 +280,10 @@ def assert_peak_format(input_str):
 def find_header_row(filename, comment_char="#"):
     """Determine the index of the first non-commented line."""
     with open(filename, "r") as file:
-        logger.info("Checking comment lines in the prior knowledge file")
+        logger.debug("Checking comment lines in the prior knowledge file")
         for i, line in enumerate(file):
             if "#" in line:
-                logger.info(f"Comment: in line {i}: {line}")
+                logger.debug(f"Comment: in line {i}: {line}")
     with open(filename, "r") as file:
         for i, line in enumerate(file):
             processedline = line.replace('"', "").replace("'", "").strip()
@@ -490,13 +490,13 @@ def initialize_FID(
     deadtime = float(deadtime)
     dwelltime = 1.0 / sw
     if truncate_initial_points > 0:
-        logger.info(
+        logger.debug(
             f"Truncating {truncate_initial_points} points from the beginning of the FID signal"
         )
         deadtime_old = deadtime * 1.0
         deadtime = deadtime + truncate_initial_points * dwelltime
         fid = fid[truncate_initial_points:]
-        logger.info(
+        logger.debug(
             f"The deadtime is changing from {deadtime} seconds to {deadtime_old} seconds"
         )
     fidpt = len(fid)
@@ -515,7 +515,7 @@ def initialize_FID(
         # This must be done before the shifting FID for carrier.
         fid = np.conj(fid)
     if carrier != 0:
-        logger.info(f"Shift FID so that center frequency is at {carrier} ppm!")
+        logger.debug(f"Shift FID so that center frequency is at {carrier} ppm!")
         fid = fid * np.exp(1j * 2 * np.pi * carrier * MHz * opts.timeaxis)
         # ppm = ppm + carrier
         # Hz = Hz + carrier / np.abs(MHz)
@@ -576,7 +576,7 @@ def initialize_FID(
             timeaxis=opts.timeaxis, params=opts.initialParams, fid=True
         )
         if ppm_offset != 0:
-            logger.info(f"Shifting the ppm by ppm_offset={ppm_offset:.2f} ppm")
+            logger.debug(f"Shifting the ppm by ppm_offset={ppm_offset:.2f} ppm")
             for p in opts.initialParams:
                 if p.startswith("freq"):
                     hz_offset = opts.ppm_offset * opts.MHz
@@ -619,12 +619,12 @@ def initialize_FID(
         plt.xlabel("ppm")
         plt.show()
         if priorknowledgefile is not None:
-            logger.info(f"Printing the Prior Knowledge File {priorknowledgefile}")
+            logger.debug(f"Printing the Prior Knowledge File {priorknowledgefile}")
             try:
                 from IPython.display import display
 
                 display(opts.PK_table)  # display table
             except ImportError:
-                logger.info(opts.PK_table)
+                logger.debug(opts.PK_table)
 
     return opts

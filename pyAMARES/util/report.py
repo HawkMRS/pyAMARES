@@ -255,8 +255,8 @@ def report_amares(outparams, fid_parameters, verbose=False):
     result.loc[result["g_CRLB(%)"] == 0.0, "g_CRLB(%)"] = np.nan
     zero_ind = remove_zero_padding(fid_parameters.fid)
     if zero_ind > 0:
-        logger.info(f"It seems that zeros are padded after {zero_ind}")
-        logger.info("Remove padded zeros from residual estimation!")
+        logger.debug(f"It seems that zeros are padded after {zero_ind}")
+        logger.debug("Remove padded zeros from residual estimation!")
         fid_parameters.fid_padding_removed = fid_parameters.fid[:zero_ind]
         std_noise = np.std(
             fid_parameters.fid_padding_removed[
@@ -293,7 +293,7 @@ def report_amares(outparams, fid_parameters, verbose=False):
         )  # reorder to the peaklist from the pk, not the local peaklist
     # fid_parameters.peaklist = peaklist
     else:
-        logger.info("No peaklist, probably it is from an HSVD initialized object")
+        logger.debug("No peaklist, probably it is from an HSVD initialized object")
     fid_parameters.result_multiplets = result  # Keep the multiplets
     # Sum multiplets if needed
     if contains_non_numeric_strings(result):  # assigned peaks in the index
@@ -339,7 +339,7 @@ def report_amares(outparams, fid_parameters, verbose=False):
     if hasattr(fid_parameters, "result_sum"):
         fid_parameters.metabolites = fid_parameters.result_sum.index.to_list()
     else:
-        logger.info("There is no result_sum generated, probably there is only 1 peak")
+        logger.debug("There is no result_sum generated, probably there is only 1 peak")
     fid_parameters.styled_df = styled_df
     fid_parameters.simple_df = simple_df
     return styled_df
