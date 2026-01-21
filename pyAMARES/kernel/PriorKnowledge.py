@@ -181,6 +181,9 @@ def unitconverter(df_ini, MHz=120.0):
         pandas.DataFrame: A DataFrame with converted unit values in specified rows.
     """
     df = deepcopy(df_ini)
+    df = df.apply(
+        pd.to_numeric, errors="raise", downcast="float"
+    )  # By this point the values should only be numeric
     if "chemicalshift" in df.index:
         df.loc["chemicalshift", df.notna().loc["chemicalshift"]] *= MHz
 
@@ -189,7 +192,7 @@ def unitconverter(df_ini, MHz=120.0):
 
     if "phase" in df.index:
         df.loc["phase", df.notna().loc["phase"]] = np.deg2rad(
-            df.loc["phase"][df.notna().loc["phase"]].astype(float)
+            df.loc["phase"][df.notna().loc["phase"]]
         )
 
     return df
@@ -326,13 +329,19 @@ def generateparameter(
     else:
         raise NotImplementedError("file format must be Excel (xlsx) or CSV!")
 
-    # Compatible with pandas both older and newer than 2.1.0
-    pk = (
-        pk.map(safe_convert_to_numeric)
-        if hasattr(pk, "map")
-        else pk.applymap(safe_convert_to_numeric)
-    )  # To be compatible with CSV
+    def backward_compatible_map(df, func):
+        # Check if the newer 'map' method exists (pandas >= 2.1.0)
+        if hasattr(df, "map"):
+            return df.map(func)
+        # Fallback to the older 'applymap' (pandas < 2.1.0)
+        elif hasattr(df, "applymap"):
+            return df.applymap(func)  # type: ignore
+        else:
+            raise AttributeError(
+                "Pandas DataFrame has neither 'map' nor 'applymap' method."
+            )
 
+    pk = backward_compatible_map(pk, safe_convert_to_numeric)
     peaklist = pk.columns.to_list()  # generate a peak list directly from the
     [assert_peak_format(x) for x in peaklist]
     dfini = extractini(pk, MHz=MHz)  # Parse initial values
@@ -345,17 +354,8 @@ def generateparameter(
     df_lb2 = unitconverter(df_lb, MHz=MHz)
     df_ub2 = unitconverter(df_ub, MHz=MHz)
     # Make sure the bounds are numeric
-    # Compatible with pandas both older and newer than 2.1.0
-    df_lb2 = (
-        df_lb2.map(safe_convert_to_numeric)
-        if hasattr(df_lb2, "map")
-        else df_lb2.applymap(safe_convert_to_numeric)
-    )
-    df_ub2 = (
-        df_ub2.map(safe_convert_to_numeric)
-        if hasattr(df_ub2, "map")
-        else df_ub2.applymap(safe_convert_to_numeric)
-    )
+    df_lb2 = backward_compatible_map(df_lb2, safe_convert_to_numeric)
+    df_ub2 = backward_compatible_map(df_ub2, safe_convert_to_numeric)
     if g_global is False:
         logger.debug(
             "Parameter g will be fit with the initial value set in the file %s" % fname

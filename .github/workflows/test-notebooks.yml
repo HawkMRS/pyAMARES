@@ -42,7 +42,7 @@ jobs:
           done
 
       - name: Run notebook tests
-        run: pytest --nbval-lax --current-env tests/
+        run: pytest --nbval-lax --nbval-current-env tests/
 
       - name: Upload executed notebooks on failure
         if: failure()
