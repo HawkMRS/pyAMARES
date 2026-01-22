@@ -194,23 +194,36 @@ def uniquify_dataframe(df):
         pandas.DataFrame: A DataFrame where for each unique ``name``, only the entry with the maximum absolute
                           ``ak`` value retains its name, and others have their ``name`` set to NaN.
     """
+    pd_version = tuple(int(x) for x in pd.__version__.split(".")[:2])
 
-    def process_group(group):
-        if len(group) > 1:
-            # Find the index of the row with the max absolute 'ak' value
-            max_ak_idx = group["ak"].abs().idxmax()
-            # Set 'name' to NaN for all other rows
-            group.loc[group.index != max_ak_idx, "name"] = np.nan
-        return group
+    if pd_version >= (3, 0):
+        # pandas 3.0+: grouping column excluded from apply, use index-based approach
+        df = df.copy()
+        non_nan_mask = df["name"].notna()
+        idx_to_keep = (
+            df.loc[non_nan_mask]
+            .groupby("name")["ak"]
+            .apply(lambda x: x.abs().idxmax())
+            .values
+        )
+        df.loc[non_nan_mask & ~df.index.isin(idx_to_keep), "name"] = np.nan
+        return df
+    else:
+        # pandas 2.x: original approach with copy fix
+        def process_group(group):
+            if len(group) > 1:
+                group = group.copy()
+                max_ak_idx = group["ak"].abs().idxmax()
+                group.loc[group.index != max_ak_idx, "name"] = np.nan
+            return group
 
-    df_non_nan = (
-        df[df["name"].notna()].groupby("name", group_keys=False).apply(process_group)
-    )
-
-    df_nan = df[df["name"].isna()]
-    result_df = pd.concat([df_non_nan, df_nan]).sort_index()
-
-    return result_df
+        df_non_nan = (
+            df[df["name"].notna()]
+            .groupby("name", group_keys=False)
+            .apply(process_group)
+        )
+        df_nan = df[df["name"].isna()]
+        return pd.concat([df_non_nan, df_nan]).sort_index()
 
 
 def HSVDinitializer(
@@ -279,7 +292,9 @@ def HSVDinitializer(
     if fitting_parameters is None:
         # Initialize parameters when there is no prior knowledge
         temp_to_unfold = assign_hsvd_peaks(p_pd, None)
+        print("temp_to_unfold before uniquify:", temp_to_unfold)
         temp_to_unfold = uniquify_dataframe(temp_to_unfold)
+        print("temp_to_unfold after uniquify:", temp_to_unfold)
         allpara_hsvd = hsvd_initialize_parameters(
             temp_to_unfold.dropna(subset=["name"]),
             None,

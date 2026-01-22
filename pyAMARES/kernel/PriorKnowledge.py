@@ -5,6 +5,11 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+# Disable automatic string dtype inference for pandas 3.0 and above
+if hasattr(pd.options, "future") and hasattr(pd.options.future, "infer_string"):
+    pd.options.future.infer_string = False
+
 from lmfit import Parameters
 
 from ..libs.logger import get_logger
