@@ -1,31 +1,11 @@
-import contextlib
-import sys
 from concurrent.futures import ProcessPoolExecutor
 from copy import deepcopy
 from datetime import datetime
 
+import pandas as pd
+from loguru import logger
+
 from ..kernel.lmfit import fitAMARES
-from ..libs.logger import get_logger
-
-logger = get_logger(__name__)
-
-
-@contextlib.contextmanager
-def redirect_stdout_to_file(filename):
-    """
-    A context manager that redirects stdout and stderr to a specified file.
-
-    This function temporarily redirects the standard output (stdout) and
-    standard error (stderr) streams to a file, capturing all outputs generated
-    within the context block.
-    """
-    with open(filename, "w") as f:
-        old_stdout, old_stderr = sys.stdout, sys.stderr
-        sys.stdout, sys.stderr = f, f
-        try:
-            yield
-        finally:
-            sys.stdout, sys.stderr = old_stdout, old_stderr
 
 
 def fit_dataset(
@@ -89,8 +69,7 @@ def fit_dataset(
         del out
         return result_table
     except Exception as e:
-        # print(f"Error in fit_dataset: {e}")
-        logger.critical("Error in fit_dataset: %s", e)
+        logger.critical(f"Error in fit_dataset: {e}")
         return None
 
 
@@ -101,7 +80,8 @@ def run_parallel_fitting_with_progress(
     method="leastsq",
     initialize_with_lm=False,
     num_workers=8,
-    logfilename="multiprocess_log.txt",
+    logfilename="logs/parellelfitting.log",
+    loglevel=31,
     objective_func=None,
     notebook=True,
 ):
@@ -123,7 +103,8 @@ def run_parallel_fitting_with_progress(
         initialize_with_lm (bool, optional, default False, new in 0.3.9):
           If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally. See ``pyAMARES.lmfit.fitAMARES`` for details.
         num_workers (int, optional): The number of worker processes to use in parallel processing. Defaults to 8.
-        logfilename (str, optional): The name of the file where the progress log is saved. Defaults to 'multiprocess_log.txt'.
+        logfilename (str, optional): The name of the file where the progress log is saved. Defaults to 'logs/parellelfitting.log'.
+        loglevel (int, optional): The logging level for the logger. Defaults to 31 - just above warning.
         objective_func (callable, optional): Custom objective function for ``pyAMARES.lmfit.fitAMARES``. If None,
           the default objective function will be used. Defaults to None.
         notebook (bool, optional): If True, uses tqdm.notebook for progress display in Jupyter notebooks.
@@ -141,43 +122,73 @@ def run_parallel_fitting_with_progress(
     try:
         del FIDobj_shared.styled_df
     except AttributeError:
-        # print("There is no styled_df!")
         logger.warning("There is no styled_df!")
     try:
         del FIDobj_shared.simple_df
     except AttributeError:
-        # print("There is no styled_df!")
         logger.warning("There is no simple_df!")
     timebefore = datetime.now()
     results = []
 
-    with redirect_stdout_to_file(logfilename):
-        with ProcessPoolExecutor(max_workers=num_workers) as executor:
-            futures = [
-                executor.submit(
-                    fit_dataset,
-                    fid_current=fid_arrs[i, :],
-                    FIDobj_shared=FIDobj_shared,
-                    initial_params=initial_params,
-                    method=method,
-                    initialize_with_lm=initialize_with_lm,
-                    objective_func=objective_func,
-                )
-                for i in range(fid_arrs.shape[0])
-            ]
+    loggerID = logger.add(logfilename, level=loglevel, rotation="10 min")
+    try:
+        logger.level("BATCH_INFO", no=loglevel)
+    except ValueError:
+        # This means the logger level "BATCH_INFO" was already added
+        pass
 
-            for future in tqdm(futures, total=len(futures), desc="Processing Datasets"):
-                results.append(future.result())
+    data = [
+        {
+            "name": name,
+            "value": float(par.value),
+            "min": par.min,
+            "max": par.max,
+            "vary": par.vary,
+            "expr": par.expr,
+            "brute_step": par.brute_step,
+            "stderr": par.stderr,
+        }
+        for name, par in initial_params.items()
+    ]
+
+    df = pd.DataFrame(data)
+    df.set_index("name", inplace=True)
+    df.sort_values(by="name", inplace=True)
+    logger.log(
+        "BATCH_INFO", f"Initial Paramerters used for batch fitting:\n{df.to_string()}"
+    )
+
+    logger.log(
+        "BATCH_INFO",
+        f"Starting fitting of {len(fid_arrs)} datasets with parallel processing. Number of workers: {num_workers}",
+    )
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        futures = [
+            executor.submit(
+                fit_dataset,
+                fid_current=fid_arrs[i, :],
+                FIDobj_shared=FIDobj_shared,
+                initial_params=initial_params,
+                method=method,
+                initialize_with_lm=initialize_with_lm,
+                objective_func=objective_func,
+            )
+            for i in range(fid_arrs.shape[0])
+        ]
+
+        for future in tqdm(futures, total=len(futures), desc="Processing Datasets"):
+            results.append(future.result())
+
+    logger.log(
+        "BATCH_INFO",
+        "Fitting completed. If no errors were logged, all fits were successful.",
+    )
 
     timeafter = datetime.now()
-    # print(
-    #     "Fitting %i spectra with %i processors took %i seconds"
-    #     % (len(fid_arrs), num_workers, (timeafter - timebefore).total_seconds())
-    # )
-    logger.info(
-        "Fitting %i spectra with %i processors took %i seconds",
-        len(fid_arrs),
-        num_workers,
-        (timeafter - timebefore).total_seconds(),
+    logger.log(
+        "BATCH_INFO",
+        f"Fitting {len(fid_arrs)} spectra with {num_workers} processors took {(timeafter - timebefore).total_seconds()} seconds",
     )
+
+    logger.remove(loggerID)
     return results

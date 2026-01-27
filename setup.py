@@ -87,6 +87,7 @@ install_requires = [
     "sympy",
     "nmrglue",
     "xlrd",
+    "loguru",
     "jinja2",
     "tqdm",
     "mat73",

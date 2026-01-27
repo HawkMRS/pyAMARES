@@ -2,10 +2,7 @@
 import matplotlib.pyplot as plt
 import nmrglue as ng
 import numpy as np
-
-from ..libs.logger import get_logger
-
-logger = get_logger(__name__)
+from loguru import logger
 
 
 def interleavefid(fid):
@@ -147,10 +144,6 @@ def Jac6(params, x, fid=None):
     dk = np.array(poptall[2::5])
     g = np.array(poptall[4::5])
 
-    # if len(g[g > 1]) > 0:
-    #     print("Warning, g>1", g)
-    # if len(g[g < 0]):
-    #     print("warning! g<0", g)
     g[g > 1] = 1.0
     g[g < 0] = 0.0
 
@@ -197,10 +190,6 @@ def Jac6c(params, x, fid=None):
     dk = np.array(poptall[2::5])  # noqa F841
     g = np.array(poptall[4::5])
 
-    # if len(g[g > 1]) > 0:
-    #     print("Warning, g>1", g)
-    # if len(g[g < 0]):
-    #     print("warning! g<0", g)
     g[g > 1] = 1.0
     g[g < 0] = 0.0
 
@@ -324,9 +313,9 @@ def Compare_to_OXSA(inputfid, resultfid):
     dataNormSq = np.linalg.norm(inputfid - np.mean(inputfid)) ** 2
     resNormSq = np.sum(np.abs((resultfid - inputfid)) ** 2)
     relativeNorm = resNormSq / dataNormSq
-    logger.info("Norm of residual = %3.3f" % resNormSq)
-    logger.info("Norm of the data = %3.3f" % dataNormSq)
-    logger.info("resNormSq / dataNormSq = %3.3f" % relativeNorm)
+    logger.debug(f"Norm of residual = {resNormSq:.3f}")
+    logger.debug(f"Norm of the data = {dataNormSq:.3f}")
+    logger.debug(f"resNormSq / dataNormSq = {relativeNorm:.3f}")
     return resNormSq, relativeNorm
 
 
@@ -422,9 +411,7 @@ def simulate_fid(
     timeaxis = np.arange(0, dwelltime * fid_len, dwelltime) + deadtime  # timeaxis
     fidsim = uninterleave(multieq6(x=timeaxis, params=params))
     if extra_line_broadening > 0:
-        logger.info(
-            "Applying extra line broadening of %2.2f Hz" % extra_line_broadening
-        )
+        logger.info(f"Applying extra line broadening of {extra_line_broadening:.2f} Hz")
         fidsim = ng.proc_base.em(fidsim, extra_line_broadening / sw)
     if snr_target is not None:
         fidsim = add_noise_FID(fidsim, snr_target, indsignal, pts_noise)
@@ -434,10 +421,8 @@ def simulate_fid(
             label = "Pure FID"
             plt.title("Simulated FID")
         else:
-            label = "SNR=%2.2f" % fidSNR(
-                fid=fidsim, indsignal=indsignal, pts_noise=pts_noise
-            )
-            plt.title("Simulated FID with an SNR of %2.2f" % snr_target)
+            label = f"SNR={fidSNR(fid=fidsim, indsignal=indsignal, pts_noise=pts_noise):.2f}"
+            plt.title(f"Simulated FID with an SNR of {snr_target:.2f}")
         plt.plot(Hz, np.real(ng.proc_base.fft(fidsim)), label=label)
         plt.legend()
         plt.xlabel("Hz")

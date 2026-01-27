@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from loguru import logger
 
 from ..kernel import (
     Jac6,
@@ -8,9 +9,6 @@ from ..kernel import (
     parameters_to_dataframe_result,
     remove_zero_padding,
 )
-from ..libs.logger import get_logger
-
-logger = get_logger(__name__)
 
 try:
     import jinja2  # noqa F401
@@ -65,7 +63,6 @@ def report_crlb(outparams, crlb, Jacfunc=None):
         pandas.DataFrame: DataFrame with CRLB information for relevant parameters.
     """
     pdpoptall = parameters_to_dataframe_result(outparams)
-    # print(f"{Jacfunc=}, {pdpoptall=} {outparams=}")
     if Jacfunc is None or Jacfunc is Jac6:
         # You'll need to assert there is a peaklist in the fid_parameters
         poptall = pdpoptall["value"]
@@ -74,8 +71,6 @@ def report_crlb(outparams, crlb, Jacfunc=None):
     # elif Jacfunc is flexible_Jac:
     #    poptall = pdpoptall[pdpoptall['vary']]['value'] # Parameters with vary=True
     else:
-        # print(f"{Jacfunc=} is not supported!")
-        # print("Jacfunc=%s is not supported!" % Jacfunc)
         logger.warning(f"Jacfunc={Jacfunc} is not supported!")
 
     resultpd = pdpoptall.loc[poptall.index]
@@ -216,9 +211,8 @@ def report_amares(outparams, fid_parameters, verbose=False):
     negative_amplitude = result["amplitude"] < 0
     if negative_amplitude.sum() > 0:
         logger.warning(
-            "The amplitude of index %s is negative!"
-            " Make it positive and flip the phase!",
-            result.loc[negative_amplitude].index.values,
+            f"The amplitude of index {result.loc[negative_amplitude].index.values} is negative! "
+            f"Make it positive and flip the phase!"
         )
         result.loc[negative_amplitude, "amplitude"] = result.loc[
             negative_amplitude, "amplitude"
@@ -237,7 +231,7 @@ def report_amares(outparams, fid_parameters, verbose=False):
     val_columns = ["amplitude", "chem shift", "lw", "phase", "g_value"]
     for col, crlb_col, val_col in zip(sd_columns, crlb_columns, val_columns):
         if result[col].isnull().all():
-            logger.info("%s is all None, use crlb instead!" % col)
+            logger.info(f"{col} is all None, use crlb instead!")
             result[col] = result[crlb_col] / 100 * result[val_col]
 
     result["chem shift"] = result["chem shift"] / MHz
@@ -261,8 +255,8 @@ def report_amares(outparams, fid_parameters, verbose=False):
     result.loc[result["g_CRLB(%)"] == 0.0, "g_CRLB(%)"] = np.nan
     zero_ind = remove_zero_padding(fid_parameters.fid)
     if zero_ind > 0:
-        logger.info("It seems that zeros are padded after %i" % zero_ind)
-        logger.info("Remove padded zeros from residual estimation!")
+        logger.debug(f"It seems that zeros are padded after {zero_ind}")
+        logger.debug("Remove padded zeros from residual estimation!")
         fid_parameters.fid_padding_removed = fid_parameters.fid[:zero_ind]
         std_noise = np.std(
             fid_parameters.fid_padding_removed[
@@ -299,7 +293,7 @@ def report_amares(outparams, fid_parameters, verbose=False):
         )  # reorder to the peaklist from the pk, not the local peaklist
     # fid_parameters.peaklist = peaklist
     else:
-        logger.info("No peaklist, probably it is from an HSVD initialized object")
+        logger.debug("No peaklist, probably it is from an HSVD initialized object")
     fid_parameters.result_multiplets = result  # Keep the multiplets
     # Sum multiplets if needed
     if contains_non_numeric_strings(result):  # assigned peaks in the index
@@ -328,7 +322,6 @@ def report_amares(outparams, fid_parameters, verbose=False):
                 )
             else:
                 simple_df = None
-                # print("There is no result_sum generated, simple_df is set to None")
                 logger.warning(
                     "There is no result_sum generated, simple_df is set to None"
                 )
@@ -340,14 +333,13 @@ def report_amares(outparams, fid_parameters, verbose=False):
                 simple_df = extract_key_parameters(fid_parameters.result_sum)
             else:
                 simple_df = None
-                # print("There is no result_sum generated, simple_df is set to None")
                 logger.warning(
                     "There is no result_sum generated, simple_df is set to None"
                 )
     if hasattr(fid_parameters, "result_sum"):
         fid_parameters.metabolites = fid_parameters.result_sum.index.to_list()
     else:
-        logger.info("There is no result_sum generated, probably there is only 1 peak")
+        logger.debug("There is no result_sum generated, probably there is only 1 peak")
     fid_parameters.styled_df = styled_df
     fid_parameters.simple_df = simple_df
     return styled_df
