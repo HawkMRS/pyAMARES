@@ -15,9 +15,14 @@ logger = get_logger(__name__)
 
 def safe_convert_to_numeric(x):
     try:
-        return pd.to_numeric(
-            x, downcast="float", errors="raise"
-        )  # Use float as default output type
+        res = pd.to_numeric(x, errors="raise")
+        # Ensure float64 to prevent LossySetitemError in pandas 2.2+
+        if isinstance(res, pd.Series):
+            if np.issubdtype(res.dtype, np.number):
+                return res.astype(float)
+        elif isinstance(res, (int, float, np.number)) and not isinstance(res, bool):
+            return float(res)
+        return res
     except (ValueError, TypeError):
         return x
 
@@ -181,16 +186,30 @@ def unitconverter(df_ini, MHz=120.0):
         pandas.DataFrame: A DataFrame with converted unit values in specified rows.
     """
     df = deepcopy(df_ini)
+
+    # Pre-cast numeric columns to float64 to prevent pandas 2.2+ LossySetitemError
+    for col in df.columns:
+        if np.issubdtype(df[col].dtype, np.number):
+            df[col] = df[col].astype(float)
+
     if "chemicalshift" in df.index:
-        df.loc["chemicalshift", df.notna().loc["chemicalshift"]] *= MHz
+        mask = df.notna().loc["chemicalshift"]
+        if mask.any():
+            df.loc["chemicalshift", mask] = df.loc["chemicalshift", mask].astype(
+                float
+            ) * float(MHz)
 
     if "linewidth" in df.index:
-        df.loc["linewidth", df.notna().loc["linewidth"]] *= np.pi
+        mask = df.notna().loc["linewidth"]
+        if mask.any():
+            df.loc["linewidth", mask] = df.loc["linewidth", mask].astype(float) * float(
+                np.pi
+            )
 
     if "phase" in df.index:
-        df.loc["phase", df.notna().loc["phase"]] = np.deg2rad(
-            df.loc["phase"][df.notna().loc["phase"]].astype(float)
-        )
+        mask = df.notna().loc["phase"]
+        if mask.any():
+            df.loc["phase", mask] = np.deg2rad(df.loc["phase"][mask].astype(float))
 
     return df
 
@@ -369,6 +388,11 @@ def generateparameter(
             lval = df_lb2[peak].iloc[i]
             uval = df_ub2[peak].iloc[i]
             expr = df_expr[peak].iloc[i]
+
+            # --- FIX: Ensure expr is None if it evaluates to NaN ---
+            if pd.isna(expr):
+                expr = None
+
             # Handle NaN values for bounds
             if np.isnan(lval):
                 lval = -np.inf
