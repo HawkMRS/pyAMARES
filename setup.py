@@ -1,7 +1,6 @@
 import ast
 import glob
 import os
-import platform
 
 from setuptools import find_packages, setup
 from setuptools.command.sdist import sdist as _sdist
@@ -95,13 +94,12 @@ install_requires = [
     "requests",
     "ipywidgets>=7.6.0,<8.0.0;python_version<'3.11'",  # For older Python versions
     "ipywidgets>=8.0.0;python_version>='3.11'",  # For newer Python versions
+    # Use the better-performing 'hlsvdpro' package if running on supported platforms
+    # (e.g., x86_64 or amd64 architectures). Otherwise, fall back to the custom
+    # 'hlsvdpropy' implementation located in pyAMARES/libs/hlsvd.py.
+    # (Refactored to PEP 508 markers in Issue #15 for Apple Silicon/uv compatibility)
+    "hlsvdpro>=2.0.0; platform_machine == 'x86_64' or platform_machine == 'amd64'",
 ]
-
-# Use the better-performing 'hlsvdpro' package if running on supported platforms
-# (e.g., x86_64 or amd64 architectures). Otherwise, fall back to the custom
-# 'hlsvdpropy' implementation located in pyAMARES/libs/hlsvd.py.
-if platform.machine().lower() in ["x86_64", "amd64"]:
-    install_requires.append("hlsvdpro>=2.0.0")
 
 
 setup(
