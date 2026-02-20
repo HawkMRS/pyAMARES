@@ -79,10 +79,10 @@ ruff_requirements = [
 
 
 install_requires = [
-    "pandas>=1.1.0",
+    "pandas>=1.1.0,<2.2.0",
     "matplotlib>=3.1.3",
     "lmfit",
-    "numpy>=1.18.1",
+    "numpy>=1.18.1,<2.0.0",
     "scipy>=1.2.1",
     "sympy",
     "nmrglue",
