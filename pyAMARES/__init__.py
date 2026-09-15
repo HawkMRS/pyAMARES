@@ -6,6 +6,7 @@ __version__ = "0.3.34dev"
 from .fileio import *  # noqa: F403
 from .kernel import *  # noqa: F403
 from .libs import *  # noqa: F403
+from .libs import logger as _logger
 from .util import *  # noqa: F403
 
 __all__ = []
@@ -19,3 +20,5 @@ __all__.extend(fileio_all)
 __all__.extend(kernel_all)
 __all__.extend(libs_all)
 __all__.extend(util_all)
+
+_logger.set_log_level()

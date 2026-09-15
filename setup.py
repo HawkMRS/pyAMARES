@@ -80,14 +80,14 @@ ruff_requirements = [
 
 install_requires = [
     "pandas>=1.1.0",
-    "matplotlib>=3.1.3",
+    "matplotlib>=3.6.0",  # Starting from 0.3.34, pyAMARES requires matplotlib 3.6.0 or higher
     "lmfit",
     "numpy>=1.18.1",
     "scipy>=1.2.1",
     "sympy",
     "nmrglue",
     "xlrd",
-    "loguru",
+    "loguru",  # New dependency added in version 0.3.34 for improved logging
     "jinja2",
     "tqdm",
     "mat73",
