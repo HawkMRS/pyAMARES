@@ -1,10 +1,7 @@
 import argparse
 
 import numpy as np
-
-from ..libs.logger import get_logger
-
-logger = get_logger(__name__)
+from loguru import logger
 
 
 def read_nifti(filename):

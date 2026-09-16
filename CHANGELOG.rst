@@ -1,6 +1,27 @@
 Latest Changes
 --------------
 
+v0.3.34dev
+~~~~~~~~~~
+
+**Added**
+  - ``run_parallel_fitting_with_progress`` writes batch-fitting progress to a rotating log file (rotated every 10 minutes) using a new ``BATCH_INFO`` log level, logs the initial fitting parameters before each batch run, and takes a new ``loglevel`` parameter setting that file's threshold.
+
+**Changed**
+  - Replaced the stdlib-based logging with `loguru <https://github.com/Delgan/loguru>`_, which is now a required dependency. ``get_logger`` and the ``LOG_STYLE`` setting are removed, and ``pyAMARES.libs.logger`` now only configures loguru's console handler.
+  - ``pyAMARES.libs.logger.set_log_level()`` no longer accepts ``verbose``, and additionally accepts loguru's ``TRACE`` and ``SUCCESS`` levels. Console output keeps the v0.3.33 look: ``INFO`` and above, on stdout, as ``[AMARES | LEVEL] message``. ``BATCH_INFO`` records go only to the log file.
+  - The default ``logfilename`` of ``run_parallel_fitting_with_progress`` changed from ``multiprocess_log.txt`` to ``logs/parallelfitting.log``. The new ``loglevel`` parameter comes before ``objective_func``, so calls passing ``objective_func`` positionally must switch to a keyword argument.
+  - Downgraded many ``logger.info`` calls to ``logger.debug`` to reduce console verbosity, and converted old ``%``-style log format strings to f-strings.
+  - Removed the ``redirect_stdout_to_file`` context manager from ``multiprocessing.py`` in favor of ``loguru``'s file sink.
+  - Added pandas 2.0/3.0 compatibility fixes in ``PriorKnowledge.py`` (``unitconverter``, ``generateparameter``) and ``hsvd.py`` (``uniquify_dataframe``).
+  - Renamed the ``--current-env`` nbval flag to ``--nbval-current-env`` in CI and ``pytest.ini``.
+  - Raised the minimum required ``matplotlib`` version from ``3.1.3`` to ``3.6.0`` to match the ``layout="constrained"`` usage in ``visualization.py`` (introduced in v0.3.33).
+
+Thanks to `@bastigw`_ for contributing this version in `PR #14`_.
+
+.. _PR #14: https://github.com/HawkMRS/pyAMARES/pull/14
+.. _@bastigw: https://github.com/bastigw
+
 v0.3.33
 ~~~~~~~
 
