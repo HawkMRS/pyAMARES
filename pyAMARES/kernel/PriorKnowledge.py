@@ -18,9 +18,14 @@ from .fid import fft_params
 
 def safe_convert_to_numeric(x):
     try:
-        return pd.to_numeric(
-            x, downcast="float", errors="raise"
-        )  # Use float as default output type
+        res = pd.to_numeric(x, errors="raise")
+        # Ensure float64 to prevent LossySetitemError in pandas 2.2+
+        if isinstance(res, pd.Series):
+            if np.issubdtype(res.dtype, np.number):
+                return res.astype(float)
+        elif isinstance(res, (int, float, np.number)) and not isinstance(res, bool):
+            return float(res)
+        return res
     except (ValueError, TypeError):
         return x
 
@@ -184,9 +189,11 @@ def unitconverter(df_ini, MHz=120.0):
         pandas.DataFrame: A DataFrame with converted unit values in specified rows.
     """
     df = deepcopy(df_ini)
-    df = df.apply(
-        pd.to_numeric, errors="raise", downcast="float"
-    )  # By this point the values should only be numeric
+    # By this point the values should only be numeric. Convert every column to
+    # float64 so the in-place updates below keep their dtype (no LossySetitemError
+    # on pandas 3) and initial values are not rounded to float32, which can steer
+    # ill-conditioned fits to a different minimum.
+    df = df.apply(pd.to_numeric, errors="raise").astype(float)
     if "chemicalshift" in df.index:
         df.loc["chemicalshift", df.notna().loc["chemicalshift"]] *= MHz
 
@@ -197,6 +204,31 @@ def unitconverter(df_ini, MHz=120.0):
         df.loc["phase", df.notna().loc["phase"]] = np.deg2rad(
             df.loc["phase"][df.notna().loc["phase"]]
         )
+
+    # Alternative proposed in PR #19 (Issue #17), kept for reference but not used:
+    # it casts only columns that are already numeric to float64, so object columns
+    # skip validation (e.g. a non-numeric amplitude passes through silently) and
+    # stay object dtype.
+    #
+    # for col in df.columns:
+    #     if np.issubdtype(df[col].dtype, np.number):
+    #         df[col] = df[col].astype(float)
+    # if "chemicalshift" in df.index:
+    #     mask = df.notna().loc["chemicalshift"]
+    #     if mask.any():
+    #         df.loc["chemicalshift", mask] = df.loc["chemicalshift", mask].astype(
+    #             float
+    #         ) * float(MHz)
+    # if "linewidth" in df.index:
+    #     mask = df.notna().loc["linewidth"]
+    #     if mask.any():
+    #         df.loc["linewidth", mask] = df.loc["linewidth", mask].astype(
+    #             float
+    #         ) * float(np.pi)
+    # if "phase" in df.index:
+    #     mask = df.notna().loc["phase"]
+    #     if mask.any():
+    #         df.loc["phase", mask] = np.deg2rad(df.loc["phase"][mask].astype(float))
 
     return df
 
@@ -367,6 +399,11 @@ def generateparameter(
             lval = df_lb2[peak].iloc[i]
             uval = df_ub2[peak].iloc[i]
             expr = df_expr[peak].iloc[i]
+
+            # --- FIX: Ensure expr is None if it evaluates to NaN ---
+            if pd.isna(expr):
+                expr = None
+
             # Handle NaN values for bounds
             if np.isnan(lval):
                 lval = -np.inf
