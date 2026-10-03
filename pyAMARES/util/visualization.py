@@ -46,12 +46,13 @@ def preview_HSVD(ax, hsvdarr, ppm, p_pd, xlim=None, title="", xlabel=None):
 
     for i in p_pd.index:
         currentspec = np.real(ng.proc_base.fft(hsvdarr[:, i]))
-        ax.plot(ppm, currentspec.real, color=color_list[i], ls="-", alpha=0.85)
-        ax.axvline(p_pd.loc[i]["freq"], color=color_list[i], ls="-.", alpha=0.2)
+        color = color_list[i % len(color_list)]  # cycle when there are >20 peaks
+        ax.plot(ppm, currentspec.real, color=color, ls="-", alpha=0.85)
+        ax.axvline(p_pd.loc[i]["freq"], color=color, ls="-.", alpha=0.2)
         ax.annotate(
             f"{p_pd.loc[i]['name']}",
             xy=(p_pd.loc[i]["freq"], currentspec[np.abs(currentspec).argmax()]),
-            color=color_list[i],
+            color=color,
             fontsize=18,
         )
 
