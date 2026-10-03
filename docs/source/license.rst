@@ -12,9 +12,13 @@ Third-Party Licenses
 
 This pyAMARES project uses third-party libraries. Below is information about their licenses.
 
-hlsvdpro
-^^^^^^^^
-The library `hlsvdpro` is used under its BSD-3-Clause License. For detailed license information, please visit the `hlsvdpro PyPI page <https://pypi.org/project/hlsvdpro/>`_.
+hlsvdpropy
+^^^^^^^^^^
+The `hlsvdpropy` library is bundled, with modifications, as `pyAMARES/libs/hlsvd.py` under its BSD-3-Clause License. For detailed license information, please visit the `hlsvdpropy GitHub page <https://github.com/bsoher/hlsvdpropy>`_.
+
+loguru
+^^^^^^
+The library `loguru` is used under its MIT License. For detailed license information, please visit the `loguru GitHub page <https://github.com/Delgan/loguru>`_.
 
 Additional Note on MPFIR Function
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

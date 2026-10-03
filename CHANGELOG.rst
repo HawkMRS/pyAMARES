@@ -1,6 +1,14 @@
 Latest Changes
 --------------
 
+v0.3.35dev
+~~~~~~~~~~
+
+**Removed**
+  - Dropped the optional ``hlsvdpro`` dependency (`Issue #15`_). HSVD now always uses the bundled pure-Python ``pyAMARES.libs.hlsvd``, which NumPy 2.0+ users were already getting. ``hlsvdpro`` 2.0.0 has x86_64-only wheels and fails to import with NumPy 2.0+, and choosing it at build time broke installation on ARM machines such as Apple Silicon.
+
+.. _Issue #15: https://github.com/HawkMRS/pyAMARES/issues/15
+
 v0.3.34dev
 ~~~~~~~~~~
 

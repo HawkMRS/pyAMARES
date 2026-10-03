@@ -1,7 +1,6 @@
 import ast
 import glob
 import os
-import platform
 
 from setuptools import find_packages, setup
 from setuptools.command.sdist import sdist as _sdist
@@ -96,13 +95,10 @@ install_requires = [
     "requests",
     "ipywidgets>=7.6.0,<8.0.0;python_version<'3.11'",  # For older Python versions
     "ipywidgets>=8.0.0;python_version>='3.11'",  # For newer Python versions
+    # 'hlsvdpro' is no longer a dependency (Issue #15). Its last release (2.0.0, 2020)
+    # has x86_64-only wheels (no ARM, e.g. Apple Silicon) and does not support
+    # NumPy 2.0+. pyAMARES uses its bundled hlsvd (pyAMARES/libs/hlsvd.py) instead.
 ]
-
-# Use the better-performing 'hlsvdpro' package if running on supported platforms
-# (e.g., x86_64 or amd64 architectures). Otherwise, fall back to the custom
-# 'hlsvdpropy' implementation located in pyAMARES/libs/hlsvd.py.
-if platform.machine().lower() in ["x86_64", "amd64"]:
-    install_requires.append("hlsvdpro>=2.0.0")
 
 
 setup(

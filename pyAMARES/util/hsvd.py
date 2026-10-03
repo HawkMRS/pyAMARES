@@ -6,24 +6,13 @@ import numpy as np
 import pandas as pd
 import scipy
 from lmfit import Parameters
-
-from ..util.visualization import preview_HSVD
-
-if int(np.__version__.split(".")[0]) < 2:  # Check if numpy version is less than 2.0
-    try:
-        import hlsvdpro as hlsvd
-    except ImportError:
-        from ..libs import hlsvd
-else:
-    # For NumPy 2.0+, skip hlsvdpro and use the local implementation directly.
-    # 2025-03-20
-    from ..libs import hlsvd
-
 from loguru import logger
 
 from ..kernel.fid import Compare_to_OXSA, equation6, interleavefid, uninterleave
 from ..kernel.lmfit import parameters_to_dataframe
+from ..libs import hlsvd
 from ..libs.hlsvd import create_hlsvd_fids
+from ..util.visualization import preview_HSVD
 
 
 def HSVDp0(hsvdfid, timeaxis, ppm, MHz=120, ifplot=True):
