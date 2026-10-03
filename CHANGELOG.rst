@@ -4,10 +4,22 @@ Latest Changes
 v0.3.35dev
 ~~~~~~~~~~
 
+**Fixed**
+  - ``generateparameter`` treats a NaN ``expr`` as ``None``, which pandas 3 can produce for empty expression cells (`Issue #17`_). The pandas 2.2+/3.0 ``LossySetitemError`` reported there was already fixed in v0.3.34dev.
+
+**Changed**
+  - Prior-knowledge values are converted to float64 instead of float32 (``safe_convert_to_numeric``, ``unitconverter``). Fits no longer start from float32-rounded initial values, which changed results noticeably for ill-conditioned fits such as the 129Xe example in ``step4_X_nuclei.ipynb``.
+
 **Removed**
   - Dropped the optional ``hlsvdpro`` dependency (`Issue #15`_). HSVD now always uses the bundled pure-Python ``pyAMARES.libs.hlsvd``, which NumPy 2.0+ users were already getting. ``hlsvdpro`` 2.0.0 has x86_64-only wheels and fails to import with NumPy 2.0+, and choosing it at build time broke installation on ARM machines such as Apple Silicon.
 
+Thanks to `@andrewendlinger`_ for reporting `Issue #15`_ and `Issue #17`_, and for contributing this version in `PR #16`_ and `PR #19`_.
+
 .. _Issue #15: https://github.com/HawkMRS/pyAMARES/issues/15
+.. _Issue #17: https://github.com/HawkMRS/pyAMARES/issues/17
+.. _PR #16: https://github.com/HawkMRS/pyAMARES/pull/16
+.. _PR #19: https://github.com/HawkMRS/pyAMARES/pull/19
+.. _@andrewendlinger: https://github.com/andrewendlinger
 
 v0.3.34dev
 ~~~~~~~~~~
