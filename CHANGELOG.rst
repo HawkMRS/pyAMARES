@@ -6,6 +6,7 @@ v0.3.35dev
 
 **Fixed**
   - ``generateparameter`` treats a NaN ``expr`` as ``None``, which pandas 3 can produce for empty expression cells (`Issue #17`_). The pandas 2.2+/3.0 ``LossySetitemError`` reported there was already fixed in v0.3.34dev.
+  - ``preview_HSVD`` no longer raises ``IndexError: list index out of range`` when prior knowledge has more than 20 peaks. It now cycles through ``color_list``, so peaks after the 20th reuse earlier colors. This affects ``fitAMARES(..., ifplot=True)``, ``plotAMARES`` and ``HSVDinitializer(..., preview=True)``.
 
 **Changed**
   - Prior-knowledge values are converted to float64 instead of float32 (``safe_convert_to_numeric``, ``unitconverter``). Fits no longer start from float32-rounded initial values, which changed results noticeably for ill-conditioned fits such as the 129Xe example in ``step4_X_nuclei.ipynb``.
