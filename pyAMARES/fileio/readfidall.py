@@ -2,11 +2,8 @@ import argparse
 
 import mat73
 import numpy as np
+from loguru import logger
 from scipy import io
-
-from ..libs.logger import get_logger
-
-logger = get_logger(__name__)
 
 
 def is_mat_file_v7_3(filename):
@@ -132,10 +129,9 @@ def read_fidall(filename):
 
     if len(data.shape) != 1:
         logger.warning(
-            "Note pyAMARES.fitAMARES only fits 1D MRS data, however, your data shape is {data.shape}. Is it MRSI or raw MRS data that needs to be coil-combined?"
+            f"Note pyAMARES.fitAMARES only fits 1D MRS data, however, your data shape is {data.shape}. Is it MRSI or raw MRS data that needs to be coil-combined?"
         )
 
-    # print("data.shape=", data.shape)
-    logger.debug("data.shape=%s", data.shape)
+        logger.debug(f"data.shape={data.shape}")
 
     return header, data

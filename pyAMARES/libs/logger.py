@@ -1,128 +1,55 @@
-import logging
 import sys
 
-LOG_MODES = {
-    "debug": logging.DEBUG,
-    "info": logging.INFO,
-    "warning": logging.WARNING,
-    "error": logging.ERROR,
-    "critical": logging.CRITICAL,
-}
+from loguru import logger
 
-# GLOBAL VARIABLE: LOG_STYLE
-#     The output mode for the log messages. Options:
-#     - "plain": Uses `logging.Formatter` and logs to stdout.
-#                Always displays plain text messages in all environments.
-#     - "stderr": Uses `logging.Formatter` and logs to stderr.
-#                 This is the normal behaviour of the python logging module, but
-#                 produces red output in Jupyter notebooks.
-#
-# Accessed by get_logger:
-LOG_STYLE = "plain"
+DEFAULT_LOG_LEVEL = "INFO"
 
-# GLOBAL VARIABLE: DEFAULT_LOG_LEVEL
-#     The default log level for all loggers. Options:
-#     - "debug", "info", "warning", "error", "critical"
-#
-# Accessed by get_logger and set_log_level:
-DEFAULT_LOG_LEVEL = "info"
+# loguru's built-in handler writes to stderr, which Jupyter renders as red
+# output, and its default format prepends a timestamp and module:function:line.
+LOG_FORMAT = "[AMARES | {level}] {message}"
+
+# id of the handler this module owns, so repeated calls replace it instead of
+# dropping handlers the host application installed.
+_handler_id = None
 
 
-def get_logger(
-    name: str, format_string: str = "[AMARES | {levelname}] {message}"
-) -> logging.Logger:
+def _skip_batch_info(record):
+    # BATCH_INFO belongs in the rotating log file that
+    # run_parallel_fitting_with_progress opens, not on the console.
+    return record["level"].name != "BATCH_INFO"
+
+
+def set_log_level(level=DEFAULT_LOG_LEVEL):
     """
-    Get or create a logger with the specified name and format.
+    Set the console log level for pyAMARES.
 
-    If the logger has no existing handlers, it initializes one based on the provided log style.
-    The log level defaults to `DEFAULT_LOG_LEVEL`. To change it globally, use `set_log_level()`.
+    On import, pyAMARES replaces loguru's default handler, which shows every
+    message down to DEBUG, with one that writes ``level`` and above to stdout.
+    Only that default handler is removed, so a handler installed by an
+    application embedding pyAMARES keeps working.
 
-    Parameters
-    ----------
-    name : str
-        The name of the logger.
-    format_string : str, optional
-        The format string for log messages (default: "[AMARES | {levelname}] {message}").
+    Args:
+        level (str, optional): The lowest level to show. One of "TRACE", "DEBUG",
+          "INFO", "SUCCESS", "WARNING", "ERROR" or "CRITICAL", case-insensitive.
+          Defaults to "INFO".
 
-    Returns
-    -------
-    logging.Logger
-        A configured logger instance.
-
-    Raises
-    ------
-    ValueError
-        If an invalid `LOG_STYLE` is provided.
-
-    Examples
-    --------
-    >>> logger = get_logger("example_logger")
-    >>> logger.debug("This is a debug message.")
-    [DEBUG] example_logger: This is a debug message.
+    Examples:
+        >>> from pyAMARES.libs.logger import set_log_level
+        >>> set_log_level("debug")  # show the per-fit diagnostics
     """
-    global LOG_STYLE
+    global _handler_id
 
-    logger = logging.getLogger(name)
-    logger.setLevel(LOG_MODES.get(DEFAULT_LOG_LEVEL, logging.ERROR))
+    if _handler_id is None:
+        try:
+            logger.remove(0)  # loguru's default stderr handler
+        except ValueError:
+            pass  # the application removed it before importing pyAMARES
+    else:
+        logger.remove(_handler_id)
 
-    if not logger.hasHandlers():
-        if LOG_STYLE == "plain":
-            formatter = logging.Formatter(format_string, style="{")
-            handler = logging.StreamHandler(sys.stdout)
-        elif LOG_STYLE == "stderr":
-            formatter = logging.Formatter(format_string, style="{")
-            handler = logging.StreamHandler()
-        else:
-            raise ValueError(
-                f"Invalid mode: '{LOG_STYLE}'. Choose from 'plain' or 'stderr'."
-            )
-
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-
-    return logger
-
-
-def set_log_level(level: str = DEFAULT_LOG_LEVEL, verbose: bool = True):
-    """
-    Set the global logging level for all loggers.
-
-    This function sets the logging level across the entire application using
-    the basicConfig method of the logging module. It also ensures that all
-    existing loggers adhere to this global level.
-
-    Parameters
-    ----------
-    level : str
-        The logging level to set globally. Acceptable values are 'critical',
-        'error', 'warning', 'info', 'debug', and 'notset'. Default is the
-        `DEFAULT_LOG_LEVEL`.
-
-    verbose : bool
-        Print an overview of the log levels and highlight the selected level.
-
-    Examples
-    --------
-    >>> set_log_level('info')
-    >>> logger = logging.getLogger('example_logger')
-    >>> logger.debug('This debug message will not show.')
-    >>> logger.info('This info message will show.')
-    [INFO] example_logger: This info message will show.
-    """
-    if level.lower() not in LOG_MODES.keys():
-        raise AssertionError(
-            f"'{level}' is not a valid logging level. "
-            + f"Choose from {list(LOG_MODES.keys())}."
-        )
-
-    numeric_level = LOG_MODES.get(level.lower(), logging.ERROR)
-
-    if verbose:
-        for lname in LOG_MODES.keys():
-            arrow = "-->" if lname == level.lower() else "   "
-            print(f"{arrow} {lname.upper():<10}")
-
-    for logger_name in logging.root.manager.loggerDict:
-        if logger_name.startswith("pyAMARES"):
-            logger = logging.getLogger(logger_name)
-            logger.setLevel(numeric_level)
+    _handler_id = logger.add(
+        sys.stdout,
+        level=level.upper(),
+        format=LOG_FORMAT,
+        filter=_skip_batch_info,
+    )

@@ -1,12 +1,12 @@
 __author__ = "Jia Xu, MR Research Facility, University of Iowa"
 __version__ = "0.3.34dev"
 
-# print("Current pyAMARES version is %s" % __version__)
-# print("Author: %s" % __author__)
+# print(f"Author: {__author__)}"
 
 from .fileio import *  # noqa: F403
 from .kernel import *  # noqa: F403
 from .libs import *  # noqa: F403
+from .libs import logger as _logger
 from .util import *  # noqa: F403
 
 __all__ = []
@@ -20,3 +20,5 @@ __all__.extend(fileio_all)
 __all__.extend(kernel_all)
 __all__.extend(libs_all)
 __all__.extend(util_all)
+
+_logger.set_log_level()

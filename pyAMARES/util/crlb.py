@@ -4,13 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy
 import sympy
+from loguru import logger
 from sympy.parsing import sympy_parser
 
 from ..kernel import Jac6, multieq6, uninterleave
-from ..libs.logger import get_logger
 from .report import report_crlb
-
-logger = get_logger(__name__)
 
 
 def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=False):
@@ -39,10 +37,8 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
     D = uninterleave(D)
     Dmat = np.dot(D.conj().T, D)
     if verbose:
-        # print("D.shape", D.shape, "Dmat.shape", Dmat.shape)
-        logger.debug("D.shape=%s Dmat.shape=%s" % (D.shape, Dmat.shape))
-        # print("P.shape=%s" % str(P.shape))
-        logger.debug("P.shape=%s" % str(P.shape))
+        logger.debug(f"D.shape={D.shape} Dmat.shape={Dmat.shape}")
+        logger.debug(f"P.shape={str(P.shape)}")
 
     # Compute the Fisher information matrix
     if P is None:  # No prior knowledge
@@ -51,12 +47,9 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
     else:
         Fisher = np.real(P.T @ Dmat @ P) / variance
     if verbose:
-        # print("Fisher.shape=%s P.shape=%s" % (Fisher.shape, P.shape))
-        logger.debug("Fisher.shape=%s P.shape=%s" % (Fisher.shape, P.shape))
+        logger.debug(f"Fisher.shape={Fisher.shape} P.shape={P.shape}")
     condition_number = np.linalg.cond(Fisher)
     if condition_number > condthreshold:
-        # print("Warning: The matrix may be ill-conditioned. Condition number is high:"
-        # , condition_number)
         logger.warning(
             f"The matrix may be ill-conditioned. Condition number is high: "
             f"{condition_number:3.3e}"
@@ -70,13 +63,10 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
     # Ensure non-negative covariance values
     if np.min(CRBcov) < 0:
         if verbose:
-            # print("np.min(CRBcov)=%s, make the negative values to 0!" %
             # np.min(CRBcov))
             logger.warning(
-                "np.min(CRBcov)=%s, make the negative values to 0!" % np.min(CRBcov)
+                f"np.min(CRBcov)={np.min(CRBcov)}, make the negative values to 0!"
             )
-        # warnings.warn("np.min(CRBcov)=%s, make the negative values to 0!" %
-        # np.min(CRBcov), UserWarning)
         CRBcov[CRBcov < 0] = 0.0
 
     if cond:
@@ -85,7 +75,6 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
         else:
             return False
     if np.max(np.diag(CRBcov)) < 1e-5:
-        # print("Ill conditioned matrix! CRLB not reliable!")
         logger.warning("Ill conditioned matrix! CRLB not reliable!")
     if verbose:
         msg = ["\n    Debug Information:"]
@@ -96,10 +85,6 @@ def calculateCRB(D, variance, P=None, verbose=False, condthreshold=1e11, cond=Fa
         msg.append(f"Max mDTD: {np.max(Dmat):.2e}")
         msg_string = "\n    ".join(msg)
         logger.debug(msg_string)
-        # print("CRBcov.shape", CRBcov.shape)
-        # print("max CRBcov", np.max(np.diag(CRBcov)))
-        # print("max Fisher %2.2e" % np.max(Fisher))
-        # print("max mDTD %2.2e" % np.max(Dmat))
     return np.sqrt(np.diag(CRBcov))
 
 
@@ -148,18 +133,15 @@ def evaluateCRB(outparams, opts, P=None, Jacfunc=Jac6, verbose=False):
         try:
             opts.variance = float(opts.noise_var)
             logger.debug(
-                "The CRLB estimation will be divided by the input variance %s"
-                % opts.variance
+                f"The CRLB estimation will be divided by the input variance {opts.variance}"
             )
         except ValueError:
             logger.error(
-                "Error: noise_var %s is not a recognized string or a valid number."
-                % opts.variance
+                f"Error: noise_var {opts.variance} is not a recognized string or a valid number."
             )
 
     if verbose:
-        # print("opts.D.shape=%s" % str(opts.D.shape))
-        logger.debug("opts.D.shape=%s" % str(opts.D.shape))
+        logger.debug(f"opts.D.shape={str(opts.D.shape)}")
         plt.plot(opts.residual.real)
         plt.title("residual")
         plt.show()
@@ -205,8 +187,6 @@ def create_pmatrix(pkpd, verbose=False, ifplot=False):
     """
     # Extract parameter indices and expressions for Equation 3 in the
     # Reference. S Cavassila et al NMR Biomed. 2001 Jun;14(4):278-83
-    # print(f"{[extract_strings(x) for x in pkpd.dropna(axis=0)['expr']]=}")
-    # print(f"{pkpd.columns=} {pkpd.index=} {pkpd['name']=}")
     pm_index = get_matches(
         pkpd, [extract_strings(x) for x in pkpd.dropna(axis=0)["expr"]]
     )
@@ -227,7 +207,6 @@ def create_pmatrix(pkpd, verbose=False, ifplot=False):
     ]  # pass freepd ID to all ID. ID will be NaNs for fixed variables
     pm_index2 = pkpd2.iloc[pm_index]["newid"].to_list()
     if np.all(np.isnan(pm_index2)):  # If all NaN
-        # print(f"{pm_index2=}")
         logger.warning(
             "pm_index are all NaNs, return None so that P matrix is a identity matrix!"
         )
@@ -238,15 +217,13 @@ def create_pmatrix(pkpd, verbose=False, ifplot=False):
     # Fill the diagonal for free parameters
     for ind in freepd.index:
         if verbose:
-            # print("ind=%s newid=%s" % (ind, freepd.loc[ind]["newid"]))
-            logger.debug("ind=%s newid=%s" % (ind, freepd.loc[ind]["newid"]))
+            logger.debug(f"ind={ind} newid={freepd.loc[ind]['newid']}")
         Pmatrix[freepd.loc[ind]["newid"], ind] = 1.0
 
     # Fill in partial derivatives for parameter relationships
     for x, y, partial_d in zip(pl_index, pm_index, plm):
         if verbose:
-            # print("x=%s y=%s partial_d=%s" % (x, y, partial_d))
-            logger.debug("x=%s y=%s partial_d=%s" % (x, y, partial_d))
+            logger.debug(f"x={x} y={y} partial_d={partial_d}")
 
         Pmatrix[y, x] = partial_d
     if ifplot:
