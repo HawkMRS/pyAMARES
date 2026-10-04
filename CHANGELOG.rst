@@ -1,6 +1,18 @@
 Latest Changes
 --------------
 
+v0.3.36dev
+~~~~~~~~~~
+
+**Added**
+  - ``simulate_fid`` takes a ``carrier`` argument (ppm, default 0). If it is not 0, the simulated FID is shifted into the scanner frame, centered at ``carrier`` ppm, so it can be fitted with ``initialize_FID`` using the same ``carrier``. Before this, a simulated FID was always in the absolute frame and had to be fitted with ``carrier=0``, so passing the real-data value (e.g. 4.65 ppm for water-centered 1H) to ``initialize_FID`` shifted it twice and the fit failed.
+
+**Fixed**
+  - ``filter_fid_by_ppm`` applied the carrier shift twice when ``carrier`` is not 0. ``initialize_FID`` has already shifted ``opts.fid`` to absolute ppm, but the carrier was also subtracted from ``fit_ppm``, so the filter kept the wrong frequency band while the preview still shaded the requested range. Workflows with ``carrier=0``, including 31P, are unaffected. The ``MPFIR`` preview axis now includes ``carrier``.
+
+**Changed**
+  - Clarified the meaning of ``carrier`` in the ``initialize_FID``, ``simulate_fid`` and ``MPFIR`` docstrings and in the ``amaresFit --carrier`` help. ``carrier`` is the ppm value at the center of the acquired (scanner-frame) spectrum. ``initialize_FID`` shifts the FID to absolute ppm, and everything downstream (fitting, ``fit_range``, ``filter_fid_by_ppm``, ``filter_param_by_ppm``, HSVD) works in absolute ppm.
+
 v0.3.35dev
 ~~~~~~~~~~
 
