@@ -184,10 +184,11 @@ def MPFIR(
         fid (1D array): The FID signal array.
         dwelltime (float): Dwell time.
         MHz: The field strength in MHz.
-        ppm_range (tuple, optional): The range of ppm values to filter. Defaults to (-20, 20).
+        ppm_range (tuple, optional): The range of absolute ppm values to keep. Defaults to (-20, 20).
         rippass (float, optional): The passband ripple of the filter. Defaults to 0.01.
         M (int, optional): The filter length. Defaults to 50.
-        carrier (float, optional): The carrier frequency offset in ppm. Defaults to 0.
+        carrier (float, optional): The ppm value at the center of the input ``fid`` (e.g. 4.65 for a
+          raw water-centered 1H FID). Use 0 for an FID already shifted by ``initialize_FID``. Defaults to 0.
         ifplot (bool, optional): If True, plots the input and filtered FID signals. Defaults to False.
         xlim (tuple, optional): The x-axis limits for the plot. Defaults to None.
 
@@ -210,7 +211,10 @@ def MPFIR(
     signal = np.concatenate([signal[len(fir_h) - 1 :], np.zeros(len(fir_h) - 1)])
     if ifplot:
         sw = 1.0 / dwelltime  # Hz
-        ppm = np.linspace(-sw / np.abs(MHz) / 2, sw / np.abs(MHz) / 2, len(signal))
+        ppm = (
+            np.linspace(-sw / np.abs(MHz) / 2, sw / np.abs(MHz) / 2, len(signal))
+            + carrier
+        )
         plt.plot(ppm, np.abs(ng.proc_base.fft(fid)), "r-", alpha=0.6, label="input fid")
         plt.plot(ppm, np.abs(ng.proc_base.fft(signal)), alpha=0.6, label="filtered fid")
         plt.axvspan(
@@ -255,7 +259,7 @@ def filter_fid_by_ppm(opts, fit_ppm, ifplot=False, rippass=0.01, M=50):
         ppm_range=fit_ppm,
         rippass=rippass,
         M=M,
-        carrier=opts.carrier,
+        carrier=0,  # opts.fid is already shifted by opts.carrier in initialize_FID
         ifplot=ifplot,
         xlim=opts.xlim,
     )
