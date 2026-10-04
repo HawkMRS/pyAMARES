@@ -587,6 +587,8 @@ def initialize_FID(
     plotParameters.ifphase = (
         False  # 0 and 1st order phasing. Do not phase unless otherwise turned on
     )
+    # Absorptive lineshape for the fitted components in the bottom panel of plotAMARES
+    plotParameters.ifphase_components = False
 
     opts.plotParameters = plotParameters  # Make obj plotParameters part of opts
 

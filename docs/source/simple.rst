@@ -11,7 +11,7 @@ Run pyAMARES
 
    .. tabs::
 
-      .. tab:: Web Browser (New!)
+      .. tab:: Web Browser 
 
          Run pyAMARES in any web browser:
 
@@ -252,6 +252,28 @@ Fitting Result
    :width: 400
 
 .. image:: images/simple_example_html.jpeg
+   :width: 400
+
+(New after version 0.3.35) Optional Phase Correction for the Fitting Result Plot
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The fitting result figure has two panels. The top panel shows the original spectrum, the fitted spectrum, and the residual. The bottom panel shows each fitted component and their sum.
+
+By default, both panels are plotted **without** phasing. The bottom panel draws each component exactly as fitted, including its fitted phase and the first-order phase caused by the dead time, so the components can appear in a mixed absorptive/dispersive lineshape. Because AMARES fits in the time domain, the displayed lineshape does not affect quantification. At users' request, two options in ``plotParameters`` phase the spectra for **visualization** only. **Note** that they do not affect the fitting or the result tables.
+
+- ``plotParameters.ifphase`` (default ``False``): applies 0th and 1st order phasing to the spectra in the top panel. The phase is estimated from the first points of the FID.
+- ``plotParameters.ifphase_components`` (default ``False``, New after version 0.3.35): plots each fitted component in the bottom panel as a phase-corrected peak, i.e., a positive, symmetric (absorptive) lineshape. The fitted phase of each component is set to zero and its FID is evaluated from time zero, which removes the dead-time phase. The fitted parameters are not changed.
+
+.. code-block:: python
+
+   out2.plotParameters.lb = 2.0  # Line Broadening factor for visualization
+   out2.plotParameters.ifphase = True  # Phase the top panel
+   out2.plotParameters.ifphase_components = True  # Phase the bottom panel
+   pyAMARES.plotAMARES(fid_parameters=out2, filename='simple_example_absorptive.svg')
+
+From the command line, add ``--ifphase_components`` to ``amaresFit``.
+
+.. image:: images/simple_example_absorptive.svg
    :width: 400
 
 

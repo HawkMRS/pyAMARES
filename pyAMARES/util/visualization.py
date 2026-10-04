@@ -95,6 +95,7 @@ def plot_fit(
             - sw (float): Spectral width in Hz.
             - xlim (tuple of float): Limits for the x-axis in ppm, for example, (10, -20).
             - ifphase (bool): turn on 0th and 1st order phasing.
+            - ifphase_components (bool, optional): show each fitted component in the bottom panel in absorptive lineshape (fitted phase and deadtime phase removed). Defaults to False.
 
     """
     if plotParameters is None:
@@ -169,6 +170,7 @@ def combined_plot(
             - sw (float): Spectral width in Hz.
             - xlim (tuple of float): Limits for the x-axis in ppm, for example, (10, -20).
             - ifphase (bool): turn on 0th and 1st order phasing.
+            - ifphase_components (bool, optional): show each fitted component in the bottom panel in absorptive lineshape (fitted phase and deadtime phase removed). Defaults to False.
 
           filename (str or None, optional): If provided, the figure will be saved to this file. Defaults to None.
     """

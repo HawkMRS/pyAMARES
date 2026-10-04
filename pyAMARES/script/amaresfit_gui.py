@@ -733,6 +733,12 @@ def main():
                     "order phasing for **visualization**. This does not "
                     "affect the fitting.",
                 )
+                ifphase_components = st.checkbox(
+                    "Absorptive lineshape for fitted components",
+                    help="Show each fitted component in the bottom panel "
+                    "in absorptive lineshape for **visualization**. This "
+                    "does not affect the fitting.",
+                )
                 lb = st.number_input(
                     "Line Broadening factor (Hz)",
                     value=2.0,
@@ -866,6 +872,7 @@ def main():
 
                         # Set plot parameters and generate plot
                         out1.plotParameters.ifphase = ifphase
+                        out1.plotParameters.ifphase_components = ifphase_components
                         out1.plotParameters.lb = lb
                         pyAMARES.plotAMARES(fid_parameters=out1, filename=svg_path)
 

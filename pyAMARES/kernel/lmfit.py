@@ -407,6 +407,7 @@ def fitAMARES(
             - sw (float): Spectral width in Hz.
             - xlim (tuple of float): Limits for the x-axis in ppm, for example, (10, -20).
             - ifphase (bool): turn on 0th and 1st order phasing.
+            - ifphase_components (bool, optional): show each fitted component in the bottom panel in absorptive lineshape (fitted phase and deadtime phase removed). Defaults to False.
 
             If None, default parameters defined in fid_parameters.plotParameters are used.
 
@@ -517,6 +518,7 @@ def plotAMARES(fid_parameters, fitted_params=None, plotParameters=None, filename
             - sw (float): Spectral width in Hz.
             - xlim (tuple of float): Limits for the x-axis in ppm, for example, (10, -20).
             - ifphase (bool): turn on 0th and 1st order phasing.
+            - ifphase_components (bool, optional): show each fitted component in the bottom panel in absorptive lineshape (fitted phase and deadtime phase removed). Defaults to False.
 
           filename (str or None, optional): If provided, the figure will be saved to this file. Defaults to None.
     """
@@ -528,11 +530,24 @@ def plotAMARES(fid_parameters, fitted_params=None, plotParameters=None, filename
             " for plotAMARES"
         )
         fitted_params = fid_parameters.out_obj.params
-    amares_arr = fft_params(
-        fid_parameters.timeaxis, fitted_params, fid=True, return_mat=True
-    ).T
     if plotParameters is None:
         plotParameters = fid_parameters.plotParameters
+    if getattr(plotParameters, "ifphase_components", False):
+        # Absorptive components: drop the fitted phases and start the time axis
+        # at 0 so the deadtime does not add a 1st order phase.
+        from copy import deepcopy
+
+        params_abs = deepcopy(fitted_params)
+        for name in params_abs:
+            if name.startswith("phi"):
+                params_abs[name].expr = None
+                params_abs[name].value = 0.0
+        timeaxis = fid_parameters.timeaxis - fid_parameters.timeaxis[0]
+        amares_arr = fft_params(timeaxis, params_abs, fid=True, return_mat=True).T
+    else:
+        amares_arr = fft_params(
+            fid_parameters.timeaxis, fitted_params, fid=True, return_mat=True
+        ).T
     combined_plot(
         amares_arr,
         ppm=fid_parameters.ppm,

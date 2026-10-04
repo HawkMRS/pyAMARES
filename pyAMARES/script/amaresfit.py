@@ -72,6 +72,11 @@ def main():
         "--ifphase", action="store_true", help="Phase the plotAMARES spectrum"
     )
     parser.add_argument(
+        "--ifphase_components",
+        action="store_true",
+        help="Show the fitted components in absorptive lineshape in the bottom panel of plotAMARES",
+    )
+    parser.add_argument(
         "--lb",
         type=float,
         default=2.0,
@@ -215,6 +220,7 @@ def main():
         )
     if args.ifplot:
         out1.plotParameters.ifphase = args.ifphase
+        out1.plotParameters.ifphase_components = args.ifphase_components
         out1.plotParameters.lb = args.lb
         pyAMARES.plotAMARES(fid_parameters=out1, filename=args.output + ".svg")
 

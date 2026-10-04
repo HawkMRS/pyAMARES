@@ -4,9 +4,13 @@ Latest Changes
 v0.3.35dev
 ~~~~~~~~~~
 
+**Added**
+  - New ``plotParameters.ifphase_components`` option (default ``False``) to show the fitted components in the bottom panel of ``plotAMARES`` in absorptive lineshape. The fitted phases are set to zero and the dead-time phase is removed for display only, and the fitted parameters are not changed. It is also available as ``--ifphase_components`` in ``amaresFit``. See the Fitting Result section of the "Getting Started - A Simple Example" page.
+
 **Fixed**
   - ``generateparameter`` treats a NaN ``expr`` as ``None``, which pandas 3 can produce for empty expression cells (`Issue #17`_). The pandas 2.2+/3.0 ``LossySetitemError`` reported there was already fixed in v0.3.34dev.
   - ``preview_HSVD`` no longer raises ``IndexError: list index out of range`` when prior knowledge has more than 20 peaks. It now cycles through ``color_list``, so peaks after the 20th reuse earlier colors. This affects ``fitAMARES(..., ifplot=True)``, ``plotAMARES`` and ``HSVDinitializer(..., preview=True)``.
+  - ``HSVDinitializer(..., preview=True)`` no longer raises ``IndexError: index N is out of bounds for axis 1`` when HSVD components broader than ``lw_threshold`` are dropped. The preview plot looked up components by their original HSVD numbers, which no longer matched the remaining components. Only the preview was affected; the returned parameters and their names are unchanged.
 
 **Changed**
   - Prior-knowledge values are converted to float64 instead of float32 (``safe_convert_to_numeric``, ``unitconverter``). Fits no longer start from float32-rounded initial values, which changed results noticeably for ill-conditioned fits such as the 129Xe example in ``step4_X_nuclei.ipynb``.

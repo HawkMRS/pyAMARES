@@ -300,7 +300,9 @@ def HSVDinitializer(
             ax,
             hsvdarr,
             fid_parameters.Hz,
-            temp_to_unfold,
+            # hsvdarr columns are positional, while temp_to_unfold keeps the HSVD
+            # component labels (with gaps where broad components were dropped)
+            temp_to_unfold.reset_index(drop=True),
             xlim=fid_parameters.xlim_Hz,
             title="HSVD optimized parameters",
             xlabel="Hz",
