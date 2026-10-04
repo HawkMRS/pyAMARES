@@ -243,7 +243,9 @@ def filter_fid_by_ppm(opts, fit_ppm, ifplot=False, rippass=0.01, M=50):
     Args:
         opts (Namespace): An object containing FID signal parameters, including the FID signal, dwell time,
                           spectrometer frequency, and optionally x-axis limits for plotting.
-        fit_ppm (tuple): The ppm range to filter the FID signal by.
+        fit_ppm (tuple): The absolute ppm range to keep, on the same axis as ``opts.ppm`` and the prior
+                         knowledge. ``opts.fid`` has already been shifted by ``opts.carrier`` in ``initialize_FID``,
+                         so no further carrier correction is applied.
         ifplot (bool, optional): If True, plots the original and filtered FID signals. Defaults to False.
         rippass (float, optional): The passband ripple of the MPFIR filter. Defaults to 0.01.
         M (int, optional): The number of coefficients for the MPFIR filter. Defaults to 50.
