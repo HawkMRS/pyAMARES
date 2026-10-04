@@ -93,7 +93,7 @@ def main():
         type=float,
         default=0.0,
         metavar="ppm",
-        help="The carrier frequency",
+        help="The carrier frequency, i.e. the ppm at the center of the spectrum (e.g. 4.7 for water-centered 1H)",
     )
     parser.add_argument(
         "--truncate_initial_points",

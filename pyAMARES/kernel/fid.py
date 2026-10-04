@@ -379,6 +379,7 @@ def simulate_fid(
     pts_noise=200,
     preview=False,
     extra_line_broadening=0.0,
+    carrier=0.0,
 ):
     """
     A function that simulates an FID from an lmfit Parameter object and optionally adds Gaussian white noise to achieve a target SNR.
@@ -401,6 +402,10 @@ def simulate_fid(
           Defaults to False.
         extra_line_broadening (float, optional): Additional line broadening in Hz to apply to the simulated FID.
            Defaults to 0.0.
+        carrier (float, optional): The ppm value at the center of the simulated spectrum, i.e. the
+           scanner's carrier frequency (e.g. 4.65 for water-centered 1H MRS). If not 0, the FID is
+           shifted by ``-carrier * MHz`` Hz into the scanner frame, so it should be passed to
+           ``initialize_FID`` with the same ``carrier``. Defaults to 0.0 (no shift).
 
     Returns:
         numpy.ndarray: The simulated FID signal, optionally with added noise to achieve the target SNR.
@@ -412,6 +417,9 @@ def simulate_fid(
     dwelltime = 1.0 / sw  # noqa F841  #place holder
     timeaxis = np.arange(0, dwelltime * fid_len, dwelltime) + deadtime  # timeaxis
     fidsim = uninterleave(multieq6(x=timeaxis, params=params))
+    if carrier != 0:
+        # Inverse of the carrier shift in initialize_FID, on the same time axis
+        fidsim = fidsim * np.exp(-1j * 2 * np.pi * carrier * MHz * timeaxis)
     if extra_line_broadening > 0:
         logger.info(f"Applying extra line broadening of {extra_line_broadening:.2f} Hz")
         fidsim = ng.proc_base.em(fidsim, extra_line_broadening / sw)
@@ -427,6 +435,9 @@ def simulate_fid(
             plt.title(f"Simulated FID with an SNR of {snr_target:.2f}")
         plt.plot(Hz, np.real(ng.proc_base.fft(fidsim)), label=label)
         plt.legend()
-        plt.xlabel("Hz")
+        if carrier != 0:
+            plt.xlabel(f"Hz (center = {carrier} ppm)")
+        else:
+            plt.xlabel("Hz")
         plt.show()
     return fidsim

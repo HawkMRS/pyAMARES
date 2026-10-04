@@ -121,7 +121,7 @@ Run pyAMARES
             --ifphase             Phase the plotAMARES spectrum
             --lb float            Line Broadening factor in Hz for plotAMARES
             --preview             Display a preview plot of the original and initialized FID spectra
-            --carrier ppm         The carrier frequency
+            --carrier ppm         The carrier frequency, i.e. the ppm at the center of the spectrum (e.g. 4.7 for water-centered 1H)
             --truncate_initial_points number of points
                                     Truncate initial points from FID to remove fast decaying components (e.g. macromolecule).
             --g_global (float) g for all peaks
@@ -181,7 +181,7 @@ Run pyAMARES
          --ifphase             Phase the plotAMARES spectrum
          --lb float            Line Broadening factor in Hz for plotAMARES
          --preview             Display a preview plot of the original and initialized FID spectra
-         --carrier ppm         The carrier frequency
+         --carrier ppm         The carrier frequency, i.e. the ppm at the center of the spectrum (e.g. 4.7 for water-centered 1H)
          --truncate_initial_points number of points
                                  Truncate initial points from FID to remove fast decaying components (e.g. macromolecule).
          --g_global (float) g for all peaks

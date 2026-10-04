@@ -503,7 +503,11 @@ def initialize_FID(
         g_global (float, optional): Global value for the ``g`` parameter. Defaults to 0.0. If set to False,
         the g values specified in the prior knowledge will be used.
         lb (float, optional): Line broadening parameter in Hz, used for spectrum visualization. Defaults to 2.0.
-        carrier (float, optional): The carrier frequency in ppm, often used for water (4.7 ppm) or other reference metabolite such as Phosphocreatine (0 ppm).
+        carrier (float, optional): The carrier frequency in ppm, i.e. the ppm value at the center of the acquired
+          spectrum, often water (4.7 ppm) for 1H or another reference metabolite such as Phosphocreatine (0 ppm) for 31P.
+          The FID is shifted by ``carrier * MHz`` Hz so that its frequencies match the absolute ppm values in the prior
+          knowledge, which is not changed. With ``fid=None``, it has no effect on ``initialParams``. To fit an FID made by
+          ``simulate_fid``, pass the same ``carrier`` to both functions.
         ppm_offset (float, optional): Adjust the ppm in priorknowledgefile. Default 0 ppm
         noise_var (str or float): Method or value used to estimate the noise variance in the data. Options include:
 
