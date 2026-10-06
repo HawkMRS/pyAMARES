@@ -7,7 +7,7 @@ from lmfit import Minimizer, Parameters
 from loguru import logger
 
 from .fid import Compare_to_OXSA, fft_params
-from .objective_func import default_objective
+from .objective_func import default_objective, objective_range
 
 
 def check_removed_expr(df):
@@ -33,16 +33,17 @@ def check_removed_expr(df):
         "Check if the expr for all parameters is restricted to a parameter that has already been filtered out."
     )
     result_df = df.copy()
-    peaklist = set([x.split("_")[1] for x in result_df["name"]])
+    peaklist = set([x.split("_", 1)[1] for x in result_df["name"]])
+    freed = {}  # removed anchor peak -> parameters that were tied to it
 
     def correct_expr(row):
         if row["expr"] is None:
             return row["expr"], row["vary"]
         parts = re.split(r"(\W+)", row["expr"])
-        if parts[0].split("_")[1] not in peaklist:
-            # warnings.warn(f"{row['name'].split('_')[1]} is already removed! Parameters restrained to it will be set to vary.", UserWarning)
-            logger.warning(
-                f"{row['name'].split('_')[1]} is already removed! Parameters restrained to it will be set to vary."
+        anchor = parts[0].split("_", 1)[1]
+        if anchor not in peaklist:
+            freed.setdefault(anchor, []).append(
+                f"{row['name']} (bounds {row['min']}, {row['max']})"
             )
             logger.debug(
                 f"The expr of {row['name']} is changed from {row['expr']} to None"
@@ -52,21 +53,36 @@ def check_removed_expr(df):
 
     result_series = result_df.apply(correct_expr, axis=1, result_type="expand")
     result_df["expr"], result_df["vary"] = result_series[0], result_series[1]
+    for anchor, names in freed.items():
+        logger.warning(
+            f"{anchor} is already removed! {len(names)} parameters restrained to it are set to vary "
+            f"freely with their own bounds, which breaks the prior knowledge constraint: "
+            f"{', '.join(names)}"
+        )
 
     return result_df
 
 
 def filter_param_by_ppm(allpara, fit_ppm, MHz, delta=100):
     """
-    Filters the input DataFrame based on specified criteria.
+    Keep only the peaks whose frequency (``freq_<peak>``) lies inside ``fit_ppm`` (widened by ``delta``),
+    together with all their parameters (``ak_``, ``freq_``, ``dk_``, ``phi_``, ``g_``).
 
     Args:
-        tofilter_pd (DataFrame): DataFrame to be filtered.
-        fit_Hz (list): List of frequency values in Hz to define the filtering range.
-        delta (float): Extra regions to be included in fit_Hz (Hz).
+        allpara (lmfit.Parameters): Fitting parameters, e.g. ``FIDobj.initialParams`` or an
+          ``HSVDinitializer`` result.
+        fit_ppm (tuple): ppm range to keep, in absolute ppm, e.g. ``(0.2, 4.3)``. Order does not matter.
+        MHz (float): Field strength in MHz, used to convert ``fit_ppm`` to Hz.
+        delta (float, optional): Extra margin in Hz added on both sides of ``fit_ppm``. Defaults to 100 Hz,
+          which is 0.78 ppm at 127.7 MHz; pass ``delta=0`` to filter strictly by ``fit_ppm``.
 
     Returns:
-        DataFrame: DataFrame filtered based on the specified criteria.
+        lmfit.Parameters: The filtered parameters.
+
+    Note:
+        Peaks are filtered individually by the value of their own ``freq_`` parameter. If a multiplet anchor
+        is removed but some of its tied lines are kept, the ``expr`` of those lines is removed and they
+        become free parameters with their own (often unbounded) bounds; a warning lists them.
     """
     fit_Hz = np.array(fit_ppm) * MHz
     logger.debug(f"fit_Hz={fit_Hz}")
@@ -78,9 +94,10 @@ def filter_param_by_ppm(allpara, fit_ppm, MHz, delta=100):
         & (chemshift_pd["value"] < np.max(fit_Hz) + delta)
     ]
 
-    suffixes = [x.replace("freq_", "") for x in filtered_df["name"]]
+    # Exact peak names; matching by suffix would keep e.g. peak '27' when '7' is kept, or 'PCr' for 'Cr'
+    peaks = {x.split("_", 1)[1] for x in filtered_df["name"]}
     return_filtered_df = tofilter_pd[
-        tofilter_pd["name"].apply(lambda x: any(x.endswith(s) for s in suffixes))
+        tofilter_pd["name"].apply(lambda x: x.split("_", 1)[1] in peaks)
     ]
     # Remove the expr if it is mathmatically restrained to another parameter that has already been removed.
     return_filtered_df = check_removed_expr(return_filtered_df)
@@ -332,7 +349,9 @@ def fitAMARES_kernel(
         fitting_parameters (lmfit.Parameters): Parameters for the fitting process.
         objective_func (function): The objective function to be minimized, should take at least the fitting parameters and additional data as arguments.
         method (str, optional): Minimization method used by lmfit.Minimizer. Defaults to 'least_squares'.
-        fit_range (tuple or None, optional): Indices specifying the fitting range on the ppm scale. Uses full range if None.
+        fit_range (tuple or None, optional): The fitting range in ppm, e.g. ``(4.3, 0.2)``, converted to spectral
+          indices with ``get_ppm_limit``. Uses full range if None. Requires an ``objective_func`` that accepts
+          ``fit_range``; ``default_objective`` is replaced by ``objective_range`` automatically.
         fit_kws (dict, optional): Options to pass to the lmfit.Minimizer
 
     Returns:
@@ -346,8 +365,25 @@ def fitAMARES_kernel(
             fcn_kws={"x": fid_parameters.timeaxis, "fid": fid_parameters.fid},
         )
     else:
+        import inspect
+
         from ..util import get_ppm_limit
 
+        if objective_func is default_objective:
+            logger.info(
+                "fit_range is set; using objective_range instead of default_objective"
+            )
+            objective_func = objective_range
+        else:
+            sig_params = inspect.signature(objective_func).parameters.values()
+            if not any(
+                p.name == "fit_range" or p.kind is p.VAR_KEYWORD for p in sig_params
+            ):
+                raise TypeError(
+                    f"fit_range is set but objective_func {objective_func.__name__!r} has no "
+                    "'fit_range' argument. Use pyAMARES.objective_range or an objective "
+                    "function that accepts fit_range."
+                )
         fit_range = get_ppm_limit(fid_parameters.ppm, fit_range)
         logger.debug(
             f"Fitting range {fid_parameters.ppm[fit_range[0]]} ppm to {fid_parameters.ppm[fit_range[1]]} ppm!"
@@ -397,7 +433,11 @@ def fitAMARES(
         objective_func (function): The objective function to be minimized during the fitting.
         method (str, optional): The method to be used for fitting. Defaults to 'least_squares'.
         initialize_with_lm (bool, optional, default False, new in 0.3.9): If True, a Levenberg-Marquardt initializer (``least_sq``) is executed internally.
-        fit_range (tuple or None, optional): The range within which to perform the fitting. Defaults to None.
+        fit_range (tuple or None, optional): The ppm range, e.g. ``(4.3, 0.2)``, in which the residual is minimized
+          in the frequency domain. Order does not matter. Defaults to None (whole FID, time domain).
+          With the default ``objective_func``, ``objective_range`` is used automatically; a custom
+          ``objective_func`` must accept a ``fit_range`` keyword argument. The CRLBs and the reported noise
+          are still computed from the whole FID.
         inplace (bool, optional): If True, the original fid_parameters will be modified.
                                     Otherwise, a copy will be modified and returned.
         plotParameters (argparse.Namespace or None, optional): A namespace containing parameters for plotting and data processing. The namespace includes:

@@ -113,7 +113,10 @@ def evaluateCRB(outparams, opts, P=None, Jacfunc=Jac6, verbose=False):
     """
     opts.D = Jacfunc(outparams, opts.timeaxis)
     opts.residual = uninterleave(multieq6(outparams, opts.timeaxis)) - opts.fid
-    if opts.noise_var.startswith("OXSA"):
+    # noise_var may be a method name (str) or an externally measured variance (number)
+    noise_var = opts.noise_var
+    is_str = isinstance(noise_var, str)
+    if is_str and noise_var.startswith("OXSA"):
         logger.debug(
             "Estimated CRLBs are calculated using the default noise variance "
             "estimation used by OXSA."
@@ -121,7 +124,7 @@ def evaluateCRB(outparams, opts, P=None, Jacfunc=Jac6, verbose=False):
         opts.variance = np.var(opts.residual.real)
         # OXSA style, the "noise as SD in TD from TD residue" option selected in the
         # Result Window of jMRUI V7.
-    elif opts.noise_var.lower().startswith("jmrui"):
+    elif is_str and noise_var.lower().startswith("jmrui"):
         logger.debug(
             "Estimated CRLBs are calculated using the default noise variance "
             "estimation used by jMRUI."
@@ -131,14 +134,14 @@ def evaluateCRB(outparams, opts, P=None, Jacfunc=Jac6, verbose=False):
         # Result Window of jMRUI V7" (I hard-coded last 10% points)
     else:
         try:
-            opts.variance = float(opts.noise_var)
-            logger.debug(
-                f"The CRLB estimation will be divided by the input variance {opts.variance}"
-            )
-        except ValueError:
-            logger.error(
-                f"Error: noise_var {opts.variance} is not a recognized string or a valid number."
-            )
+            opts.variance = float(noise_var)
+        except (TypeError, ValueError):
+            raise ValueError(
+                f"noise_var={noise_var!r} is not 'OXSA', 'jMRUI' or a valid number."
+            ) from None
+        logger.debug(
+            f"The CRLB estimation will be divided by the input variance {opts.variance}"
+        )
 
     if verbose:
         logger.debug(f"opts.D.shape={str(opts.D.shape)}")

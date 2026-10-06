@@ -1,6 +1,21 @@
 Latest Changes
 --------------
 
+v0.3.37dev
+~~~~~~~~~~
+
+**Fixed**
+  - ``initialize_FID`` no longer raises ``ValueError: operands could not be broadcast together`` for some FID lengths, e.g. ``truncate_initial_points=8`` on a 250-point FID at ``sw=1250`` Hz. The time axis was built with ``np.arange(0, dwelltime * n, dwelltime)``, which returns ``n + 1`` points for some ``n`` due to floating-point rounding (287 of the lengths 1-4096 at 1250 Hz). It is now ``np.arange(n) * dwelltime``, with exactly ``n`` points and the same values. ``simulate_fid`` had the same bug and returned ``fid_len + 1`` points. The truncation debug message no longer swaps the old and new dead time.
+  - A numeric ``noise_var`` in ``initialize_FID`` (e.g. ``noise_var=1.156e5``), as documented, no longer raises ``AttributeError: 'float' object has no attribute 'startswith'`` in ``evaluateCRB``. An invalid ``noise_var`` now raises a ``ValueError`` naming the accepted values.
+  - ``fitAMARES(..., fit_range=...)`` no longer raises ``TypeError: default_objective() got an unexpected keyword argument 'fit_range'``. With the default ``objective_func``, ``objective_range`` is now used automatically, so this gives the same result as passing ``objective_func=pyAMARES.objective_range``. A custom ``objective_func`` without a ``fit_range`` argument raises a clear ``TypeError`` before fitting.
+  - ``filter_param_by_ppm`` selects peaks by exact name. It matched names by suffix, so keeping peak ``7`` also kept ``27`` and ``37`` (e.g. out-of-window HSVD components), and keeping ``Cr`` would also keep ``PCr``.
+  - ``report_amares`` wraps each reported phase into that peak's own phase bounds. It used the min/max over all peaks, so a ``(-360, 360)`` bound on one peak (e.g. water) turned a -69 deg phase on the others into 290 deg.
+
+**Changed**
+  - With a numeric ``noise_var``, the ``SNR`` column uses the noise SD ``sqrt(2 * noise_var)`` (complex SD from the per-channel variance) instead of the SD of the last 10% of the FID. The default ``noise_var='OXSA'`` and ``'jMRUI'`` are unchanged. The tail estimate assumes the FID has decayed to noise, so for short FIDs such as MRSI it underestimates the SNR; this is now documented in ``report_amares``. A numeric string such as ``noise_var='115600'``, which already worked for the CRLBs, also changes the SNR now.
+  - ``filter_param_by_ppm`` warns once per removed multiplet anchor and lists the freed parameters with their bounds. Its docstring documents the 100 Hz default ``delta`` (0.78 ppm at 127.7 MHz; use ``delta=0`` for a strict ppm range) and that lines tied to a removed anchor become free.
+  - The ``fit_range`` docstrings in ``fitAMARES`` and ``fitAMARES_kernel`` say that it is in ppm and that the CRLBs and SNR noise still use the whole FID.
+
 v0.3.36dev
 ~~~~~~~~~~
 

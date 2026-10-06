@@ -156,6 +156,13 @@ def report_amares(outparams, fid_parameters, verbose=False):
     Returns:
         pandas.Styler: A DataFrame for presentation of the results with rows whose CRLB<=20
         are highlighted by green.
+
+    Note:
+        ``SNR`` is ``amplitude / noise SD``, where the noise SD is the SD of the complex FID over its last
+        10% of points (after removing zero padding). This assumes the FID has fully decayed into noise there;
+        for short FIDs (e.g. MRSI) the tail still contains signal and the SNR is underestimated. If
+        ``fid_parameters.noise_var`` is a number (per-channel noise variance), the noise SD is
+        ``sqrt(2 * noise_var)`` instead. Reported phases are wrapped into each peak's own phase bounds.
     """
     from pyAMARES.util.crlb import create_pmatrix, evaluateCRB  # delayed import
 
@@ -242,7 +249,17 @@ def report_amares(outparams, fid_parameters, verbose=False):
     phase_col = np.rad2deg(result["phase"])
     # result["phase"] = np.rad2deg(result["phase"]) % 360
     # result["phase"] = (result["phase"] + 180) % 360 - 180 # Wrap 360 to 0.
-    result["phase"] = wrap_degrees(phase_col, min_deg=min_deg, max_deg=max_deg)
+    # Wrap each peak into its own phase bounds; fall back to the min/max over all peaks if not finite
+    phitable = resulttable[resulttable.name.str.startswith("phi")]
+    peak_min = np.rad2deg(phitable["min"].to_numpy(dtype=float))
+    peak_max = np.rad2deg(phitable["max"].to_numpy(dtype=float))
+    own_bounds = np.isfinite(peak_min) & np.isfinite(peak_max) & (peak_min < peak_max)
+    peak_min = np.where(own_bounds, peak_min, min_deg)
+    peak_max = np.where(own_bounds, peak_max, max_deg)
+    result["phase"] = [
+        wrap_degrees(val, lo, hi)
+        for val, lo, hi in zip(phase_col.to_numpy(dtype=float), peak_min, peak_max)
+    ]
     try:
         result["phase_sd"] = np.rad2deg(result["phase_sd"])
         result["phase_sd"] = wrap_degrees(
@@ -265,6 +282,15 @@ def report_amares(outparams, fid_parameters, verbose=False):
         )
     else:
         std_noise = np.std(fid_parameters.fid[-len(fid_parameters.fid) // 10 :])
+    # The tail estimate assumes the last 10% of the FID is pure noise, which is not true for short,
+    # undecayed FIDs (SNR is then underestimated). A numeric noise_var (per-channel variance, as used
+    # for the CRLBs) gives the complex noise SD sqrt(2 * noise_var) instead.
+    noise_var = getattr(fid_parameters, "noise_var", "OXSA")
+    if not (
+        isinstance(noise_var, str) and noise_var.lower().startswith(("oxsa", "jmrui"))
+    ):
+        std_noise = np.sqrt(2 * fid_parameters.variance)
+        logger.debug(f"SNR noise SD from noise_var={noise_var}: {std_noise:.3e}")
     result["SNR"] = result["amplitude"] / std_noise
     result.columns = [
         "amplitude",

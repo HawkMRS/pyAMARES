@@ -415,7 +415,7 @@ def simulate_fid(
     MHz = float(MHz)
     deadtime = float(deadtime)
     dwelltime = 1.0 / sw  # noqa F841  #place holder
-    timeaxis = np.arange(0, dwelltime * fid_len, dwelltime) + deadtime  # timeaxis
+    timeaxis = np.arange(fid_len) * dwelltime + deadtime  # exactly fid_len points
     fidsim = uninterleave(multieq6(x=timeaxis, params=params))
     if carrier != 0:
         # Inverse of the carrier shift in initialize_FID, on the same time axis

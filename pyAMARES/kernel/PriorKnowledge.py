@@ -513,7 +513,9 @@ def initialize_FID(
 
             - ``OXSA``: Uses the default noise variance estimation method employed by OXSA. See ``pyAMARES.util.crlb.evaluateCRB`` for details.
             - ``jMRUI``: Employs the default noise variance estimation method used by jMRUI.
-            - A float value: Directly specifies the noise variance calculated externally.
+            - A float value: Directly specifies the noise variance calculated externally, as the time-domain
+              variance of one (real or imaginary) channel of the FID. It is also used for the ``SNR`` column
+              of the results instead of the FID-tail noise estimate.
 
         delta_phase (float, optional): Additional phase shift (in degrees) to be applied to the prior knowledge phase values. Defaults to 0.0.
 
@@ -538,7 +540,7 @@ def initialize_FID(
         deadtime = deadtime + truncate_initial_points * dwelltime
         fid = fid[truncate_initial_points:]
         logger.debug(
-            f"The deadtime is changing from {deadtime} seconds to {deadtime_old} seconds"
+            f"The deadtime is changing from {deadtime_old} seconds to {deadtime} seconds"
         )
     fidpt = len(fid)
     # TD = fidpt * 2
@@ -549,7 +551,9 @@ def initialize_FID(
 
     opts = argparse.Namespace()
     opts.deadtime = deadtime
-    opts.timeaxis = np.arange(0, dwelltime * fidpt, dwelltime) + deadtime
+    # np.arange(fidpt) * dwelltime always has fidpt points; np.arange(0, dwelltime * fidpt, dwelltime)
+    # can return fidpt + 1 points due to floating-point rounding
+    opts.timeaxis = np.arange(fidpt) * dwelltime + deadtime
     # opts.timeaxis = np.linspace(deadtime, at, fidpt)
     opts.carrier = carrier  # 4.7 for water, 0 for PCr
     if flip_axis:
